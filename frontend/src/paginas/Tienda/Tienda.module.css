@@ -1,0 +1,187 @@
+/* Contenedor principal */
+.contenedorTienda {
+  min-height: calc(100vh - 86px - 200px);
+  background-color: #1a1a1a;
+  padding: 3rem 0;
+}
+
+/* ========================================
+   GRID DE VEHÍCULOS
+   ======================================== */
+
+.gridVehiculos {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 2rem;
+}
+
+/* Animación de aparición */
+.tarjetaAnimada {
+  animation: fadeInUp 0.5s ease-out forwards;
+  opacity: 0;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Efecto escalonado en las tarjetas */
+.tarjetaAnimada:nth-child(1) { animation-delay: 0.05s; }
+.tarjetaAnimada:nth-child(2) { animation-delay: 0.1s; }
+.tarjetaAnimada:nth-child(3) { animation-delay: 0.15s; }
+.tarjetaAnimada:nth-child(4) { animation-delay: 0.2s; }
+.tarjetaAnimada:nth-child(5) { animation-delay: 0.25s; }
+.tarjetaAnimada:nth-child(6) { animation-delay: 0.3s; }
+.tarjetaAnimada:nth-child(7) { animation-delay: 0.35s; }
+.tarjetaAnimada:nth-child(8) { animation-delay: 0.4s; }
+.tarjetaAnimada:nth-child(9) { animation-delay: 0.45s; }
+.tarjetaAnimada:nth-child(10) { animation-delay: 0.5s; }
+.tarjetaAnimada:nth-child(11) { animation-delay: 0.55s; }
+.tarjetaAnimada:nth-child(12) { animation-delay: 0.6s; }
+
+/* ========================================
+   ESTADO VACÍO
+   ======================================== */
+
+.estadoVacio {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 5rem 2rem;
+  text-align: center;
+  animation: fadeIn 0.5s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.iconoVacio {
+  width: 120px;
+  height: 120px;
+  color: #3a3a3a;
+  margin-bottom: 2rem;
+  animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+.tituloVacio {
+  font-family: 'Orbitron', 'Impact', sans-serif;
+  font-size: 2rem;
+  font-weight: 700;
+  color: #00d4ff;
+  margin-bottom: 1rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.textoVacio {
+  font-size: 1.1rem;
+  color: #a0a0a0;
+  max-width: 500px;
+  line-height: 1.6;
+}
+
+/* ========================================
+   RESPONSIVE
+   ======================================== */
+
+/* Tablets grandes y laptops pequeñas */
+@media (max-width: 1200px) {
+  .gridVehiculos {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+  }
+}
+
+/* Tablets */
+@media (max-width: 992px) {
+  .gridVehiculos {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+  }
+
+  .tituloVacio {
+    font-size: 1.8rem;
+  }
+
+  .textoVacio {
+    font-size: 1rem;
+  }
+
+  .iconoVacio {
+    width: 100px;
+    height: 100px;
+  }
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+  .contenedorTienda {
+    padding: 2rem 0;
+  }
+
+  .gridVehiculos {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+
+  .estadoVacio {
+    padding: 4rem 1.5rem;
+  }
+
+  .tituloVacio {
+    font-size: 1.6rem;
+  }
+
+  .textoVacio {
+    font-size: 0.95rem;
+  }
+
+  .iconoVacio {
+    width: 80px;
+    height: 80px;
+    margin-bottom: 1.5rem;
+  }
+}
+
+/* Mobile pequeño */
+@media (max-width: 576px) {
+  .tituloVacio {
+    font-size: 1.4rem;
+  }
+
+  .textoVacio {
+    font-size: 0.9rem;
+  }
+
+  .iconoVacio {
+    width: 70px;
+    height: 70px;
+  }
+
+  .estadoVacio {
+    padding: 3rem 1rem;
+  }
+}

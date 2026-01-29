@@ -1,0 +1,389 @@
+/* Modal personalizado */
+.modalCustom :global(.modal-dialog) {
+  max-width: 550px;
+  margin: 1.75rem auto;
+}
+
+.modalContenido {
+  background-color: #2a2a2a !important;
+  border: 2px solid #00d4ff !important;
+  border-radius: 20px !important;
+  box-shadow: 0 10px 50px rgba(0, 212, 255, 0.3) !important;
+}
+
+/* Contenedor principal del modal */
+.contenedor {
+  padding: 2rem;
+  position: relative;
+}
+
+/* ========================================
+   BOTÓN CERRAR
+   ======================================== */
+
+.btnCerrar {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background-color: rgba(0, 0, 0, 0.5);
+  border: 1px solid #00d4ff;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  color: #00d4ff;
+  z-index: 10;
+  padding: 0;
+}
+
+.btnCerrar:hover {
+  background-color: #00d4ff;
+  color: #1a1a1a;
+}
+
+/* ========================================
+   FOTO DEL VEHÍCULO
+   ======================================== */
+
+.contenedorFoto {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  border-radius: 15px;
+  overflow: hidden;
+  position: relative;
+  margin-bottom: 1.5rem;
+  background-color: #1a1a1a;
+}
+
+.foto {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Badge de categoría (igual que en la tarjeta) */
+.badgeCategoria {
+  position: absolute;
+  top: 0;
+  left: 0;
+  padding: 0.6rem 1rem;
+  border-radius: 0 0 12px 0;
+  font-size: 0.85rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #1a1a1a;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
+  z-index: 2;
+}
+
+/* ========================================
+   NOMBRE DEL VEHÍCULO
+   ======================================== */
+
+.nombreVehiculo {
+  font-family: 'Orbitron', 'Impact', sans-serif;
+  font-size: 2rem;
+  font-weight: 900;
+  color: #00d4ff;
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 1.5rem;
+  line-height: 1.2;
+}
+
+/* ========================================
+   SELECTOR DE FECHA
+   ======================================== */
+
+.seccionFecha {
+  margin-bottom: 1.5rem;
+}
+
+.labelFecha {
+  display: block;
+  color: #ffffff;
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 0.7rem;
+  letter-spacing: 0.5px;
+}
+
+.selectFecha {
+  width: 100%;
+  background-color: #1a1a1a;
+  border: 2px solid #3a3a3a;
+  color: #ffffff;
+  padding: 1rem 1.2rem;
+  border-radius: 10px;
+  font-size: 1.05rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2300d4ff' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 1rem center;
+  padding-right: 3rem;
+}
+
+.selectFecha:hover {
+  border-color: #00d4ff;
+}
+
+.selectFecha:focus {
+  outline: none;
+  border-color: #00d4ff;
+  box-shadow: 0 0 0 3px rgba(0, 212, 255, 0.2);
+}
+
+.selectFecha option {
+  background-color: #1a1a1a;
+  color: #ffffff;
+  padding: 0.5rem;
+}
+
+/* ========================================
+   SECCIÓN DE PAGOS
+   ======================================== */
+
+.seccionPagos {
+  margin-bottom: 1rem;
+}
+
+.tituloPagos {
+  color: #ffffff;
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  letter-spacing: 0.5px;
+}
+
+.contenedorBotonesPago {
+  display: flex;
+  gap: 1rem;
+}
+
+.botonPago {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  padding: 1.2rem 1rem;
+  border-radius: 12px;
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background-color: #1a1a1a;
+}
+
+/* Mercado Pago */
+.botonMP {
+  border-color: #009ee3;
+}
+
+.botonMP:hover:not(:disabled) {
+  background-color: rgba(0, 158, 227, 0.1);
+  transform: translateY(-3px);
+  box-shadow: 0 5px 20px rgba(0, 158, 227, 0.3);
+}
+
+/* PayPal */
+.botonPayPal {
+  border-color: #0070ba;
+}
+
+.botonPayPal:hover:not(:disabled) {
+  background-color: rgba(0, 112, 186, 0.1);
+  transform: translateY(-3px);
+  box-shadow: 0 5px 20px rgba(0, 112, 186, 0.3);
+}
+
+/* Estado deshabilitado */
+.botonPago:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.botonPago:disabled:hover {
+  transform: none;
+  box-shadow: none;
+}
+
+/* Logo del método de pago */
+.logoPago {
+  height: 30px;
+  width: auto;
+  max-width: 120px;
+  object-fit: contain;
+}
+
+/* Precio */
+.precioPago {
+  color: #00d4ff;
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+
+/* ========================================
+   TEXTO ACLARATIVO
+   ======================================== */
+
+.textoAclarativo {
+  text-align: center;
+  color: #a0a0a0;
+  font-size: 0.9rem;
+  margin-top: 1rem;
+  margin-bottom: 0;
+  font-style: italic;
+}
+
+/* ========================================
+   RESPONSIVE
+   ======================================== */
+
+/* Tablets */
+@media (max-width: 768px) {
+  .modalCustom :global(.modal-dialog) {
+    max-width: 90%;
+    margin: 1rem auto;
+  }
+
+  .contenedor {
+    padding: 1.5rem;
+  }
+
+  .btnCerrar {
+    width: 36px;
+    height: 36px;
+    top: 0.8rem;
+    left: 0.8rem;
+  }
+
+  .nombreVehiculo {
+    font-size: 1.6rem;
+  }
+
+  .labelFecha {
+    font-size: 1rem;
+  }
+
+  .selectFecha {
+    font-size: 1rem;
+    padding: 0.9rem 1rem;
+  }
+
+  .tituloPagos {
+    font-size: 1rem;
+  }
+
+  .contenedorBotonesPago {
+    gap: 0.8rem;
+  }
+
+  .botonPago {
+    padding: 1rem 0.8rem;
+  }
+
+  .logoPago {
+    height: 26px;
+  }
+
+  .nombrePago {
+    font-size: 0.95rem;
+  }
+
+  .precioPago {
+    font-size: 1.15rem;
+  }
+
+  .badgeCategoria {
+    font-size: 0.75rem;
+    padding: 0.5rem 0.85rem;
+  }
+}
+
+/* Mobile */
+@media (max-width: 576px) {
+  .modalCustom :global(.modal-dialog) {
+    max-width: 95%;
+    margin: 0.5rem auto;
+  }
+
+  .contenedor {
+    padding: 1.2rem;
+  }
+
+  .btnCerrar {
+    width: 32px;
+    height: 32px;
+    top: 0.6rem;
+    left: 0.6rem;
+  }
+
+  .contenedorFoto {
+    margin-bottom: 1.2rem;
+  }
+
+  .nombreVehiculo {
+    font-size: 1.4rem;
+    margin-bottom: 1.2rem;
+  }
+
+  .seccionFecha {
+    margin-bottom: 1.2rem;
+  }
+
+  .labelFecha {
+    font-size: 0.95rem;
+    margin-bottom: 0.6rem;
+  }
+
+  .selectFecha {
+    font-size: 0.95rem;
+    padding: 0.85rem 1rem;
+  }
+
+  .tituloPagos {
+    font-size: 0.95rem;
+    margin-bottom: 0.8rem;
+  }
+
+  .contenedorBotonesPago {
+    flex-direction: column;
+    gap: 0.8rem;
+  }
+
+  .botonPago {
+    padding: 1rem;
+  }
+
+  .logoPago {
+    height: 24px;
+  }
+
+  .nombrePago {
+    font-size: 0.9rem;
+  }
+
+  .precioPago {
+    font-size: 1.1rem;
+  }
+
+  .textoAclarativo {
+    font-size: 0.85rem;
+  }
+
+  .badgeCategoria {
+    font-size: 0.7rem;
+    padding: 0.45rem 0.75rem;
+  }
+}

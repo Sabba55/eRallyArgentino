@@ -1,0 +1,342 @@
+/* Contenedor principal */
+.contenedorPrincipal {
+  margin-bottom: 3rem;
+}
+
+/* ========================================
+   CONTENEDOR UNIFICADO
+   ======================================== */
+
+.contenedorUnificado {
+  background: linear-gradient(135deg, #2a2a2a, #1a1a1a);
+  border-radius: 15px;
+  border: 2px solid #3a3a3a;
+  overflow: hidden;
+}
+
+/* ========================================
+   SECCIÓN FILTROS (SUPERIOR)
+   ======================================== */
+
+.seccionFiltros {
+  display: flex;
+  gap: 1.5rem;
+  padding: 2rem 2rem 0.5rem 2rem;
+  flex-wrap: wrap;
+}
+
+/* Cada filtro individual */
+.filtro {
+  flex: 1;
+  min-width: 200px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.label {
+  font-size: 0.95rem;
+  color: #00d4ff;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-weight: 600;
+}
+
+.select {
+  padding: 0.75rem 1rem;
+  background-color: #1a1a1a;
+  border: 2px solid #3a3a3a;
+  border-radius: 8px;
+  color: #ffffff;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  outline: none;
+}
+
+.select:hover {
+  border-color: #00d4ff;
+}
+
+.select:focus {
+  border-color: #00d4ff;
+  box-shadow: 0 0 10px rgba(0, 212, 255, 0.3);
+}
+
+.select option {
+  background-color: #1a1a1a;
+  color: #ffffff;
+  padding: 0.5rem;
+}
+
+/* ========================================
+   SECCIÓN BÚSQUEDA (INFERIOR)
+   ======================================== */
+
+.seccionBusqueda {
+  display: flex;
+  gap: 1.5rem;
+  align-items: center;
+  padding: 1.5rem 2rem 2rem 2rem;
+  /* border-top: 2px solid #3a3a3a; */
+  flex-wrap: wrap;
+}
+
+/* Buscador */
+.buscador {
+  flex: 1;
+  min-width: 280px;
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.iconoBuscar {
+  position: absolute;
+  left: 1rem;
+  width: 20px;
+  height: 20px;
+  color: #00d4ff;
+  pointer-events: none;
+}
+
+.inputBuscar {
+  width: 100%;
+  padding: 0.85rem 1rem 0.85rem 3rem;
+  background-color: #1a1a1a;
+  border: 2px solid #3a3a3a;
+  border-radius: 10px;
+  color: #ffffff;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  outline: none;
+}
+
+.inputBuscar::placeholder {
+  color: #666;
+}
+
+.inputBuscar:hover {
+  border-color: #00d4ff;
+}
+
+.inputBuscar:focus {
+  border-color: #00d4ff;
+  box-shadow: 0 0 15px rgba(0, 212, 255, 0.3);
+}
+
+.botonLimpiarBusqueda {
+  position: absolute;
+  right: 0.75rem;
+  background: none;
+  border: none;
+  color: #a0a0a0;
+  font-size: 1.8rem;
+  cursor: pointer;
+  padding: 0.25rem 0.5rem;
+  line-height: 1;
+  transition: all 0.2s ease;
+  border-radius: 5px;
+}
+
+.botonLimpiarBusqueda:hover {
+  color: #00d4ff;
+  background-color: rgba(0, 212, 255, 0.1);
+}
+
+/* Contador de resultados */
+.contadorResultados {
+  font-size: 1rem;
+  color: #a0a0a0;
+  white-space: nowrap;
+  padding: 0.85rem 1.5rem;
+  background-color: #2a2a2a;
+  border-radius: 10px;
+  border: 2px solid #3a3a3a;
+}
+
+.numeroResultados {
+  color: #00d4ff;
+  font-weight: 700;
+  font-size: 1.1rem;
+}
+
+/* Botón limpiar filtros */
+.botonLimpiar {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.85rem 1.5rem;
+  background: linear-gradient(135deg, #39ff14, #00d4ff);
+  color: #1a1a1a;
+  border: none;
+  border-radius: 10px;
+  font-weight: 700;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+}
+
+.botonLimpiar:hover {
+  background: linear-gradient(135deg, #00d4ff, #39ff14);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(57, 255, 20, 0.4);
+}
+
+.botonLimpiar:active {
+  transform: translateY(0);
+}
+
+.iconoLimpiar {
+  width: 18px;
+  height: 18px;
+}
+
+/* ========================================
+   RESPONSIVE
+   ======================================== */
+
+/* Tablets */
+@media (max-width: 992px) {
+  .contenedorPrincipal {
+    margin-bottom: 2.5rem;
+  }
+
+  .seccionFiltros {
+    gap: 1.2rem;
+    padding: 1.5rem;
+  }
+
+  .seccionBusqueda {
+    gap: 1.2rem;
+    padding: 1.2rem 1.5rem 1.5rem 1.5rem;
+  }
+
+  .buscador {
+    min-width: 250px;
+  }
+
+  .filtro {
+    min-width: 180px;
+  }
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+  .contenedorPrincipal {
+    margin-bottom: 2rem;
+  }
+
+  .seccionFiltros {
+    padding: 1.2rem;
+    gap: 1rem;
+  }
+
+  .seccionBusqueda {
+    flex-direction: column;
+    gap: 1rem;
+    align-items: stretch;
+    padding: 1rem 1.2rem 1.2rem 1.2rem;
+  }
+
+  .buscador {
+    min-width: 100%;
+    order: 1;
+  }
+
+  .contadorResultados {
+    order: 2;
+    text-align: center;
+  }
+
+  .botonLimpiar {
+    order: 3;
+    justify-content: center;
+  }
+
+  .filtro {
+    flex: 1 1 100%;
+    min-width: 100%;
+  }
+
+  .label {
+    font-size: 0.9rem;
+  }
+
+  .select {
+    padding: 0.7rem 0.9rem;
+    font-size: 0.95rem;
+  }
+
+  .inputBuscar {
+    padding: 0.8rem 1rem 0.8rem 3rem;
+    font-size: 0.95rem;
+  }
+
+  .contadorResultados {
+    padding: 0.8rem 1.2rem;
+    font-size: 0.95rem;
+  }
+
+  .numeroResultados {
+    font-size: 1.05rem;
+  }
+
+  .botonLimpiar {
+    padding: 0.8rem 1.3rem;
+    font-size: 0.9rem;
+  }
+}
+
+/* Mobile pequeño */
+@media (max-width: 576px) {
+  .seccionFiltros {
+    padding: 1rem;
+  }
+
+  .seccionBusqueda {
+    padding: 0.85rem 1rem 1rem 1rem;
+  }
+
+  .label {
+    font-size: 0.85rem;
+  }
+
+  .select {
+    padding: 0.65rem 0.85rem;
+    font-size: 0.9rem;
+  }
+
+  .inputBuscar {
+    padding: 0.75rem 0.9rem 0.75rem 2.8rem;
+    font-size: 0.9rem;
+  }
+
+  .iconoBuscar {
+    width: 18px;
+    height: 18px;
+    left: 0.85rem;
+  }
+
+  .contadorResultados {
+    padding: 0.75rem 1rem;
+    font-size: 0.9rem;
+  }
+
+  .numeroResultados {
+    font-size: 1rem;
+  }
+
+  .botonLimpiar {
+    padding: 0.75rem 1.2rem;
+    font-size: 0.85rem;
+  }
+
+  .iconoLimpiar {
+    width: 16px;
+    height: 16px;
+  }
+}

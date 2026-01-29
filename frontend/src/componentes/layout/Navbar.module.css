@@ -1,0 +1,301 @@
+/* Navbar principal */
+.navbar {
+  background-color: #1a1a1a !important;
+  padding: 1rem 2rem;
+  box-shadow: 0 2px 10px rgba(0, 212, 255, 0.1);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  border-bottom: 2px solid #00d4ff;
+  font-family: 'Orbitron', 'Impact', 'Arial Black', sans-serif;  
+}
+
+/* Logo */
+.brand {
+  padding: 0;
+  margin: 0;
+  display: flex;
+  align-items: center;
+}
+
+.logo {
+  height: 50px;
+  width: auto;
+  transition: transform 0.3s ease;
+}
+
+.logo:hover {
+  transform: scale(1.05);
+}
+
+/* Links de navegación */
+.navLink {
+  color: #ffffff !important;
+  font-weight: 600;
+  font-size: 0.95rem;
+  letter-spacing: 0.5px;
+  padding: 0.5rem 1rem !important;
+  margin: 0 0.2rem;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.navLink::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  width: 0;
+  height: 2px;
+  background: linear-gradient(90deg, #00d4ff, #39ff14);
+  transition: all 0.3s ease;
+  transform: translateX(-50%);
+}
+
+.navLink:hover::after {
+  width: 80%;
+}
+
+.navLink:hover {
+  color: #00d4ff !important;
+  transform: translateY(-2px);
+}
+
+/* Dropdown de DESCARGAS */
+.dropdown :global(.dropdown-toggle) {
+  color: #ffffff !important;
+  font-weight: 600;
+  font-size: 0.95rem;
+  letter-spacing: 0.5px;
+  padding: 0.5rem 1rem !important;
+  margin: 0 0.2rem;
+  transition: all 0.3s ease;
+}
+
+.dropdown :global(.dropdown-toggle):hover {
+  color: #00d4ff !important;
+}
+
+.dropdown :global(.dropdown-menu) {
+  background-color: #2a2a2a;
+  border: 1px solid #00d4ff;
+  border-radius: 8px;
+  padding: 0.5rem 0;
+  margin-top: 0.5rem;
+  box-shadow: 0 4px 15px rgba(0, 212, 255, 0.2);
+}
+
+.dropdown :global(.dropdown-item) {
+  color: #ffffff;
+  padding: 0.6rem 1.5rem;
+  font-size: 0.9rem;
+  transition: all 0.2s ease;
+}
+
+.dropdown :global(.dropdown-item):hover {
+  background-color: #00d4ff;
+  color: #1a1a1a;
+  padding-left: 2rem;
+}
+
+/* Avatar del usuario */
+.avatarContainer {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+}
+
+.avatar {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #00d4ff, #39ff14);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 0.9rem;
+  color: #1a1a1a;
+  border: 2px solid #ffffff;
+  transition: all 0.3s ease;
+}
+
+.avatar:hover {
+  transform: scale(1.1);
+  box-shadow: 0 0 15px rgba(0, 212, 255, 0.5);
+}
+
+/* Dropdown del perfil */
+.perfilDropdown :global(.dropdown-toggle::after) {
+  display: none; /* Oculta la flechita por defecto de Bootstrap */
+}
+
+.perfilDropdown :global(.dropdown-menu) {
+  background-color: #2a2a2a;
+  border: 1px solid #00d4ff;
+  border-radius: 8px;
+  padding: 0.5rem 0;
+  margin-top: 0.5rem;
+  box-shadow: 0 4px 15px rgba(0, 212, 255, 0.2);
+  min-width: 200px;
+}
+
+.nombreUsuario {
+  color: #00d4ff !important;
+  font-weight: bold;
+  padding: 0.5rem 1.5rem !important;
+  font-size: 0.95rem;
+  text-align: center;
+}
+
+.perfilDropdown :global(.dropdown-item) {
+  color: #ffffff;
+  padding: 0.6rem 1.5rem;
+  font-size: 0.9rem;
+  transition: all 0.2s ease;
+}
+
+.perfilDropdown :global(.dropdown-item):hover {
+  background-color: #00d4ff;
+  color: #1a1a1a;
+  padding-left: 2rem;
+}
+
+.perfilDropdown :global(.dropdown-divider) {
+  border-color: #444;
+}
+
+/* Botón INGRESAR */
+.btnIngresar {
+  background: linear-gradient(135deg, #00d4ff, #39ff14);
+  color: #1a1a1a;
+  font-weight: bold;
+  padding: 0.6rem 1.8rem;
+  border-radius: 25px;
+  text-decoration: none;
+  margin-left: 1rem;
+  transition: all 0.3s ease;
+  border: none;
+  font-size: 0.95rem;
+  letter-spacing: 0.5px;
+  box-shadow: 0 4px 15px rgba(0, 212, 255, 0.3);
+}
+
+.btnIngresar:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 20px rgba(0, 212, 255, 0.5);
+  color: #1a1a1a;
+}
+
+/* ========================================
+   MENÚ HAMBURGUESA - MOBILE
+   ======================================== */
+
+/* Botón hamburguesa personalizado */
+.navbar :global(.navbar-toggler) {
+  border: 2px solid #00d4ff;
+  padding: 0.5rem;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+.navbar :global(.navbar-toggler):hover {
+  background-color: rgba(0, 212, 255, 0.1);
+  box-shadow: 0 0 10px rgba(0, 212, 255, 0.3);
+}
+
+.navbar :global(.navbar-toggler-icon) {
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='%2300d4ff' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+}
+
+/* Menú colapsado en mobile */
+.navbar :global(.navbar-collapse) {
+  background-color: #1a1a1a;
+  padding: 1rem 0;
+  border-radius: 0 0 15px 15px;
+  margin-top: 1rem;
+}
+
+/* Responsive - Mobile */
+@media (max-width: 991px) {
+  .navbar {
+    padding: 1rem 1rem;
+  }
+
+  .logo {
+    height: 40px;
+  }
+
+  /* Links en mobile se apilan verticalmente */
+  .navLink {
+    text-align: center;
+    padding: 0.8rem 1rem !important;
+    margin: 0.2rem 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .navLink::after {
+    display: none; /* Sin animación de subrayado en mobile */
+  }
+
+  /* Dropdowns en mobile */
+  .dropdown,
+  .perfilDropdown {
+    text-align: center;
+  }
+
+  .dropdown :global(.dropdown-menu),
+  .perfilDropdown :global(.dropdown-menu) {
+    background-color: #2a2a2a;
+    border: none;
+    border-left: 3px solid #00d4ff;
+    border-radius: 0;
+    margin: 0;
+    padding: 0;
+  }
+
+  .dropdown :global(.dropdown-item),
+  .perfilDropdown :global(.dropdown-item) {
+    text-align: center;
+    padding: 0.8rem 1rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .dropdown :global(.dropdown-item):hover,
+  .perfilDropdown :global(.dropdown-item):hover {
+    padding-left: 1rem;
+  }
+
+  /* Avatar en mobile */
+  .avatarContainer {
+    justify-content: center;
+    margin: 1rem 0;
+  }
+
+  .avatar {
+    width: 50px;
+    height: 50px;
+    font-size: 1.1rem;
+  }
+
+  /* Botón INGRESAR en mobile */
+  .btnIngresar {
+    display: block;
+    text-align: center;
+    margin: 1rem auto;
+    max-width: 200px;
+  }
+}
+
+/* Tablets */
+@media (max-width: 1199px) and (min-width: 992px) {
+  .navLink {
+    font-size: 0.85rem;
+    padding: 0.5rem 0.7rem !important;
+  }
+
+  .dropdown :global(.dropdown-toggle) {
+    font-size: 0.85rem;
+    padding: 0.5rem 0.7rem !important;
+  }
+}

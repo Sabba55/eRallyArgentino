@@ -1,0 +1,321 @@
+/* Tarjeta principal */
+.tarjeta {
+  background-color: #2a2a2a !important;
+  border: 2px solid #3a3a3a !important;
+  border-radius: 15px;
+  overflow: hidden;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  cursor: pointer;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.tarjeta:hover {
+  box-shadow: 0 8px 30px rgba(0, 212, 255, 0.4);
+  border-color: #00d4ff !important;
+}
+
+/* ========================================
+   FOTO
+   ======================================== */
+
+.contenedorFoto {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  background-color: #1a1a1a;
+  position: relative;
+}
+
+.foto {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* ========================================
+   BADGES - PEGADOS AL BORDE (MÁS COMPACTOS)
+   ======================================== */
+
+.contenedorBadges {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: flex;
+  align-items: stretch;
+  z-index: 2;
+}
+
+.badgeCategoria {
+  padding: 0.5rem 0.85rem;
+  border-radius: 0 0 10px 0;
+  font-size: 0.75rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #1a1a1a;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+  white-space: nowrap;
+}
+
+/* Logo de marca - PRIMERO en el orden */
+.logoMarca {
+  padding: 0.3rem 0.4rem;
+  background-color: rgba(255, 255, 255, 0.95);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.imagenLogo {
+  height: 18px;
+  width: auto;
+  max-width: 40px;
+  object-fit: contain;
+}
+
+/* ========================================
+   CUERPO DE LA TARJETA
+   ======================================== */
+
+.cuerpo {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+}
+
+/* Marca (pequeña, izquierda) */
+.marca {
+  font-size: 0.9rem;
+  color: #a0a0a0;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-weight: 600;
+  text-align: center;
+}
+
+/* Nombre (más pequeño que antes, centrado) */
+.nombre {
+  font-family: 'Orbitron', 'Impact', sans-serif;
+  font-size: 1.3rem;
+  font-weight: 900;
+  color: #00d4ff;
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  line-height: 1.2;
+}
+
+/* ========================================
+   BOTONES MEJORADOS - CON ICONOS
+   ======================================== */
+
+.contenedorBotones {
+  display: flex;
+  gap: 0;
+  justify-content: center;
+  margin-top: auto;
+  width: 100%;
+}
+
+.boton {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  overflow: hidden;
+  position: relative;
+  max-width: 150px; /* o el ancho que prefieras */
+  max-height: 60px;
+  border-radius: 10px; /* ya que ahora no están pegados */
+}
+
+.contenidoBoton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.9rem 1rem;
+  width: 100%;
+  height: 100%;
+}
+
+.textoBoton {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.2rem;
+}
+
+/* Botón COMPRAR - Verde neón mejorado */
+.botonComprar {
+  background: rgba(57, 255, 20, 0.15);
+  border: 1px solid rgba(57, 255, 20, 0.3);
+  color: #39ff14;
+  border-radius: 10px 0px 0px 10px;
+}
+
+.botonComprar:hover {
+  background: rgba(57, 255, 20, 0.25);
+}
+
+/* Botón ALQUILAR - Amarillo neón mejorado */
+.botonAlquilar {
+  background: rgba(255, 235, 59, 0.15);
+  border: 1px solid rgba(255, 235, 59, 0.3);
+  color: #ffeb3b;
+  border-radius: 0px 10px 10px 0px;
+}
+
+.botonAlquilar:hover {
+  background: rgba(255, 235, 59, 0.4);
+}
+
+.boton:active {
+  transform: translateY(0);
+}
+
+.contenidoBoton {
+  position: relative;
+  z-index: 1;
+}
+
+/* Texto del botón */
+.tituloBoton {
+  font-size: 0.85rem;
+  font-weight: 700;
+  line-height: 1;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.precioBoton {
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: 1;
+}
+
+/* ========================================
+   RESPONSIVE
+   ======================================== */
+
+/* Tablets */
+@media (max-width: 992px) {
+  .nombre {
+    font-size: 1.2rem;
+  }
+
+  .contenidoBoton {
+    padding: 0.85rem 0.9rem;
+  }
+
+  .tituloBoton {
+    font-size: 0.8rem;
+  }
+
+  .precioBoton {
+    font-size: 1rem;
+  }
+
+  .badgeCategoria {
+    font-size: 0.7rem;
+    padding: 0.45rem 0.75rem;
+  }
+
+  .logoMarca {
+    padding: 0.25rem 0.45rem;
+  }
+
+  .imagenLogo {
+    height: 16px;
+    max-width: 35px;
+  }
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+  .cuerpo {
+    padding: 1.2rem !important;
+    gap: 0.7rem;
+  }
+
+  .marca {
+    font-size: 0.85rem;
+  }
+
+  .nombre {
+    font-size: 1.1rem;
+  }
+
+  .contenedorBotones {
+    gap: 0;
+  }
+
+  .contenidoBoton {
+    padding: 0.8rem 0.8rem;
+  }
+
+  .tituloBoton {
+    font-size: 0.75rem;
+  }
+
+  .precioBoton {
+    font-size: 0.95rem;
+  }
+
+  .badgeCategoria {
+    font-size: 0.65rem;
+    padding: 0.4rem 0.7rem;
+  }
+
+  .logoMarca {
+    padding: 0.25rem 0.4rem;
+  }
+
+  .imagenLogo {
+    height: 15px;
+    max-width: 32px;
+  }
+}
+
+/* Mobile pequeño */
+@media (max-width: 576px) {
+  .nombre {
+    font-size: 1rem;
+    letter-spacing: 0.5px;
+  }
+
+  .contenedorBotones {
+    gap: 0;
+  }
+
+  .contenidoBoton {
+    padding: 0.75rem 0.5rem;
+  }
+
+  .tituloBoton {
+    font-size: 0.7rem;
+  }
+
+  .precioBoton {
+    font-size: 0.9rem;
+  }
+
+  .badgeCategoria {
+    font-size: 0.6rem;
+    padding: 0.35rem 0.65rem;
+  }
+
+  .logoMarca {
+    padding: 0.2rem 0.35rem;
+  }
+
+  .imagenLogo {
+    height: 14px;
+    max-width: 30px;
+  }
+}
