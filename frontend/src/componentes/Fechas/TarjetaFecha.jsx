@@ -1,6 +1,6 @@
 import styles from './TarjetaFecha.module.css'
 
-function TarjetaFecha({ rally }) {
+function TarjetaFecha({ rally, colores }) {
   // Formatear fecha DD/MM/AAAA
   const formatearFecha = (fechaISO) => {
     const fecha = new Date(fechaISO)
@@ -174,11 +174,27 @@ function TarjetaFecha({ rally }) {
         <div className={styles.infoCategorias}>
           <p className={styles.labelCategorias}>Categorías habilitadas:</p>
           <div className={styles.listaCategorias}>
-            {rally.categoriasHabilitadas.map((categoria, index) => (
-              <span key={index} className={styles.badgeCategoria}>
-                {categoria}
-              </span>
-            ))}
+            {/* 2. MODIFICA EL MAPEO DE CATEGORÍAS ASÍ: */}
+            {rally.categoriasHabilitadas.map((categoria, index) => {
+              // Buscamos el color, si no existe usamos blanco por defecto
+              const colorCategoria = colores && colores[categoria] ? colores[categoria] : '#ffffff';
+              
+              return (
+                <span 
+                  key={index} 
+                  className={styles.badgeCategoria}
+                  style={{
+                    color: colorCategoria,
+                    borderColor: colorCategoria,
+                    // Sobreescribimos el gradiente original para que no choque con el nuevo color
+                    background: `linear-gradient(235deg, ${colorCategoria}40, transparent)`,
+                    boxShadow: `0 0 2px ${colorCategoria}40` // Un pequeño brillo del color correspondiente
+                  }}
+                >
+                  {categoria}
+                </span>
+              )
+            })}
           </div>
         </div>
 

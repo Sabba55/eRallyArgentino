@@ -3,6 +3,19 @@ import { Container } from 'react-bootstrap'
 import styles from './Fechas.module.css'
 import TarjetaFecha from '../../componentes/Fechas/TarjetaFecha'
 
+const COLORES_CATEGORIAS = {
+  "Rally2": "#00d4ff",
+  "R5": "#39ff14",
+  "Rally3": "#ff6b00",
+  "Rally4": "#ffd60a",
+  "Maxi Rally": "#9d4edd",
+  "N4": "#e63946",
+  "RC3": "#ff006e",
+  "A1": "#ff0037",
+  "N1": "#2a9d8f",
+  "RC5": "#0077b6"
+};
+
 function Fechas() {
   // Datos mock de rallies
   const rallies = useMemo(() => [
@@ -292,7 +305,7 @@ function Fechas() {
           <div className={styles.contenedorTarjetas}>
             {ralliesFiltrados.length > 0 ? (
               ralliesFiltrados.map(rally => (
-                <TarjetaFecha key={rally.id} rally={rally} />
+                <TarjetaFecha key={rally.id} rally={rally} colores={COLORES_CATEGORIAS} />
               ))
             ) : (
               <div className={styles.sinResultados}>

@@ -41,8 +41,6 @@ function App() {
             
             {/* Rutas de descargas */}
             <Route path="/descargas/guia-instalacion" element={<PaginaGuiaInstalacion />} />
-            <Route path="/descargas/pack-autos" element={<PaginaPackAutos />} />
-            <Route path="/descargas/pack-tramos" element={<PaginaPackTramos />} />
             <Route path="/descargas/links-vehiculos" element={<PaginaLinksVehiculos />} />
             <Route path="/descargas/links-tramos" element={<PaginaLinksTramos />} />
             <Route path="/descargas/navegantes" element={<Navegantes />} />
