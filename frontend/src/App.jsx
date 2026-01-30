@@ -7,6 +7,7 @@ import Login from './paginas/Auth/Login'
 import Registro from './paginas/Auth/Registro'
 import Tienda from './paginas/Tienda/Tienda'
 import Fechas from './paginas/Fechas/Fechas'
+import Garage from './paginas/Garage/Garage'
 
 
 import './App.css'
@@ -29,7 +30,7 @@ function App() {
             <Route path="/registro" element={<Registro />} />
             
             {/* Rutas de usuario logueado */}
-            <Route path="/garage" element={<PaginaGarage />} />
+            <Route path="/garage" element={<Garage />} />
             <Route path="/tienda" element={<Tienda />} />
             <Route path="/perfil" element={<PaginaPerfil />} />
             <Route path="/perfil/editar" element={<PaginaEditarPerfil />} />

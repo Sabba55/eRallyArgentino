@@ -1,0 +1,142 @@
+---
+## 💡 **Respuestas a tus preguntas:**
+
+### **¿Fecha exacta o días restantes?**
+**Días restantes** es MUCHO mejor porque:
+- ✅ Más visual y urgente
+- ✅ No requiere que el usuario calcule mentalmente
+- ✅ Podés usar colores (verde > 30 días, amarillo 7-30, rojo < 7)
+
+Pero también mostraría la fecha exacta en texto chico debajo.
+
+### **¿Se entendió?**
+✅ Perfectamente. El diseño es claro y funcional.
+
+### **¿Necesita modificaciones?**
+Solo las sugerencias que te di arriba (indicadores, flechas, colores de urgencia).
+
+---
+
+## 📝 **PROMPT para copiar y pegar en otro chat:**
+```
+Necesito crear la página "Mi Garage" para el proyecto eRally Argentino.
+
+CONTEXTO DEL PROYECTO:
+- Sistema de compra/alquiler de vehículos virtuales de rally para Assetto Corsa
+- Las compras duran 1 año desde la fecha de compra
+- Los alquileres duran hasta la fecha del rally seleccionado
+- Usamos React + CSS Modules + Bootstrap
+- Estilo: Fondo oscuro (#1a1a1a), acentos cyan (#00d4ff) y verde (#39ff14)
+- Fuente títulos: Orbitron
+
+DISEÑO DE LA PÁGINA "MI GARAGE":
+
+ESTRUCTURA PRINCIPAL:
+1. Header dividido en dos partes:
+   - Izquierda: Texto "TUS VEHÍCULOS"
+   - Derecha: Contador "Total: X vehículos" + Toggle de vista [⊞ Cuadro] [☰ Listado]
+
+2. Contenido (dos vistas alternativas):
+
+VISTA CUADRO (default):
+- Carrusel de fotos GIGANTES a pantalla completa
+- Navegación con flechas grandes ◄ ►
+- Indicadores de puntos abajo (● ○ ○)
+- Overlay en la esquina inferior izquierda con 3 divs horizontales:
+  * Div 1: Logo del vehículo
+  * Div 2: Nombre del vehículo (arriba) + Categoría (abajo)
+  * Div 3: 
+    - Si COMPRADO: "Comprado: DD/MM/AAAA" + "Vence: DD/MM/AAAA" + "⏱️ X días restantes"
+    - Si ALQUILADO: "Rally: Nombre" + "Fecha rally: DD/MM/AAAA" + "⏱️ X días restantes"
+
+VISTA LISTADO:
+- Dos secciones separadas:
+
+  SECCIÓN COMPRADOS:
+  - Título "COMPRADOS (X)"
+  - Grid de tarjetas (igual a TarjetaVehiculo.jsx pero con info adicional):
+    * Foto, logo marca, badge categoría, nombre
+    * NUEVO: Fecha compra + Fecha vencimiento + Días restantes con color:
+      - Verde si > 30 días
+      - Amarillo si 7-30 días
+      - Rojo si < 7 días
+
+  SECCIÓN ALQUILADOS:
+  - Título "ALQUILADOS (X)"
+  - Grid de tarjetas similares pero mostrando:
+    * Rally asociado
+    * Fecha del rally
+    * Días restantes hasta el rally
+
+DATOS MOCK:
+Simular 2 vehículos comprados y 2 alquilados con fechas de vencimiento variadas.
+
+ARCHIVOS A CREAR:
+- src/paginas/Garage/Garage.jsx
+- src/paginas/Garage/Garage.module.css
+
+IMPORTANTE:
+- Solo es una página de visualización, sin funcionalidad de compra/venta
+- Calcular días restantes automáticamente desde hoy
+- Responsive: en mobile el carrusel se mantiene, el listado se apila en 1 columna
+- Si no hay vehículos, mostrar mensaje vacío bonito tipo "Tu garage está vacío. ¡Empezá a comprar vehículos!"
+
+const vehiculosUsuario = {
+  comprados: [
+    {
+      ...vehiculo, // Datos del vehículo
+      fechaCompra: "2026-01-15T10:00:00",
+      fechaVencimiento: "2027-01-15T10:00:00",
+      diasRestantes: 352,
+      tipo: "compra"
+    }
+  ],
+  alquilados: [
+    {
+      ...vehiculo,
+      rally: { nombre: "Rally de Misiones", fecha: "2026-03-15" },
+      fechaAlquiler: "2026-01-20T10:00:00",
+      fechaVencimiento: "2026-03-15T10:00:00",
+      diasRestantes: 47,
+      tipo: "alquiler"
+    }
+  ]
+}
+```
+
+┌─────────────────────────────────────────────┐
+│ TUS VEHÍCULOS          Total: 4   [⊞][☰]  │
+└─────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────┐
+│                                             │
+│            [FOTO GIGANTE AUTO]              │
+│                                             │
+│  ◄                                       ►  │
+│                                             │
+│  ┌────────────────────────────────────┐    │
+│  │[Logo] Toyota Yaris    Comprado:    │    │
+│  │       Rally2          15/01/2026   │    │
+│  │                       ⏱️ 352 días   │    │
+│  └────────────────────────────────────┘    │
+│                                             │
+│            ● ○ ○ ○  (4 autos)              │
+└─────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────┐
+│ COMPRADOS (2)                               │
+├─────────────────────────────────────────────┤
+│ ┌──────┐  ┌──────┐                         │
+│ │Toyota│  │ Ford │                         │
+│ │Yaris │  │Fiesta│                         │
+│ │⏱️352d│  │⏱️180d│                         │
+│ └──────┘  └──────┘                         │
+│                                             │
+│ ALQUILADOS (2)                              │
+├─────────────────────────────────────────────┤
+│ ┌──────┐  ┌──────┐                         │
+│ │Skoda │  │Subaru│                         │
+│ │Fabia │  │Impre │                         │
+│ │⏱️47d │  │⏱️90d │                         │
+│ └──────┘  └──────┘                         │
+└─────────────────────────────────────────────┘

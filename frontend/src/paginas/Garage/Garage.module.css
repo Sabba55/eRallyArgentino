@@ -1,0 +1,470 @@
+/* ========================================
+   CONTENEDOR PRINCIPAL
+   ======================================== */
+
+.contenedorGarage {
+  min-height: calc(100vh - 86px - 200px);
+  background-color: #1a1a1a;
+  padding-bottom: 3rem;
+}
+
+/* ========================================
+   HEADER
+   ======================================== */
+
+.header {
+  background: linear-gradient(135deg, #2a2a2a, #1a1a1a);
+  border-bottom: 2px solid #00d4ff;
+  padding: 1.3rem 0;
+  margin-bottom: 0;
+}
+
+.contenidoHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 2rem;
+  flex-wrap: wrap;
+}
+
+.titulo {
+  font-family: 'Orbitron', 'Impact', sans-serif;
+  font-size: 1.5rem;
+  font-weight: 900;
+  color: #00d4ff;
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+}
+
+.controles {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+}
+
+.contador {
+  font-size: 1.1rem;
+  color: #a0a0a0;
+  letter-spacing: 0.5px;
+}
+
+.contador strong {
+  color: #00d4ff;
+  font-size: 1.3rem;
+}
+
+/* ========================================
+   VISTA LISTADO
+   ======================================== */
+
+.vistaListado {
+  padding: 3rem 0;
+}
+
+.seccion {
+  margin-bottom: 4rem;
+}
+
+.seccion:last-child {
+  margin-bottom: 0;
+}
+
+.tituloSeccion {
+  font-family: 'Orbitron', 'Impact', sans-serif;
+  font-size: 1.8rem;
+  font-weight: 900;
+  color: #00d4ff;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  margin-bottom: 2rem;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid #3a3a3a;
+}
+
+/* Grid de tarjetas */
+.gridTarjetas {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 2rem;
+}
+
+/* Tarjeta individual */
+.tarjeta {
+  background-color: #2a2a2a;
+  border: 2px solid #3a3a3a;
+  border-radius: 15px;
+  overflow: hidden;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.tarjeta:hover {
+  border-color: #00d4ff;
+  box-shadow: 0 8px 30px rgba(0, 212, 255, 0.4);
+  transform: translateY(-5px);
+}
+
+/* Foto de la tarjeta */
+.contenedorFotoTarjeta {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  background-color: #1a1a1a;
+  position: relative;
+}
+
+.fotoTarjeta {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Badges en la tarjeta */
+.contenedorBadges {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: flex;
+  align-items: stretch;
+  z-index: 2;
+}
+
+.logoMarca {
+  padding: 0.4rem 0.5rem;
+  background-color: rgba(255, 255, 255, 0.95);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.imagenLogoTarjeta {
+  height: 20px;
+  width: auto;
+  max-width: 45px;
+  object-fit: contain;
+}
+
+.badgeCategoriaTarjeta {
+  padding: 0.55rem 0.95rem;
+  border-radius: 0 0 12px 0;
+  font-size: 0.8rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #1a1a1a;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
+}
+
+/* Cuerpo de la tarjeta */
+.cuerpoTarjeta {
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.nombreTarjeta {
+  font-family: 'Orbitron', 'Impact', sans-serif;
+  font-size: 1.3rem;
+  font-weight: 900;
+  color: #00d4ff;
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin: 0;
+  line-height: 1.2;
+}
+
+.infoTarjeta {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.lineaInfo {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.95rem;
+  margin: 0;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid #3a3a3a;
+}
+
+.lineaInfo:last-of-type {
+  border-bottom: none;
+}
+
+.labelInfo {
+  color: #a0a0a0;
+  font-weight: 600;
+}
+
+.valorInfo {
+  color: #ffffff;
+  font-weight: 700;
+}
+
+.diasRestantesTarjeta {
+  font-size: 1.2rem;
+  font-weight: 900;
+  margin-top: 0.5rem;
+  padding: 0.8rem;
+  background-color: rgba(0, 0, 0, 0.5);
+  border-radius: 8px;
+  text-align: center;
+  letter-spacing: 0.5px;
+}
+
+/* ========================================
+   ESTADO VACÍO
+   ======================================== */
+
+.estadoVacio {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 6rem 2rem;
+  text-align: center;
+}
+
+.iconoVacio {
+  font-size: 8rem;
+  margin-bottom: 2rem;
+  filter: drop-shadow(0 0 20px rgba(0, 212, 255, 0.3));
+  animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-15px);
+  }
+}
+
+.tituloVacio {
+  font-family: 'Orbitron', 'Impact', sans-serif;
+  font-size: 2.5rem;
+  font-weight: 900;
+  color: #00d4ff;
+  margin-bottom: 1rem;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+}
+
+.textoVacio {
+  font-size: 1.2rem;
+  color: #a0a0a0;
+  margin-bottom: 2rem;
+  max-width: 500px;
+}
+
+.btnIrTienda {
+  background: linear-gradient(135deg, #00d4ff, #39ff14);
+  color: #1a1a1a;
+  padding: 1rem 2.5rem;
+  border-radius: 50px;
+  font-size: 1.1rem;
+  font-weight: bold;
+  text-decoration: none;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(0, 212, 255, 0.4);
+}
+
+.btnIrTienda:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 25px rgba(0, 212, 255, 0.6);
+  color: #1a1a1a;
+}
+
+/* ========================================
+   RESPONSIVE
+   ======================================== */
+
+/* Tablets grandes */
+@media (max-width: 1200px) {
+  .gridTarjetas {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+  }
+
+  .titulo {
+    font-size: 2.2rem;
+  }
+}
+
+/* Tablets */
+@media (max-width: 992px) {
+  .gridTarjetas {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .header {
+    padding: 1.5rem 0;
+  }
+
+  .titulo {
+    font-size: 2rem;
+  }
+
+  .contador {
+    font-size: 1rem;
+  }
+
+  .contador strong {
+    font-size: 1.2rem;
+  }
+
+  .tituloSeccion {
+    font-size: 1.8rem;
+  }
+
+  .nombreTarjeta {
+    font-size: 1.3rem;
+  }
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+  .contenedorGarage {
+    padding-bottom: 2rem;
+  }
+
+  .header {
+    padding: 1.2rem 0;
+  }
+
+  .contenidoHeader {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  .titulo {
+    font-size: 1.8rem;
+  }
+
+  .controles {
+    width: 100%;
+  }
+
+  .contador {
+    font-size: 0.95rem;
+  }
+
+  .contador strong {
+    font-size: 1.1rem;
+  }
+
+  .vistaListado {
+    padding: 2rem 0;
+  }
+
+  .seccion {
+    margin-bottom: 3rem;
+  }
+
+  .tituloSeccion {
+    font-size: 1.6rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .gridTarjetas {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+
+  .nombreTarjeta {
+    font-size: 1.2rem;
+  }
+
+  .lineaInfo {
+    font-size: 0.9rem;
+  }
+
+  .diasRestantesTarjeta {
+    font-size: 1.1rem;
+    padding: 0.7rem;
+  }
+
+  .estadoVacio {
+    padding: 4rem 1.5rem;
+  }
+
+  .iconoVacio {
+    font-size: 6rem;
+  }
+
+  .tituloVacio {
+    font-size: 2rem;
+  }
+
+  .textoVacio {
+    font-size: 1.1rem;
+  }
+
+  .btnIrTienda {
+    padding: 0.9rem 2rem;
+    font-size: 1rem;
+  }
+}
+
+/* Mobile pequeño */
+@media (max-width: 576px) {
+  .titulo {
+    font-size: 1.5rem;
+    letter-spacing: 1px;
+  }
+
+  .contador {
+    font-size: 0.85rem;
+  }
+
+  .contador strong {
+    font-size: 1rem;
+  }
+
+  .tituloSeccion {
+    font-size: 1.4rem;
+  }
+
+  .nombreTarjeta {
+    font-size: 1.1rem;
+  }
+
+  .badgeCategoriaTarjeta {
+    font-size: 0.75rem;
+    padding: 0.5rem 0.85rem;
+  }
+
+  .imagenLogoTarjeta {
+    height: 18px;
+    max-width: 40px;
+  }
+
+  .lineaInfo {
+    font-size: 0.85rem;
+  }
+
+  .diasRestantesTarjeta {
+    font-size: 1rem;
+  }
+
+  .iconoVacio {
+    font-size: 5rem;
+  }
+
+  .tituloVacio {
+    font-size: 1.8rem;
+  }
+
+  .textoVacio {
+    font-size: 1rem;
+  }
+}
