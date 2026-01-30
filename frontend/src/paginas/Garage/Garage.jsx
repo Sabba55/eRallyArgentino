@@ -1,8 +1,12 @@
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import { Container } from 'react-bootstrap'
+import { ChevronDown, ChevronUp } from 'lucide-react'
 import styles from './Garage.module.css'
 
 function Garage() {
+  // Estados para controlar si las secciones están expandidas
+  const [compradosExpandido, setCompradosExpandido] = useState(true)
+  const [alquiladosExpandido, setAlquiladosExpandido] = useState(true)
 
   // DATOS MOCK - Simulación de vehículos del usuario
   const vehiculosUsuario = {
@@ -15,8 +19,8 @@ function Garage() {
         colorCategoria: "#00d4ff",
         foto: "/vehiculos/rally2/toyota-yaris.jpg",
         logo: "/icon/toyota.png",
-        fechaCompra: "2025-01-15T10:00:00",
-        fechaVencimiento: "2026-01-15T10:00:00",
+        fechaCompra: "2025-01-29T10:00:00",
+        fechaVencimiento: "2026-01-29T10:00:00",
         tipo: "compra"
       },
       {
@@ -68,19 +72,32 @@ function Garage() {
     ]
   }
 
-  // Calcular total de vehículos
-  const totalVehiculos = useMemo(() => {
-    return vehiculosUsuario.comprados.length + vehiculosUsuario.alquilados.length
-  }, [])
-
   // Calcular días restantes para un vehículo
   const calcularDiasRestantes = (fechaVencimiento) => {
     const ahora = new Date()
     const vencimiento = new Date(fechaVencimiento)
     const diferencia = vencimiento - ahora
     const dias = Math.ceil(diferencia / (1000 * 60 * 60 * 24))
-    return dias > 0 ? dias : 0
+    return dias
   }
+
+  // Filtrar vehículos vencidos (días < 0)
+  const vehiculosCompradosActivos = useMemo(() => {
+    return vehiculosUsuario.comprados.filter(v => 
+      calcularDiasRestantes(v.fechaVencimiento) >= 0
+    )
+  }, [])
+
+  const vehiculosAlquiladosActivos = useMemo(() => {
+    return vehiculosUsuario.alquilados.filter(v => 
+      calcularDiasRestantes(v.fechaVencimiento) >= 0
+    )
+  }, [])
+
+  // Calcular total de vehículos activos
+  const totalVehiculos = useMemo(() => {
+    return vehiculosCompradosActivos.length + vehiculosAlquiladosActivos.length
+  }, [vehiculosCompradosActivos, vehiculosAlquiladosActivos])
 
   // Formatear fecha DD/MM/AAAA
   const formatearFecha = (fechaISO) => {
@@ -98,13 +115,19 @@ function Garage() {
     return '#ff4444'                  // Rojo
   }
 
+  // Formatear el texto de días restantes
+  const formatearDiasRestantes = (dias) => {
+    if (dias === 0) return 'ÚLTIMO DÍA'
+    if (dias === 1) return '1 día restante'
+    return `${dias} días restantes`
+  }
+
   // Si no hay vehículos, mostrar mensaje vacío
   if (totalVehiculos === 0) {
     return (
       <div className={styles.contenedorGarage}>
         <Container>
           <div className={styles.estadoVacio}>
-            <div className={styles.iconoVacio}>🏎️</div>
             <h2 className={styles.tituloVacio}>Tu garage está vacío</h2>
             <a href="/tienda" className={styles.btnIrTienda}>
               Ir a la tienda
@@ -144,146 +167,234 @@ function Garage() {
         <div className={styles.vistaListado}>
             
             {/* SECCIÓN COMPRADOS */}
-            {vehiculosUsuario.comprados.length > 0 && (
+            {vehiculosCompradosActivos.length > 0 && (
               <div className={styles.seccion}>
-                <h2 className={styles.tituloSeccion}>
-                  COMPRADOS ({vehiculosUsuario.comprados.length})
-                </h2>
-                <div className={styles.gridTarjetas}>
-                  {vehiculosUsuario.comprados.map((vehiculo) => {
-                    const diasRestantes = calcularDiasRestantes(vehiculo.fechaVencimiento)
-                    return (
-                      <div key={vehiculo.id} className={styles.tarjeta}>
-                        
-                        {/* Foto */}
-                        <div className={styles.contenedorFotoTarjeta}>
-                          <img
-                            src={vehiculo.foto}
-                            alt={`${vehiculo.marca} ${vehiculo.nombre}`}
-                            className={styles.fotoTarjeta}
-                          />
-                          
-                          {/* Badges */}
-                          <div className={styles.contenedorBadges}>
-                            <div className={styles.logoMarca}>
-                              <img
-                                src={vehiculo.logo}
-                                alt={vehiculo.marca}
-                                className={styles.imagenLogoTarjeta}
-                                onError={(e) => {
-                                  e.target.style.display = 'none'
-                                }}
-                              />
-                            </div>
-                            <span
-                              className={styles.badgeCategoriaTarjeta}
-                              style={{ backgroundColor: vehiculo.colorCategoria }}
-                            >
-                              {vehiculo.categoria}
-                            </span>
-                          </div>
-                        </div>
-
-                        {/* Info */}
-                        <div className={styles.cuerpoTarjeta}>
-                          <h3 className={styles.nombreTarjeta}>
-                            {vehiculo.marca} {vehiculo.nombre}
-                          </h3>
-                          
-                          <div className={styles.infoTarjeta}>
-                            <p className={styles.lineaInfo}>
-                              <span className={styles.labelInfo}>Comprado:</span>
-                              <span className={styles.valorInfo}>{formatearFecha(vehiculo.fechaCompra)}</span>
-                            </p>
-                            <p className={styles.lineaInfo}>
-                              <span className={styles.labelInfo}>Vence:</span>
-                              <span className={styles.valorInfo}>{formatearFecha(vehiculo.fechaVencimiento)}</span>
-                            </p>
-                            <div
-                              className={styles.diasRestantesTarjeta}
-                              style={{ color: obtenerColorUrgencia(diasRestantes) }}
-                            >
-                              ⏱️ {diasRestantes} días restantes
-                            </div>
-                          </div>
-                        </div>
-
-                      </div>
-                    )
-                  })}
+                <div 
+                  className={styles.encabezadoSeccion}
+                  onClick={() => setCompradosExpandido(!compradosExpandido)}
+                >
+                  <h2 className={styles.tituloSeccion}>
+                    COMPRADOS ({vehiculosCompradosActivos.length})
+                  </h2>
+                  <button 
+                    className={styles.botonColapsar}
+                    aria-label={compradosExpandido ? "Ocultar vehículos comprados" : "Mostrar vehículos comprados"}
+                  >
+                    {compradosExpandido ? (
+                      <ChevronUp size={28} />
+                    ) : (
+                      <ChevronDown size={28} />
+                    )}
+                  </button>
                 </div>
+                
+                {compradosExpandido && (
+                  <div className={styles.gridTarjetas}>
+                    {vehiculosCompradosActivos.map((vehiculo) => {
+                      const diasRestantes = calcularDiasRestantes(vehiculo.fechaVencimiento)
+                      return (
+                        <div key={vehiculo.id} className={styles.tarjeta}>
+                          
+                          {/* Foto */}
+                          <div className={styles.contenedorFotoTarjeta}>
+                            <img
+                              src={vehiculo.foto}
+                              alt={`${vehiculo.marca} ${vehiculo.nombre}`}
+                              className={styles.fotoTarjeta}
+                            />
+                            
+                            {/* Badges */}
+                            <div className={styles.contenedorBadges}>
+                              <div className={styles.logoMarca}>
+                                <img
+                                  src={vehiculo.logo}
+                                  alt={vehiculo.marca}
+                                  className={styles.imagenLogoTarjeta}
+                                  onError={(e) => {
+                                    e.target.style.display = 'none'
+                                  }}
+                                />
+                              </div>
+                              <span
+                                className={styles.badgeCategoriaTarjeta}
+                                style={{ backgroundColor: vehiculo.colorCategoria }}
+                              >
+                                {vehiculo.categoria}
+                              </span>
+                            </div>
+                          </div>
+
+                          {/* Info */}
+                          <div className={styles.cuerpoTarjeta}>
+                            <h3 className={styles.nombreTarjeta}>
+                              {vehiculo.marca} {vehiculo.nombre}
+                            </h3>
+                            
+                            <div className={styles.infoTarjeta}>
+                              <p className={styles.lineaInfo}>
+                                <span className={styles.labelInfo}>Comprado:</span>
+                                <span className={styles.valorInfo}>{formatearFecha(vehiculo.fechaCompra)}</span>
+                              </p>
+                              <p className={styles.lineaInfo}>
+                                <span className={styles.labelInfo}>Vence:</span>
+                                <span className={styles.valorInfo}>{formatearFecha(vehiculo.fechaVencimiento)}</span>
+                              </p>
+                              
+                              {/* Contador mejorado */}
+                              <div className={styles.contenedorContador}>
+                                <div 
+                                  className={styles.contadorDias}
+                                  style={{ 
+                                    borderColor: obtenerColorUrgencia(diasRestantes),
+                                    backgroundColor: `${obtenerColorUrgencia(diasRestantes)}15`
+                                  }}
+                                >
+                                  <svg 
+                                    className={styles.iconoReloj} 
+                                    fill="none" 
+                                    stroke="currentColor" 
+                                    viewBox="0 0 24 24"
+                                    style={{ color: obtenerColorUrgencia(diasRestantes) }}
+                                  >
+                                    <path 
+                                      strokeLinecap="round" 
+                                      strokeLinejoin="round" 
+                                      strokeWidth={2} 
+                                      d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" 
+                                    />
+                                  </svg>
+                                  <span 
+                                    className={styles.textoContador}
+                                    style={{ color: obtenerColorUrgencia(diasRestantes) }}
+                                  >
+                                    {formatearDiasRestantes(diasRestantes)}
+                                  </span>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+
+                        </div>
+                      )
+                    })}
+                  </div>
+                )}
               </div>
             )}
 
             {/* SECCIÓN ALQUILADOS */}
-            {vehiculosUsuario.alquilados.length > 0 && (
+            {vehiculosAlquiladosActivos.length > 0 && (
               <div className={styles.seccion}>
-                <h2 className={styles.tituloSeccion}>
-                  ALQUILADOS ({vehiculosUsuario.alquilados.length})
-                </h2>
-                <div className={styles.gridTarjetas}>
-                  {vehiculosUsuario.alquilados.map((vehiculo) => {
-                    const diasRestantes = calcularDiasRestantes(vehiculo.fechaVencimiento)
-                    return (
-                      <div key={vehiculo.id} className={styles.tarjeta}>
-                        
-                        {/* Foto */}
-                        <div className={styles.contenedorFotoTarjeta}>
-                          <img
-                            src={vehiculo.foto}
-                            alt={`${vehiculo.marca} ${vehiculo.nombre}`}
-                            className={styles.fotoTarjeta}
-                          />
-                          
-                          {/* Badges */}
-                          <div className={styles.contenedorBadges}>
-                            <div className={styles.logoMarca}>
-                              <img
-                                src={vehiculo.logo}
-                                alt={vehiculo.marca}
-                                className={styles.imagenLogoTarjeta}
-                                onError={(e) => {
-                                  e.target.style.display = 'none'
-                                }}
-                              />
-                            </div>
-                            <span
-                              className={styles.badgeCategoriaTarjeta}
-                              style={{ backgroundColor: vehiculo.colorCategoria }}
-                            >
-                              {vehiculo.categoria}
-                            </span>
-                          </div>
-                        </div>
-
-                        {/* Info */}
-                        <div className={styles.cuerpoTarjeta}>
-                          <h3 className={styles.nombreTarjeta}>
-                            {vehiculo.marca} {vehiculo.nombre}
-                          </h3>
-                          
-                          <div className={styles.infoTarjeta}>
-                            <p className={styles.lineaInfo}>
-                              <span className={styles.labelInfo}>Rally:</span>
-                              <span className={styles.valorInfo}>{vehiculo.rally.nombre}</span>
-                            </p>
-                            <p className={styles.lineaInfo}>
-                              <span className={styles.labelInfo}>Fecha rally:</span>
-                              <span className={styles.valorInfo}>{formatearFecha(vehiculo.rally.fecha)}</span>
-                            </p>
-                            <div
-                              className={styles.diasRestantesTarjeta}
-                              style={{ color: obtenerColorUrgencia(diasRestantes) }}
-                            >
-                              ⏱️ {diasRestantes} días restantes
-                            </div>
-                          </div>
-                        </div>
-
-                      </div>
-                    )
-                  })}
+                <div 
+                  className={styles.encabezadoSeccion}
+                  onClick={() => setAlquiladosExpandido(!alquiladosExpandido)}
+                >
+                  <h2 className={styles.tituloSeccion}>
+                    ALQUILADOS ({vehiculosAlquiladosActivos.length})
+                  </h2>
+                  <button 
+                    className={styles.botonColapsar}
+                    aria-label={alquiladosExpandido ? "Ocultar vehículos alquilados" : "Mostrar vehículos alquilados"}
+                  >
+                    {alquiladosExpandido ? (
+                      <ChevronUp size={28} />
+                    ) : (
+                      <ChevronDown size={28} />
+                    )}
+                  </button>
                 </div>
+                
+                {alquiladosExpandido && (
+                  <div className={styles.gridTarjetas}>
+                    {vehiculosAlquiladosActivos.map((vehiculo) => {
+                      const diasRestantes = calcularDiasRestantes(vehiculo.fechaVencimiento)
+                      return (
+                        <div key={vehiculo.id} className={styles.tarjeta}>
+                          
+                          {/* Foto */}
+                          <div className={styles.contenedorFotoTarjeta}>
+                            <img
+                              src={vehiculo.foto}
+                              alt={`${vehiculo.marca} ${vehiculo.nombre}`}
+                              className={styles.fotoTarjeta}
+                            />
+                            
+                            {/* Badges */}
+                            <div className={styles.contenedorBadges}>
+                              <div className={styles.logoMarca}>
+                                <img
+                                  src={vehiculo.logo}
+                                  alt={vehiculo.marca}
+                                  className={styles.imagenLogoTarjeta}
+                                  onError={(e) => {
+                                    e.target.style.display = 'none'
+                                  }}
+                                />
+                              </div>
+                              <span
+                                className={styles.badgeCategoriaTarjeta}
+                                style={{ backgroundColor: vehiculo.colorCategoria }}
+                              >
+                                {vehiculo.categoria}
+                              </span>
+                            </div>
+                          </div>
+
+                          {/* Info */}
+                          <div className={styles.cuerpoTarjeta}>
+                            <h3 className={styles.nombreTarjeta}>
+                              {vehiculo.marca} {vehiculo.nombre}
+                            </h3>
+                            
+                            <div className={styles.infoTarjeta}>
+                              <p className={styles.lineaInfo}>
+                                <span className={styles.labelInfo}>Rally:</span>
+                                <span className={styles.valorInfo}>{vehiculo.rally.nombre}</span>
+                              </p>
+                              <p className={styles.lineaInfo}>
+                                <span className={styles.labelInfo}>Fecha rally:</span>
+                                <span className={styles.valorInfo}>{formatearFecha(vehiculo.rally.fecha)}</span>
+                              </p>
+                              
+                              {/* Contador mejorado */}
+                              <div className={styles.contenedorContador}>
+                                <div 
+                                  className={styles.contadorDias}
+                                  style={{ 
+                                    borderColor: obtenerColorUrgencia(diasRestantes),
+                                    backgroundColor: `${obtenerColorUrgencia(diasRestantes)}15`
+                                  }}
+                                >
+                                  <svg 
+                                    className={styles.iconoReloj} 
+                                    fill="none" 
+                                    stroke="currentColor" 
+                                    viewBox="0 0 24 24"
+                                    style={{ color: obtenerColorUrgencia(diasRestantes) }}
+                                  >
+                                    <path 
+                                      strokeLinecap="round" 
+                                      strokeLinejoin="round" 
+                                      strokeWidth={2} 
+                                      d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" 
+                                    />
+                                  </svg>
+                                  <span 
+                                    className={styles.textoContador}
+                                    style={{ color: obtenerColorUrgencia(diasRestantes) }}
+                                  >
+                                    {formatearDiasRestantes(diasRestantes)}
+                                  </span>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+
+                        </div>
+                      )
+                    })}
+                  </div>
+                )}
               </div>
             )}
 
