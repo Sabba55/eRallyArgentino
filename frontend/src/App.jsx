@@ -8,6 +8,7 @@ import Registro from './paginas/Auth/Registro'
 import Tienda from './paginas/Tienda/Tienda'
 import Fechas from './paginas/Fechas/Fechas'
 import Garage from './paginas/Garage/Garage'
+import Navegantes from './paginas/Descargas/Navegantes'
 
 
 import './App.css'
@@ -44,7 +45,7 @@ function App() {
             <Route path="/descargas/pack-tramos" element={<PaginaPackTramos />} />
             <Route path="/descargas/links-vehiculos" element={<PaginaLinksVehiculos />} />
             <Route path="/descargas/links-tramos" element={<PaginaLinksTramos />} />
-            <Route path="/descargas/navegantes" element={<PaginaNavegantes />} />
+            <Route path="/descargas/navegantes" element={<Navegantes />} />
           </Routes>
         </main>
 
