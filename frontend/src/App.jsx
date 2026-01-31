@@ -9,6 +9,7 @@ import Tienda from './paginas/Tienda/Tienda'
 import Fechas from './paginas/Fechas/Fechas'
 import Garage from './paginas/Garage/Garage'
 import Navegantes from './paginas/Descargas/Navegantes'
+import LinksTramos from './paginas/Descargas/LinksTramos'
 
 
 import './App.css'
@@ -42,7 +43,9 @@ function App() {
             {/* Rutas de descargas */}
             <Route path="/descargas/guia-instalacion" element={<PaginaGuiaInstalacion />} />
             <Route path="/descargas/links-vehiculos" element={<PaginaLinksVehiculos />} />
-            <Route path="/descargas/links-tramos" element={<PaginaLinksTramos />} />
+            <Route path="/descargas/links-tramos" element={<LinksTramos />} />
+            <Route path="/descargas/links-tramos" element={<LinksTramos />} />
+            <Route path="/descargas/pack-tramos" element={<LinksTramos />} />
             <Route path="/descargas/navegantes" element={<Navegantes />} />
           </Routes>
         </main>
