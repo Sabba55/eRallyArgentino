@@ -10,7 +10,8 @@ import Fechas from './paginas/Fechas/Fechas'
 import Garage from './paginas/Garage/Garage'
 import Navegantes from './paginas/Descargas/Navegantes'
 import LinksTramos from './paginas/Descargas/LinksTramos'
-
+import Perfil from './paginas/Perfil/Perfil'
+import EditarPerfil from './paginas/Perfil/EditarPerfil'
 
 import './App.css'
 
@@ -34,8 +35,8 @@ function App() {
             {/* Rutas de usuario logueado */}
             <Route path="/garage" element={<Garage />} />
             <Route path="/tienda" element={<Tienda />} />
-            <Route path="/perfil" element={<PaginaPerfil />} />
-            <Route path="/perfil/editar" element={<PaginaEditarPerfil />} />
+            <Route path="/perfil" element={<Perfil />} />
+            <Route path="/perfil/editar" element={<EditarPerfil />} />
             
             {/* Rutas públicas */}
             <Route path="/fechas" element={<Fechas  />} />

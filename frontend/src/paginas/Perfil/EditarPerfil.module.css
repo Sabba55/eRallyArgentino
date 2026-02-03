@@ -1,0 +1,634 @@
+/* ========================================
+   CONTENEDOR PRINCIPAL
+   ======================================== */
+
+.contenedorEditarPerfil {
+  min-height: calc(100vh - 86px - 200px);
+  background-color: #1a1a1a;
+  padding: 3rem 0;
+}
+
+/* ========================================
+   HEADER
+   ======================================== */
+
+.header {
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+.titulo {
+  font-family: 'Orbitron', 'Impact', sans-serif;
+  font-size: 3rem;
+  font-weight: 900;
+  color: #00d4ff;
+  margin: 0 0 0.5rem 0;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+}
+
+.subtitulo {
+  font-size: 1.2rem;
+  color: #a0a0a0;
+  margin: 0;
+}
+
+/* ========================================
+   ALERTAS
+   ======================================== */
+
+.alerta {
+  background-color: rgba(220, 53, 69, 0.1) !important;
+  border: 2px solid #dc3545 !important;
+  color: #ff6b6b !important;
+  border-radius: 12px;
+  margin-bottom: 2rem;
+  font-size: 1.05rem;
+  padding: 1rem 1.5rem;
+}
+
+.alertaExito {
+  background-color: rgba(57, 255, 20, 0.1) !important;
+  border: 2px solid #39ff14 !important;
+  color: #39ff14 !important;
+  border-radius: 12px;
+  margin-bottom: 2rem;
+  font-size: 1.05rem;
+  padding: 1rem 1.5rem;
+}
+
+/* ========================================
+   SECCIONES DEL FORMULARIO
+   ======================================== */
+
+.seccion {
+  background: linear-gradient(135deg, #2a2a2a, #1a1a1a);
+  border: 2px solid #3a3a3a;
+  border-radius: 15px;
+  padding: 2rem;
+  margin-bottom: 2rem;
+}
+
+.tituloSeccion {
+  font-family: 'Orbitron', 'Impact', sans-serif;
+  font-size: 1.6rem;
+  font-weight: 900;
+  color: #00d4ff;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin: 0 0 1.5rem 0;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid #3a3a3a;
+}
+
+.obligatorio {
+  color: #ff4444;
+  font-weight: bold;
+  margin-left: 3px;
+}
+
+.opcional {
+  color: #6a6a6a;
+  font-weight: normal;
+  font-size: 0.85rem;
+  font-style: italic;
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+/* ========================================
+   SECCIÓN: FOTO DE PERFIL
+   ======================================== */
+
+.contenedorFoto {
+  display: flex;
+  gap: 2.5rem;
+  align-items: center;
+}
+
+.avatarPreview {
+  flex-shrink: 0;
+}
+
+.fotoPerfil {
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  border: 4px solid #00d4ff;
+  object-fit: cover;
+  box-shadow: 0 0 30px rgba(0, 212, 255, 0.4);
+}
+
+.avatarIniciales {
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #00d4ff, #39ff14);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 3.5rem;
+  font-weight: 900;
+  color: #1a1a1a;
+  border: 4px solid #ffffff;
+  box-shadow: 0 0 30px rgba(0, 212, 255, 0.4);
+  font-family: 'Orbitron', 'Impact', sans-serif;
+}
+
+.controlesFoto {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.inputFile {
+  display: none;
+}
+
+.btnSubirFoto {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.7rem;
+  padding: 1rem 2rem;
+  background: linear-gradient(135deg, #00d4ff, #39ff14);
+  color: #1a1a1a;
+  border: none;
+  border-radius: 12px;
+  font-size: 1.05rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(0, 212, 255, 0.3);
+}
+
+.btnSubirFoto:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(0, 212, 255, 0.5);
+  background: linear-gradient(135deg, #39ff14, #00d4ff);
+}
+
+.btnEliminarFoto {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.7rem;
+  padding: 1rem 2rem;
+  background: transparent;
+  color: #ff4444;
+  border: 2px solid #ff4444;
+  border-radius: 12px;
+  font-size: 1.05rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btnEliminarFoto:hover {
+  background: #ff4444;
+  color: #1a1a1a;
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(255, 68, 68, 0.4);
+}
+
+.textoAyuda {
+  font-size: 0.9rem;
+  color: #666;
+  margin: 0;
+  font-style: italic;
+}
+
+/* ========================================
+   INPUTS
+   ======================================== */
+
+.gridInputs {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.5rem;
+}
+
+.grupoInput {
+  margin-bottom: 0;
+}
+
+.label {
+  color: #ffffff;
+  font-weight: 600;
+  font-size: 1rem;
+  margin-bottom: 0.6rem;
+  letter-spacing: 0.5px;
+  display: block;
+}
+
+.inputConIcono {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.iconoInput {
+  position: absolute;
+  left: 1rem;
+  color: #00d4ff;
+  pointer-events: none;
+  flex-shrink: 0;
+}
+
+.input {
+  width: 100%;
+  background-color: #1a1a1a !important;
+  border: 2px solid #3a3a3a !important;
+  color: #ffffff !important;
+  padding: 1rem 1rem 1rem 3rem;
+  border-radius: 10px;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+}
+
+.input:focus {
+  background-color: #1a1a1a !important;
+  border-color: #00d4ff !important;
+  box-shadow: 0 0 15px rgba(0, 212, 255, 0.3) !important;
+  color: #ffffff !important;
+}
+
+.input::placeholder {
+  color: #6a6a6a;
+}
+
+.input:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Input bloqueado (email) */
+.inputBloqueado {
+  background-color: #2a2a2a !important;
+  cursor: not-allowed;
+}
+
+.badgeBloqueado {
+  position: absolute;
+  right: 1rem;
+  padding: 0.3rem 0.8rem;
+  background: rgba(255, 235, 59, 0.15);
+  border: 1px solid #ffeb3b;
+  border-radius: 10px;
+  color: #ffeb3b;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  pointer-events: none;
+}
+
+/* Botón del ojo para contraseñas */
+.btnOjo {
+  position: absolute;
+  right: 1rem;
+  background: none;
+  border: none;
+  color: #a0a0a0;
+  cursor: pointer;
+  padding: 0.5rem;
+  transition: all 0.3s ease;
+  border-radius: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btnOjo:hover:not(:disabled) {
+  color: #00d4ff;
+  background-color: rgba(0, 212, 255, 0.1);
+}
+
+.btnOjo:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ========================================
+   INDICADOR DE FUERZA DE CONTRASEÑA
+   ======================================== */
+
+.indicadorFuerza {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 0.7rem;
+}
+
+.barrasFuerza {
+  display: flex;
+  gap: 0.4rem;
+  flex: 1;
+}
+
+.barra {
+  height: 6px;
+  flex: 1;
+  border-radius: 3px;
+  background-color: #3a3a3a;
+  transition: all 0.3s ease;
+}
+
+.barraActiva {
+  box-shadow: 0 0 8px currentColor;
+}
+
+.textoFuerza {
+  font-size: 0.9rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  min-width: 70px;
+  text-align: right;
+}
+
+/* ========================================
+   BOTONES DE ACCIÓN
+   ======================================== */
+
+.contenedorBotones {
+  display: flex;
+  gap: 1.5rem;
+  justify-content: center;
+  margin-top: 3rem;
+  padding-top: 2rem;
+  border-top: 2px solid #3a3a3a;
+}
+
+.btnCancelar,
+.btnGuardar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.7rem;
+  padding: 1.1rem 2.5rem;
+  border: none;
+  border-radius: 12px;
+  font-size: 1.1rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-family: 'Orbitron', 'Impact', sans-serif;
+}
+
+.btnCancelar {
+  background: transparent;
+  color: #a0a0a0;
+  border: 2px solid #3a3a3a;
+}
+
+.btnCancelar:hover:not(:disabled) {
+  border-color: #00d4ff;
+  color: #00d4ff;
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(0, 212, 255, 0.2);
+}
+
+.btnGuardar {
+  background: linear-gradient(135deg, #00d4ff, #39ff14);
+  color: #1a1a1a;
+  box-shadow: 0 4px 15px rgba(0, 212, 255, 0.3);
+}
+
+.btnGuardar:hover:not(:disabled) {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(0, 212, 255, 0.5);
+  background: linear-gradient(135deg, #39ff14, #00d4ff);
+}
+
+.btnCancelar:active:not(:disabled),
+.btnGuardar:active:not(:disabled) {
+  transform: translateY(-1px);
+}
+
+.btnCancelar:disabled,
+.btnGuardar:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* ========================================
+   RESPONSIVE
+   ======================================== */
+
+/* Tablets grandes */
+@media (max-width: 1200px) {
+  .titulo {
+    font-size: 2.6rem;
+  }
+
+  .contenedorFoto {
+    gap: 2rem;
+  }
+
+  .fotoPerfil,
+  .avatarIniciales {
+    width: 130px;
+    height: 130px;
+    font-size: 3rem;
+  }
+}
+
+/* Tablets */
+@media (max-width: 992px) {
+  .contenedorEditarPerfil {
+    padding: 2.5rem 0;
+  }
+
+  .titulo {
+    font-size: 2.3rem;
+  }
+
+  .subtitulo {
+    font-size: 1.1rem;
+  }
+
+  .seccion {
+    padding: 1.8rem;
+  }
+
+  .tituloSeccion {
+    font-size: 1.4rem;
+  }
+
+  .gridInputs {
+    grid-template-columns: 1fr;
+    gap: 1.2rem;
+  }
+
+  .fotoPerfil,
+  .avatarIniciales {
+    width: 120px;
+    height: 120px;
+    font-size: 2.8rem;
+  }
+
+  .contenedorBotones {
+    flex-direction: column;
+  }
+
+  .btnCancelar,
+  .btnGuardar {
+    width: 100%;
+    max-width: 400px;
+    margin: 0 auto;
+  }
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+  .contenedorEditarPerfil {
+    padding: 2rem 0;
+  }
+
+  .header {
+    margin-bottom: 2rem;
+  }
+
+  .titulo {
+    font-size: 2rem;
+  }
+
+  .subtitulo {
+    font-size: 1rem;
+  }
+
+  .seccion {
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .tituloSeccion {
+    font-size: 1.3rem;
+  }
+
+  .contenedorFoto {
+    flex-direction: column;
+    gap: 1.5rem;
+    text-align: center;
+  }
+
+  .controlesFoto {
+    width: 100%;
+    max-width: 350px;
+  }
+
+  .fotoPerfil,
+  .avatarIniciales {
+    width: 110px;
+    height: 110px;
+    font-size: 2.5rem;
+  }
+
+  .btnSubirFoto,
+  .btnEliminarFoto {
+    padding: 0.9rem 1.8rem;
+    font-size: 1rem;
+  }
+
+  .input {
+    padding: 0.9rem 1rem 0.9rem 2.8rem;
+    font-size: 0.95rem;
+  }
+
+  .label {
+    font-size: 0.95rem;
+  }
+
+  .alerta,
+  .alertaExito {
+    font-size: 1rem;
+    padding: 0.9rem 1.2rem;
+  }
+
+  .contenedorBotones {
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+  }
+
+  .btnCancelar,
+  .btnGuardar {
+    padding: 1rem 2rem;
+    font-size: 1rem;
+  }
+}
+
+/* Mobile pequeño */
+@media (max-width: 576px) {
+  .titulo {
+    font-size: 1.8rem;
+    letter-spacing: 1px;
+  }
+
+  .subtitulo {
+    font-size: 0.95rem;
+  }
+
+  .seccion {
+    padding: 1.2rem;
+  }
+
+  .tituloSeccion {
+    font-size: 1.2rem;
+  }
+
+  .fotoPerfil,
+  .avatarIniciales {
+    width: 100px;
+    height: 100px;
+    font-size: 2.2rem;
+  }
+
+  .btnSubirFoto,
+  .btnEliminarFoto {
+    padding: 0.85rem 1.5rem;
+    font-size: 0.95rem;
+  }
+
+  .input {
+    padding: 0.85rem 0.9rem 0.85rem 2.6rem;
+    font-size: 0.9rem;
+  }
+
+  .iconoInput {
+    width: 18px;
+    height: 18px;
+    left: 0.85rem;
+  }
+
+  .label {
+    font-size: 0.9rem;
+  }
+
+  .textoAyuda {
+    font-size: 0.85rem;
+  }
+
+  .btnCancelar,
+  .btnGuardar {
+    padding: 0.9rem 1.8rem;
+    font-size: 0.95rem;
+  }
+
+  .textoFuerza {
+    font-size: 0.85rem;
+    min-width: 65px;
+  }
+
+  .barra {
+    height: 5px;
+  }
+}
