@@ -1,72 +1,83 @@
 import { useState } from 'react'
-import { useNavigate, Link } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import { Form, Button, Alert, InputGroup } from 'react-bootstrap'
 import { Eye, EyeOff } from 'lucide-react'
+import { useAuth } from '../../contexts/AuthContext'
 import styles from './Registro.module.css'
-import fotoRegistro from '../../assets/imagenes/login-foto.jpg'
+import fotoRegistro from '../../assets/imagenes/login-foto.png'
 
 function Registro() {
-  const navigate = useNavigate()
+  // ========================================
+  // CONTEXTO DE AUTENTICACIÓN
+  // ========================================
+  const { registrarse, cargando } = useAuth()
   
-  // Estados del formulario
+  // ========================================
+  // ESTADOS DEL FORMULARIO
+  // ========================================
   const [nombre, setNombre] = useState('')
   const [email, setEmail] = useState('')
   const [contraseña, setContraseña] = useState('')
   const [confirmarContraseña, setConfirmarContraseña] = useState('')
   const [equipo, setEquipo] = useState('')
   const [error, setError] = useState('')
-  const [cargando, setCargando] = useState(false)
+  const [exito, setExito] = useState(false)
   
   // Estados para mostrar/ocultar contraseñas
   const [mostrarContraseña, setMostrarContraseña] = useState(false)
   const [mostrarConfirmarContraseña, setMostrarConfirmarContraseña] = useState(false)
 
-  // Función para manejar el submit del formulario
+  // ========================================
+  // FUNCIÓN PARA MANEJAR EL SUBMIT
+  // ========================================
   const manejarSubmit = async (e) => {
     e.preventDefault()
     setError('')
-    setCargando(true)
+    setExito(false)
 
     // Validaciones
     if (!nombre || !email || !contraseña || !confirmarContraseña) {
       setError('Por favor completá todos los campos obligatorios')
-      setCargando(false)
       return
     }
 
     if (!email.includes('@')) {
       setError('Por favor ingresá un email válido')
-      setCargando(false)
       return
     }
 
     if (contraseña.length < 8) {
       setError('La contraseña debe tener al menos 8 caracteres')
-      setCargando(false)
       return
     }
 
     if (contraseña !== confirmarContraseña) {
       setError('Las contraseñas no coinciden')
-      setCargando(false)
       return
     }
 
-    // Simulación de registro (después conectamos con backend)
-    setTimeout(() => {
-      console.log('Registro exitoso:', {
-        nombre,
-        email,
-        contraseña,
-        equipo
-      })
-      
-      // Acá iría la lógica de registro real con el backend
-      // Por ahora solo redirigimos al login
-      navigate('/login')
-      
-      setCargando(false)
-    }, 1500)
+    // Preparar datos para enviar al backend
+    const datosRegistro = {
+      nombre,
+      email,
+      contraseña,
+      ...(equipo && { equipo }) // Solo incluir equipo si tiene valor
+    }
+
+    // Intentar registrarse con el backend
+    const resultado = await registrarse(datosRegistro)
+
+    if (resultado.exito) {
+      setExito(true)
+      // Limpiar formulario
+      setNombre('')
+      setEmail('')
+      setContraseña('')
+      setConfirmarContraseña('')
+      setEquipo('')
+    } else {
+      setError(resultado.mensaje)
+    }
   }
 
   return (
@@ -93,6 +104,20 @@ function Registro() {
             <h1 className={styles.titulo}>Crear Cuenta</h1>
             <p className={styles.subtitulo}>Unite a la comunidad de eRally</p>
 
+            {/* Mensaje de éxito */}
+            {exito && (
+              <Alert variant="success" className={styles.alerta}>
+                <strong>¡Registro exitoso!</strong><br />
+                Te enviamos un email a <strong>{email}</strong> para verificar tu cuenta.
+                Por favor revisá tu casilla (y la carpeta de spam) y hacé click en el enlace de verificación.
+                <div className="mt-3">
+                  <Link to="/login" className="btn btn-success btn-sm">
+                    Ir al Login
+                  </Link>
+                </div>
+              </Alert>
+            )}
+
             {/* Mensaje de error */}
             {error && (
               <Alert variant="danger" className={styles.alerta}>
@@ -100,130 +125,136 @@ function Registro() {
               </Alert>
             )}
 
-            {/* Formulario */}
-            <Form onSubmit={manejarSubmit} className={styles.formulario}>
-              
-              {/* Campo Nombre */}
-              <Form.Group className={styles.grupoInput}>
-                <Form.Label className={styles.label}>
-                  Nombre completo <span className={styles.obligatorio}>*</span>
-                </Form.Label>
-                <Form.Control
-                  type="text"
-                  placeholder="Juan Pérez"
-                  value={nombre}
-                  onChange={(e) => setNombre(e.target.value)}
-                  className={styles.input}
-                  disabled={cargando}
-                />
-              </Form.Group>
-
-              {/* Campo Email */}
-              <Form.Group className={styles.grupoInput}>
-                <Form.Label className={styles.label}>
-                  Email <span className={styles.obligatorio}>*</span>
-                </Form.Label>
-                <Form.Control
-                  type="email"
-                  placeholder="tu@email.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className={styles.input}
-                  disabled={cargando}
-                />
-              </Form.Group>
-
-              {/* Campo Contraseña con ojo */}
-              <Form.Group className={styles.grupoInput}>
-                <Form.Label className={styles.label}>
-                  Contraseña <span className={styles.obligatorio}>*</span>
-                </Form.Label>
-                <InputGroup>
+            {/* Formulario - Solo mostrar si NO hubo éxito */}
+            {!exito && (
+              <Form onSubmit={manejarSubmit} className={styles.formulario}>
+                
+                {/* Campo Nombre */}
+                <Form.Group className={styles.grupoInput}>
+                  <Form.Label className={styles.label}>
+                    Nombre completo <span className={styles.obligatorio}>*</span>
+                  </Form.Label>
                   <Form.Control
-                    type={mostrarContraseña ? "text" : "password"}
-                    placeholder="Mínimo 8 caracteres"
-                    value={contraseña}
-                    onChange={(e) => setContraseña(e.target.value)}
+                    type="text"
+                    placeholder="Juan Pérez"
+                    value={nombre}
+                    onChange={(e) => setNombre(e.target.value)}
+                    className={styles.input}
+                    disabled={cargando}
+                    autoComplete="name"
+                  />
+                </Form.Group>
+
+                {/* Campo Email */}
+                <Form.Group className={styles.grupoInput}>
+                  <Form.Label className={styles.label}>
+                    Email <span className={styles.obligatorio}>*</span>
+                  </Form.Label>
+                  <Form.Control
+                    type="email"
+                    placeholder="tu@email.com"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className={styles.input}
+                    disabled={cargando}
+                    autoComplete="email"
+                  />
+                </Form.Group>
+
+                {/* Campo Contraseña con ojo */}
+                <Form.Group className={styles.grupoInput}>
+                  <Form.Label className={styles.label}>
+                    Contraseña <span className={styles.obligatorio}>*</span>
+                  </Form.Label>
+                  <InputGroup>
+                    <Form.Control
+                      type={mostrarContraseña ? "text" : "password"}
+                      placeholder="Mínimo 8 caracteres"
+                      value={contraseña}
+                      onChange={(e) => setContraseña(e.target.value)}
+                      className={styles.input}
+                      disabled={cargando}
+                      autoComplete="new-password"
+                    />
+                    <button
+                      type="button"
+                      className={styles.btnOjo}
+                      onClick={() => setMostrarContraseña(!mostrarContraseña)}
+                      disabled={cargando}
+                    >
+                      {mostrarContraseña ? (
+                        <EyeOff size={20} />
+                      ) : (
+                        <Eye size={20} />
+                      )}
+                    </button>
+                  </InputGroup>
+                </Form.Group>
+
+                {/* Campo Confirmar Contraseña con ojo */}
+                <Form.Group className={styles.grupoInput}>
+                  <Form.Label className={styles.label}>
+                    Confirmar contraseña <span className={styles.obligatorio}>*</span>
+                  </Form.Label>
+                  <InputGroup>
+                    <Form.Control
+                      type={mostrarConfirmarContraseña ? "text" : "password"}
+                      placeholder="Repetí tu contraseña"
+                      value={confirmarContraseña}
+                      onChange={(e) => setConfirmarContraseña(e.target.value)}
+                      className={styles.input}
+                      disabled={cargando}
+                      autoComplete="new-password"
+                    />
+                    <button
+                      type="button"
+                      className={styles.btnOjo}
+                      onClick={() => setMostrarConfirmarContraseña(!mostrarConfirmarContraseña)}
+                      disabled={cargando}
+                    >
+                      {mostrarConfirmarContraseña ? (
+                        <EyeOff size={20} />
+                      ) : (
+                        <Eye size={20} />
+                      )}
+                    </button>
+                  </InputGroup>
+                </Form.Group>
+
+                {/* Campo Equipo (opcional) */}
+                <Form.Group className={styles.grupoInput}>
+                  <Form.Label className={styles.label}>
+                    Equipo <span className={styles.opcional}>(opcional)</span>
+                  </Form.Label>
+                  <Form.Control
+                    type="text"
+                    placeholder="Nombre de tu equipo"
+                    value={equipo}
+                    onChange={(e) => setEquipo(e.target.value)}
                     className={styles.input}
                     disabled={cargando}
                   />
-                  <button
-                    type="button"
-                    className={styles.btnOjo}
-                    onClick={() => setMostrarContraseña(!mostrarContraseña)}
-                    disabled={cargando}
-                  >
-                    {mostrarContraseña ? (
-                      <EyeOff size={20} />
-                    ) : (
-                      <Eye size={20} />
-                    )}
-                  </button>
-                </InputGroup>
-              </Form.Group>
+                </Form.Group>
 
-              {/* Campo Confirmar Contraseña con ojo */}
-              <Form.Group className={styles.grupoInput}>
-                <Form.Label className={styles.label}>
-                  Confirmar contraseña <span className={styles.obligatorio}>*</span>
-                </Form.Label>
-                <InputGroup>
-                  <Form.Control
-                    type={mostrarConfirmarContraseña ? "text" : "password"}
-                    placeholder="Repetí tu contraseña"
-                    value={confirmarContraseña}
-                    onChange={(e) => setConfirmarContraseña(e.target.value)}
-                    className={styles.input}
-                    disabled={cargando}
-                  />
-                  <button
-                    type="button"
-                    className={styles.btnOjo}
-                    onClick={() => setMostrarConfirmarContraseña(!mostrarConfirmarContraseña)}
-                    disabled={cargando}
-                  >
-                    {mostrarConfirmarContraseña ? (
-                      <EyeOff size={20} />
-                    ) : (
-                      <Eye size={20} />
-                    )}
-                  </button>
-                </InputGroup>
-              </Form.Group>
-
-              {/* Campo Equipo (opcional) */}
-              <Form.Group className={styles.grupoInput}>
-                <Form.Label className={styles.label}>
-                  Equipo <span className={styles.opcional}>(opcional)</span>
-                </Form.Label>
-                <Form.Control
-                  type="text"
-                  placeholder="Nombre de tu equipo"
-                  value={equipo}
-                  onChange={(e) => setEquipo(e.target.value)}
-                  className={styles.input}
+                {/* Botón Registrarse */}
+                <Button 
+                  type="submit" 
+                  className={styles.btnRegistrar}
                   disabled={cargando}
-                />
-              </Form.Group>
+                >
+                  {cargando ? 'Registrando...' : 'Registrarme'}
+                </Button>
 
-              {/* Botón Registrarse */}
-              <Button 
-                type="submit" 
-                className={styles.btnRegistrar}
-                disabled={cargando}
-              >
-                {cargando ? 'Registrando...' : 'Registrarme'}
-              </Button>
+                {/* Link a Login */}
+                <div className={styles.linkLogin}>
+                  <span className={styles.textoGris}>¿Ya tenés cuenta? </span>
+                  <Link to="/login" className={styles.link}>
+                    Ingresá acá
+                  </Link>
+                </div>
 
-              {/* Link a Login */}
-              <div className={styles.linkLogin}>
-                <span className={styles.textoGris}>¿Ya tenés cuenta? </span>
-                <Link to="/login" className={styles.link}>
-                  Ingresá acá
-                </Link>
-              </div>
-
-            </Form>
+              </Form>
+            )}
 
           </div>
         </div>

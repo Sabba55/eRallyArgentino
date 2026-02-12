@@ -1,438 +1,370 @@
-import { Rally, Categoria, CategoriaRally, Alquiler } from '../modelos/index.js';
-import { subirImagen, eliminarImagen } from '../config/cloudinary.js';
-import { enviarEmailReprogramacion, enviarEmailCancelacion } from '../utilidades/enviarEmail.js';
+import Categoria from '../modelos/Categoria.js';
+import Vehiculo from '../modelos/Vehiculo.js';
+import Rally from '../modelos/Rally.js';
+import { Op } from 'sequelize';
 
 // ========================================
-// LISTAR TODOS LOS RALLIES
+// LISTAR TODAS LAS CATEGORÍAS (PÚBLICO)
 // ========================================
-export const listarRallies = async (req, res) => {
+export const listarCategorias = async (req, res) => {
   try {
-    const { campeonato, estado = 'todos', limite = 50, pagina = 1 } = req.query;
-
-    const whereClause = {};
-    if (campeonato) whereClause.campeonato = campeonato;
-
-    // Filtrar por estado (próximos, pasados, todos)
-    const ahora = new Date();
-    if (estado === 'proximos') {
-      whereClause.fecha = { [Op.gte]: ahora };
-    } else if (estado === 'pasados') {
-      whereClause.fecha = { [Op.lt]: ahora };
-    }
-
-    const rallies = await Rally.findAndCountAll({
-      where: whereClause,
-      include: [{
-        model: Categoria,
-        as: 'categorias',
-        through: { attributes: [] }
-      }],
-      limit: parseInt(limite),
-      offset: (parseInt(pagina) - 1) * parseInt(limite),
-      order: [['fecha', estado === 'pasados' ? 'DESC' : 'ASC']]
+    const categorias = await Categoria.findAll({
+      order: [['nombre', 'ASC']],
+      attributes: ['id', 'nombre', 'descripcion', 'color']
     });
 
     res.json({
-      rallies: rallies.rows,
-      paginacion: {
-        total: rallies.count,
-        pagina: parseInt(pagina),
-        limite: parseInt(limite),
-        totalPaginas: Math.ceil(rallies.count / parseInt(limite))
-      }
+      categorias,
+      total: categorias.length
     });
   } catch (error) {
-    console.error('Error al listar rallies:', error);
+    console.error('Error al listar categorías:', error);
     res.status(500).json({
-      error: 'Error al listar rallies',
+      error: 'Error al listar categorías',
       detalle: error.message
     });
   }
 };
 
 // ========================================
-// LISTAR PRÓXIMOS RALLIES (PÚBLICO)
+// OBTENER CATEGORÍA POR ID (PÚBLICO)
 // ========================================
-export const listarProximos = async (req, res) => {
-  try {
-    const rallies = await Rally.obtenerProximos();
-
-    res.json({
-      rallies,
-      total: rallies.length
-    });
-  } catch (error) {
-    console.error('Error al listar próximos rallies:', error);
-    res.status(500).json({
-      error: 'Error al listar próximos rallies',
-      detalle: error.message
-    });
-  }
-};
-
-// ========================================
-// LISTAR RALLIES PASADOS (PÚBLICO)
-// ========================================
-export const listarPasados = async (req, res) => {
-  try {
-    const rallies = await Rally.obtenerPasados();
-
-    res.json({
-      rallies,
-      total: rallies.length
-    });
-  } catch (error) {
-    console.error('Error al listar rallies pasados:', error);
-    res.status(500).json({
-      error: 'Error al listar rallies pasados',
-      detalle: error.message
-    });
-  }
-};
-
-// ========================================
-// OBTENER RALLY POR ID
-// ========================================
-export const obtenerRally = async (req, res) => {
+export const obtenerCategoria = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const rally = await Rally.buscarConCategorias(id);
+    const categoria = await Categoria.findByPk(id, {
+      attributes: ['id', 'nombre', 'descripcion', 'color']
+    });
 
-    if (!rally) {
+    if (!categoria) {
       return res.status(404).json({
-        error: 'Rally no encontrado'
+        error: 'Categoría no encontrada'
       });
     }
 
-    // Agregar información adicional
-    const rallyData = rally.toJSON();
-    rallyData.fueReprogramado = rally.fueReprogramado();
-    rallyData.yaPaso = rally.yaPaso();
-
     res.json({
-      rally: rallyData
+      categoria
     });
   } catch (error) {
-    console.error('Error al obtener rally:', error);
+    console.error('Error al obtener categoría:', error);
     res.status(500).json({
-      error: 'Error al obtener rally',
+      error: 'Error al obtener categoría',
       detalle: error.message
     });
   }
 };
 
 // ========================================
-// CREAR RALLY (CREADOR FECHAS / ADMIN)
+// OBTENER VEHÍCULOS DE UNA CATEGORÍA
 // ========================================
-export const crearRally = async (req, res) => {
+export const obtenerVehiculosCategoria = async (req, res) => {
   try {
-    const { campeonato, nombre, subtitulo, fecha, contactos, categoriasIds } = req.body;
+    const { id } = req.params;
 
-    // Verificar que se haya enviado un logo
-    if (!req.file) {
-      return res.status(400).json({
-        error: 'Debes subir un logo del rally'
+    const categoria = await Categoria.findByPk(id);
+
+    if (!categoria) {
+      return res.status(404).json({
+        error: 'Categoría no encontrada'
       });
     }
 
-    // Subir logo a Cloudinary
-    const urlLogo = await subirImagen(req.file.buffer, 'rallies');
-
-    // Crear rally
-    const nuevoRally = await Rally.create({
-      campeonato,
-      nombre,
-      subtitulo,
-      fecha: new Date(fecha),
-      logo: urlLogo,
-      contactos: contactos ? JSON.parse(contactos) : null
+    const vehiculos = await Vehiculo.findAll({
+      where: { categoriaId: id },
+      order: [['marca', 'ASC'], ['nombre', 'ASC']]
     });
 
-    // Asignar categorías permitidas si se especificaron
-    if (categoriasIds && Array.isArray(categoriasIds) && categoriasIds.length > 0) {
-      await CategoriaRally.habilitarCategorias(nuevoRally.id, categoriasIds);
+    res.json({
+      categoria: {
+        id: categoria.id,
+        nombre: categoria.nombre,
+        color: categoria.color
+      },
+      vehiculos,
+      total: vehiculos.length
+    });
+  } catch (error) {
+    console.error('Error al obtener vehículos de categoría:', error);
+    res.status(500).json({
+      error: 'Error al obtener vehículos',
+      detalle: error.message
+    });
+  }
+};
+
+// ========================================
+// OBTENER RALLIES DE UNA CATEGORÍA
+// ========================================
+export const obtenerRalliesCategoria = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const categoria = await Categoria.findByPk(id, {
+      include: [{
+        model: Rally,
+        as: 'rallies',
+        through: { attributes: [] },
+        where: {
+          fecha: { [Op.gte]: new Date() }
+        },
+        required: false,
+        order: [['fecha', 'ASC']]
+      }]
+    });
+
+    if (!categoria) {
+      return res.status(404).json({
+        error: 'Categoría no encontrada'
+      });
     }
 
-    // Obtener rally con categorías
-    const rallyConCategorias = await Rally.buscarConCategorias(nuevoRally.id);
+    res.json({
+      categoria: {
+        id: categoria.id,
+        nombre: categoria.nombre,
+        color: categoria.color
+      },
+      rallies: categoria.rallies || [],
+      total: categoria.rallies?.length || 0
+    });
+  } catch (error) {
+    console.error('Error al obtener rallies de categoría:', error);
+    res.status(500).json({
+      error: 'Error al obtener rallies',
+      detalle: error.message
+    });
+  }
+};
+
+// ========================================
+// CREAR CATEGORÍA (ADMIN)
+// ========================================
+export const crearCategoria = async (req, res) => {
+  try {
+    const { nombre, descripcion, color } = req.body;
+
+    // Verificar si ya existe
+    const categoriaExistente = await Categoria.findOne({
+      where: { nombre: { [Op.iLike]: nombre } }
+    });
+
+    if (categoriaExistente) {
+      return res.status(400).json({
+        error: 'Ya existe una categoría con ese nombre'
+      });
+    }
+
+    const nuevaCategoria = await Categoria.create({
+      nombre,
+      descripcion: descripcion || null,
+      color
+    });
 
     res.status(201).json({
-      mensaje: 'Rally creado exitosamente',
-      rally: rallyConCategorias
+      mensaje: 'Categoría creada exitosamente',
+      categoria: nuevaCategoria
     });
   } catch (error) {
-    console.error('Error al crear rally:', error);
+    console.error('Error al crear categoría:', error);
     res.status(500).json({
-      error: 'Error al crear rally',
+      error: 'Error al crear categoría',
       detalle: error.message
     });
   }
 };
 
 // ========================================
-// ACTUALIZAR RALLY (CREADOR FECHAS / ADMIN)
+// ACTUALIZAR CATEGORÍA (ADMIN)
 // ========================================
-export const actualizarRally = async (req, res) => {
+export const actualizarCategoria = async (req, res) => {
   try {
     const { id } = req.params;
-    const { campeonato, nombre, subtitulo, fecha, contactos, categoriasIds } = req.body;
+    const { nombre, descripcion, color } = req.body;
 
-    const rally = await Rally.findByPk(id);
+    const categoria = await Categoria.findByPk(id);
 
-    if (!rally) {
+    if (!categoria) {
       return res.status(404).json({
-        error: 'Rally no encontrado'
+        error: 'Categoría no encontrada'
       });
     }
 
-    // Si se envió nuevo logo, actualizar
-    if (req.file) {
-      // Eliminar logo anterior
-      await eliminarImagen(rally.logo);
+    // Si se cambia el nombre, verificar que no exista
+    if (nombre && nombre !== categoria.nombre) {
+      const categoriaExistente = await Categoria.findOne({
+        where: {
+          nombre: { [Op.iLike]: nombre },
+          id: { [Op.ne]: id }
+        }
+      });
 
-      // Subir nuevo logo
-      const urlLogo = await subirImagen(req.file.buffer, 'rallies');
-      rally.logo = urlLogo;
+      if (categoriaExistente) {
+        return res.status(400).json({
+          error: 'Ya existe una categoría con ese nombre'
+        });
+      }
     }
 
     // Actualizar campos
-    if (campeonato) rally.campeonato = campeonato;
-    if (nombre) rally.nombre = nombre;
-    if (subtitulo !== undefined) rally.subtitulo = subtitulo;
-    if (contactos) rally.contactos = JSON.parse(contactos);
+    if (nombre) categoria.nombre = nombre;
+    if (descripcion !== undefined) categoria.descripcion = descripcion;
+    if (color) categoria.color = color;
 
-    await rally.save();
-
-    // Actualizar categorías si se especificaron
-    if (categoriasIds && Array.isArray(categoriasIds)) {
-      await CategoriaRally.deshabilitarTodasCategoriasRally(rally.id);
-      if (categoriasIds.length > 0) {
-        await CategoriaRally.habilitarCategorias(rally.id, categoriasIds);
-      }
-    }
-
-    // Obtener rally actualizado
-    const rallyActualizado = await Rally.buscarConCategorias(rally.id);
+    await categoria.save();
 
     res.json({
-      mensaje: 'Rally actualizado exitosamente',
-      rally: rallyActualizado
+      mensaje: 'Categoría actualizada exitosamente',
+      categoria
     });
   } catch (error) {
-    console.error('Error al actualizar rally:', error);
+    console.error('Error al actualizar categoría:', error);
     res.status(500).json({
-      error: 'Error al actualizar rally',
+      error: 'Error al actualizar categoría',
       detalle: error.message
     });
   }
 };
 
 // ========================================
-// REPROGRAMAR RALLY (CREADOR FECHAS / ADMIN)
+// ELIMINAR CATEGORÍA (ADMIN)
 // ========================================
-export const reprogramarRally = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const { nuevaFecha } = req.body;
-
-    const rally = await Rally.findByPk(id);
-
-    if (!rally) {
-      return res.status(404).json({
-        error: 'Rally no encontrado'
-      });
-    }
-
-    // Guardar fecha anterior
-    const fechaAnterior = rally.fecha;
-
-    // Reprogramar rally
-    await rally.reprogramar(new Date(nuevaFecha));
-
-    // Actualizar todos los alquileres asociados
-    const alquileres = await Alquiler.obtenerPorRally(id);
-
-    for (const alquiler of alquileres) {
-      await alquiler.reprogramar(new Date(nuevaFecha));
-
-      // Enviar email de notificación al usuario
-      const usuario = await alquiler.Usuario;
-      const vehiculo = await alquiler.Vehiculo;
-
-      await enviarEmailReprogramacion(
-        usuario.email,
-        usuario.nombre,
-        rally.nombre,
-        vehiculo.nombreCompleto(),
-        fechaAnterior,
-        nuevaFecha
-      );
-    }
-
-    res.json({
-      mensaje: 'Rally reprogramado exitosamente',
-      rally: {
-        id: rally.id,
-        nombre: rally.nombre,
-        fechaOriginal: rally.fechaOriginal,
-        fechaAnterior,
-        fechaNueva: rally.fecha
-      },
-      alquileresActualizados: alquileres.length
-    });
-  } catch (error) {
-    console.error('Error al reprogramar rally:', error);
-    res.status(500).json({
-      error: 'Error al reprogramar rally',
-      detalle: error.message
-    });
-  }
-};
-
-// ========================================
-// CARGAR RESULTADOS (CREADOR FECHAS / ADMIN)
-// ========================================
-export const cargarResultados = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const { resultados } = req.body;
-
-    const rally = await Rally.findByPk(id);
-
-    if (!rally) {
-      return res.status(404).json({
-        error: 'Rally no encontrado'
-      });
-    }
-
-    await rally.cargarResultados(resultados);
-
-    res.json({
-      mensaje: 'Resultados cargados exitosamente',
-      rally: {
-        id: rally.id,
-        nombre: rally.nombre,
-        resultados: rally.resultados
-      }
-    });
-  } catch (error) {
-    console.error('Error al cargar resultados:', error);
-    res.status(500).json({
-      error: 'Error al cargar resultados',
-      detalle: error.message
-    });
-  }
-};
-
-// ========================================
-// ELIMINAR RALLY (ADMIN)
-// ========================================
-export const eliminarRally = async (req, res) => {
+export const eliminarCategoria = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const rally = await Rally.findByPk(id);
+    const categoria = await Categoria.findByPk(id);
 
-    if (!rally) {
+    if (!categoria) {
       return res.status(404).json({
-        error: 'Rally no encontrado'
+        error: 'Categoría no encontrada'
       });
     }
 
-    // Notificar a usuarios con alquileres
-    const alquileres = await Alquiler.obtenerPorRally(id);
+    // Verificar si tiene vehículos asociados
+    const vehiculosAsociados = await Vehiculo.count({
+      where: { categoriaId: id }
+    });
 
-    for (const alquiler of alquileres) {
-      const usuario = await alquiler.Usuario;
-      const vehiculo = await alquiler.Vehiculo;
-
-      // Marcar alquiler como rally cancelado
-      await alquiler.marcarRallyCancelado();
-
-      // Enviar email
-      await enviarEmailCancelacion(
-        usuario.email,
-        usuario.nombre,
-        rally.nombre,
-        vehiculo.nombreCompleto()
-      );
+    if (vehiculosAsociados > 0) {
+      return res.status(400).json({
+        error: `No se puede eliminar la categoría porque tiene ${vehiculosAsociados} vehículo(s) asociado(s)`
+      });
     }
 
-    // Eliminar logo de Cloudinary
-    await eliminarImagen(rally.logo);
-
-    // Eliminar rally
-    await rally.destroy();
+    await categoria.destroy();
 
     res.json({
-      mensaje: 'Rally eliminado exitosamente',
-      usuariosNotificados: alquileres.length
+      mensaje: 'Categoría eliminada exitosamente'
     });
   } catch (error) {
-    console.error('Error al eliminar rally:', error);
+    console.error('Error al eliminar categoría:', error);
 
     if (error.name === 'SequelizeForeignKeyConstraintError') {
       return res.status(400).json({
-        error: 'No se puede eliminar este rally porque tiene registros en el historial'
+        error: 'No se puede eliminar la categoría porque tiene registros asociados'
       });
     }
 
     res.status(500).json({
-      error: 'Error al eliminar rally',
+      error: 'Error al eliminar categoría',
       detalle: error.message
     });
   }
 };
 
 // ========================================
-// GESTIÓN DE CATEGORÍAS DEL RALLY
+// CREAR CATEGORÍAS INICIALES (SETUP)
 // ========================================
+export const crearCategoriasIniciales = async (req, res) => {
+  try {
+    // Verificar si ya hay categorías
+    const categorias = await Categoria.count();
 
-// Habilitar categoría en un rally
-export const habilitarCategoria = async (req, res) => {
+    if (categorias > 0) {
+      return res.status(400).json({
+        error: 'Ya existen categorías en la base de datos'
+      });
+    }
+
+    // Categorías del sistema eRally
+    const categoriasIniciales = [
+      { nombre: 'Rally2', color: '#00d4ff', descripcion: 'Máxima categoría - 4x4' },
+      { nombre: 'R5', color: '#39ff14', descripcion: 'Alta competición - 4x4' },
+      { nombre: 'Rally3', color: '#ff6b00', descripcion: 'Desarrollo - 4x4' },
+      { nombre: 'Rally4', color: '#ffd60a', descripcion: 'Iniciación - FWD' },
+      { nombre: 'Maxi Rally', color: '#9d4edd', descripcion: 'Históricos - 4x4' },
+      { nombre: 'N4', color: '#e63946', descripcion: 'Homologados - 4x4' },
+      { nombre: 'RC3', color: '#ff006e', descripcion: 'Regional C3 - FWD' },
+      { nombre: 'A1', color: '#ff0037', descripcion: 'Regional A1 - FWD' },
+      { nombre: 'N1', color: '#2a9d8f', descripcion: 'Regional N1 - FWD' },
+      { nombre: 'RC5', color: '#0077b6', descripcion: 'Regional C5 - FWD' }
+    ];
+
+    const categoriasCreadas = await Categoria.bulkCreate(categoriasIniciales);
+
+    res.status(201).json({
+      mensaje: 'Categorías iniciales creadas exitosamente',
+      categorias: categoriasCreadas,
+      total: categoriasCreadas.length
+    });
+  } catch (error) {
+    console.error('Error al crear categorías iniciales:', error);
+    res.status(500).json({
+      error: 'Error al crear categorías iniciales',
+      detalle: error.message
+    });
+  }
+};
+
+// ========================================
+// OBTENER ESTADÍSTICAS DE CATEGORÍA (ADMIN)
+// ========================================
+export const obtenerEstadisticas = async (req, res) => {
   try {
     const { id } = req.params;
-    const { categoriaId } = req.body;
 
-    const rally = await Rally.findByPk(id);
-    if (!rally) {
-      return res.status(404).json({ error: 'Rally no encontrado' });
-    }
+    const categoria = await Categoria.findByPk(id);
 
-    const categoria = await Categoria.findByPk(categoriaId);
     if (!categoria) {
-      return res.status(404).json({ error: 'Categoría no encontrada' });
+      return res.status(404).json({
+        error: 'Categoría no encontrada'
+      });
     }
 
-    await CategoriaRally.habilitarCategoria(id, categoriaId);
+    // Contar vehículos
+    const totalVehiculos = await Vehiculo.count({
+      where: { categoriaId: id }
+    });
+
+    // Contar rallies próximos
+    const ralliesProximos = await Rally.count({
+      include: [{
+        model: Categoria,
+        as: 'categorias',
+        where: { id },
+        through: { attributes: [] }
+      }],
+      where: {
+        fecha: { [Op.gte]: new Date() }
+      }
+    });
 
     res.json({
-      mensaje: 'Categoría habilitada exitosamente'
+      categoria: {
+        id: categoria.id,
+        nombre: categoria.nombre,
+        color: categoria.color
+      },
+      estadisticas: {
+        totalVehiculos,
+        ralliesProximos
+      }
     });
   } catch (error) {
-    console.error('Error al habilitar categoría:', error);
+    console.error('Error al obtener estadísticas:', error);
     res.status(500).json({
-      error: 'Error al habilitar categoría',
-      detalle: error.message
-    });
-  }
-};
-
-// Deshabilitar categoría de un rally
-export const deshabilitarCategoria = async (req, res) => {
-  try {
-    const { id, categoriaId } = req.params;
-
-    await CategoriaRally.deshabilitarCategoria(id, categoriaId);
-
-    res.json({
-      mensaje: 'Categoría deshabilitada exitosamente'
-    });
-  } catch (error) {
-    console.error('Error al deshabilitar categoría:', error);
-    res.status(500).json({
-      error: 'Error al deshabilitar categoría',
+      error: 'Error al obtener estadísticas',
       detalle: error.message
     });
   }

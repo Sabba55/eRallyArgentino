@@ -1,6 +1,10 @@
 import { Compra, Alquiler, Usuario, Vehiculo, Rally, Historial } from '../modelos/index.js';
-import { crearPreferenciaMercadoPago } from '../config/pagos.js';
-import { crearOrdenPayPal, capturarPagoPayPal } from '../config/pagos.js';
+import { 
+  crearPreferenciaPago,        // ← CORREGIDO
+  verificarPago,
+  crearOrdenPayPal, 
+  capturarPagoPayPal 
+} from '../config/pagos.js';
 import { obtenerDolarBlue } from '../utilidades/obtenerDolar.js';
 import { enviarEmailCompra, enviarEmailAlquiler } from '../utilidades/enviarEmail.js';
 
@@ -53,17 +57,19 @@ export const crearCompraMercadoPago = async (req, res) => {
       estado: 'pendiente'
     });
 
-    // Crear preferencia de Mercado Pago
-    const preferencia = await crearPreferenciaMercadoPago(
-      `Compra - ${vehiculo.marca} ${vehiculo.nombre}`,
-      vehiculo.precioCompra,
-      {
+    // Crear preferencia de Mercado Pago (CORREGIDO)
+    const preferencia = await crearPreferenciaPago({
+      titulo: `Compra - ${vehiculo.marca} ${vehiculo.nombre}`,
+      precio: vehiculo.precioCompra,
+      cantidad: 1,
+      usuarioId: usuario.id,
+      metadata: {
         tipo: 'compra',
         compraId: compra.id,
-        usuarioId: usuario.id,
-        vehiculoId
+        vehiculoId,
+        email: usuario.email
       }
-    );
+    });
 
     // Actualizar la compra con el ID de transacción
     compra.transaccionId = preferencia.id;
@@ -141,19 +147,19 @@ export const crearCompraPayPal = async (req, res) => {
       estado: 'pendiente'
     });
 
-    // Crear orden de PayPal
-    const orden = await crearOrdenPayPal(
-      `Compra - ${vehiculo.marca} ${vehiculo.nombre}`,
-      montoUSD,
-      {
+    // Crear orden de PayPal (CORREGIDO)
+    const orden = await crearOrdenPayPal({
+      titulo: `Compra - ${vehiculo.marca} ${vehiculo.nombre}`,
+      precioUSD: montoUSD,
+      usuarioId: usuario.id,
+      metadata: {
         tipo: 'compra',
         compraId: compra.id,
-        usuarioId: usuario.id,
         vehiculoId
       }
-    );
+    });
 
-    compra.transaccionId = orden.id;
+    compra.transaccionId = orden.orderID;
     await compra.save();
 
     res.status(201).json({
@@ -172,8 +178,8 @@ export const crearCompraPayPal = async (req, res) => {
         cotizacionDolar: dolarBlue
       },
       orden: {
-        id: orden.id,
-        approveLink: orden.links.find(link => link.rel === 'approve').href
+        id: orden.orderID,
+        approveLink: orden.approveURL
       }
     });
   } catch (error) {
@@ -235,18 +241,20 @@ export const crearAlquilerMercadoPago = async (req, res) => {
       estado: 'pendiente'
     });
 
-    // Crear preferencia de Mercado Pago
-    const preferencia = await crearPreferenciaMercadoPago(
-      `Alquiler - ${vehiculo.marca} ${vehiculo.nombre} - ${rally.nombre}`,
-      vehiculo.precioAlquiler,
-      {
+    // Crear preferencia de Mercado Pago (CORREGIDO)
+    const preferencia = await crearPreferenciaPago({
+      titulo: `Alquiler - ${vehiculo.marca} ${vehiculo.nombre} - ${rally.nombre}`,
+      precio: vehiculo.precioAlquiler,
+      cantidad: 1,
+      usuarioId: usuario.id,
+      metadata: {
         tipo: 'alquiler',
         alquilerId: alquiler.id,
-        usuarioId: usuario.id,
         vehiculoId,
-        rallyId
+        rallyId,
+        email: usuario.email
       }
-    );
+    });
 
     alquiler.transaccionId = preferencia.id;
     await alquiler.save();
@@ -332,19 +340,20 @@ export const crearAlquilerPayPal = async (req, res) => {
       estado: 'pendiente'
     });
 
-    const orden = await crearOrdenPayPal(
-      `Alquiler - ${vehiculo.marca} ${vehiculo.nombre} - ${rally.nombre}`,
-      montoUSD,
-      {
+    // Crear orden de PayPal (CORREGIDO)
+    const orden = await crearOrdenPayPal({
+      titulo: `Alquiler - ${vehiculo.marca} ${vehiculo.nombre} - ${rally.nombre}`,
+      precioUSD: montoUSD,
+      usuarioId: usuario.id,
+      metadata: {
         tipo: 'alquiler',
         alquilerId: alquiler.id,
-        usuarioId: usuario.id,
         vehiculoId,
         rallyId
       }
-    );
+    });
 
-    alquiler.transaccionId = orden.id;
+    alquiler.transaccionId = orden.orderID;
     await alquiler.save();
 
     res.status(201).json({
@@ -368,8 +377,8 @@ export const crearAlquilerPayPal = async (req, res) => {
         cotizacionDolar: dolarBlue
       },
       orden: {
-        id: orden.id,
-        approveLink: orden.links.find(link => link.rel === 'approve').href
+        id: orden.orderID,
+        approveLink: orden.approveURL
       }
     });
   } catch (error) {
@@ -392,64 +401,66 @@ export const webhookMercadoPago = async (req, res) => {
     if (type === 'payment') {
       const paymentId = data.id;
 
-      // Aquí deberías verificar el pago con la API de Mercado Pago
-      // Por ahora simulamos que el pago fue aprobado
+      // Verificar el pago
+      const infoPago = await verificarPago(paymentId);
 
-      // Buscar la transacción (puede ser compra o alquiler)
-      const compra = await Compra.findOne({
-        where: { transaccionId: paymentId, estado: 'pendiente' }
-      });
-
-      const alquiler = await Alquiler.findOne({
-        where: { transaccionId: paymentId, estado: 'pendiente' }
-      });
-
-      if (compra) {
-        await compra.aprobar();
-
-        // Crear registro en historial
-        const vehiculo = await Vehiculo.findByPk(compra.vehiculoId);
-        const categorias = await vehiculo.getCategorias();
-
-        await Historial.crearRegistro({
-          usuarioId: compra.usuarioId,
-          vehiculoId: compra.vehiculoId,
-          rallyId: null, // Las compras no están asociadas a un rally específico
-          categoriaNombre: categorias[0]?.nombre || 'Sin categoría',
-          tipoTransaccion: 'compra'
+      if (infoPago.status === 'approved') {
+        // Buscar la transacción (puede ser compra o alquiler)
+        const compra = await Compra.findOne({
+          where: { transaccionId: paymentId, estado: 'pendiente' }
         });
 
-        // Enviar email de confirmación
-        const usuario = await Usuario.findByPk(compra.usuarioId);
-        await enviarEmailCompra(usuario.email, usuario.nombre, vehiculo.nombreCompleto());
-      }
-
-      if (alquiler) {
-        await alquiler.aprobar();
-
-        // Crear registro en historial
-        const vehiculo = await Vehiculo.findByPk(alquiler.vehiculoId);
-        const rally = await Rally.findByPk(alquiler.rallyId);
-        const categorias = await vehiculo.getCategorias();
-
-        await Historial.crearRegistro({
-          usuarioId: alquiler.usuarioId,
-          vehiculoId: alquiler.vehiculoId,
-          rallyId: alquiler.rallyId,
-          categoriaNombre: categorias[0]?.nombre || 'Sin categoría',
-          tipoTransaccion: 'alquiler',
-          fechaParticipacion: rally.fecha
+        const alquiler = await Alquiler.findOne({
+          where: { transaccionId: paymentId, estado: 'pendiente' }
         });
 
-        // Enviar email de confirmación
-        const usuario = await Usuario.findByPk(alquiler.usuarioId);
-        await enviarEmailAlquiler(
-          usuario.email,
-          usuario.nombre,
-          vehiculo.nombreCompleto(),
-          rally.nombre,
-          rally.fecha
-        );
+        if (compra) {
+          await compra.aprobar();
+
+          // Crear registro en historial
+          const vehiculo = await Vehiculo.findByPk(compra.vehiculoId);
+          const categorias = await vehiculo.getCategorias();
+
+          await Historial.crearRegistro({
+            usuarioId: compra.usuarioId,
+            vehiculoId: compra.vehiculoId,
+            rallyId: null,
+            categoriaNombre: categorias[0]?.nombre || 'Sin categoría',
+            tipoTransaccion: 'compra'
+          });
+
+          // Enviar email de confirmación
+          const usuario = await Usuario.findByPk(compra.usuarioId);
+          await enviarEmailCompra(usuario.email, usuario.nombre, vehiculo.nombreCompleto());
+        }
+
+        if (alquiler) {
+          await alquiler.aprobar();
+
+          // Crear registro en historial
+          const vehiculo = await Vehiculo.findByPk(alquiler.vehiculoId);
+          const rally = await Rally.findByPk(alquiler.rallyId);
+          const categorias = await vehiculo.getCategorias();
+
+          await Historial.crearRegistro({
+            usuarioId: alquiler.usuarioId,
+            vehiculoId: alquiler.vehiculoId,
+            rallyId: alquiler.rallyId,
+            categoriaNombre: categorias[0]?.nombre || 'Sin categoría',
+            tipoTransaccion: 'alquiler',
+            fechaParticipacion: rally.fecha
+          });
+
+          // Enviar email de confirmación
+          const usuario = await Usuario.findByPk(alquiler.usuarioId);
+          await enviarEmailAlquiler(
+            usuario.email,
+            usuario.nombre,
+            vehiculo.nombreCompleto(),
+            rally.nombre,
+            rally.fecha
+          );
+        }
       }
     }
 

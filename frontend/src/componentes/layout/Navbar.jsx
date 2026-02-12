@@ -1,19 +1,39 @@
 import { Navbar as NavbarBootstrap, Nav, NavDropdown, Container } from 'react-bootstrap'
-import { Link } from 'react-router-dom'
-import { useState } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
+import { useAuth } from '../../contexts/AuthContext'
 import styles from './Navbar.module.css'
 import logo from '../../assets/imagenes/erally-logo.png'
 
 function Navbar() {
-  // Por ahora simulamos si el usuario está logueado o no
-  // Después esto va a venir del contexto de autenticación
-  const [usuarioLogueado, setUsuarioLogueado] = useState(true)
-  
-  // Datos temporales del usuario
-  const usuario = {
-    nombre: 'Juan',
-    apellido: 'Pérez',
-    iniciales: 'JP'
+  // ========================================
+  // USAR EL CONTEXTO DE AUTENTICACIÓN REAL
+  // ========================================
+  const { usuario, logout, estaLogueado } = useAuth()
+  const navigate = useNavigate()
+
+  // ========================================
+  // FUNCIÓN PARA CERRAR SESIÓN
+  // ========================================
+  const handleLogout = () => {
+    logout()
+    // El AuthContext ya redirige a /login automáticamente
+  }
+
+  // ========================================
+  // OBTENER INICIALES DEL USUARIO
+  // ========================================
+  const obtenerIniciales = (nombre) => {
+    if (!nombre) return '?'
+    
+    const palabras = nombre.trim().split(' ')
+    
+    if (palabras.length >= 2) {
+      // Si tiene nombre y apellido: "Juan Pérez" → "JP"
+      return (palabras[0][0] + palabras[palabras.length - 1][0]).toUpperCase()
+    } else {
+      // Si solo tiene un nombre: "Juan" → "JU"
+      return nombre.substring(0, 2).toUpperCase()
+    }
   }
 
   return (
@@ -41,14 +61,14 @@ function Navbar() {
             </Nav.Link>
 
             {/* GARAGE - Solo visible para usuarios logueados */}
-            {usuarioLogueado && (
+            {estaLogueado && (
               <Nav.Link as={Link} to="/garage" className={styles.navLink}>
                 GARAGE
               </Nav.Link>
             )}
 
             {/* TIENDA - Solo visible para usuarios logueados */}
-            {usuarioLogueado && (
+            {estaLogueado && (
               <Nav.Link as={Link} to="/tienda" className={styles.navLink}>
                 TIENDA
               </Nav.Link>
@@ -70,7 +90,7 @@ function Navbar() {
               </NavDropdown.Item>
               
               {/* Diferentes opciones según si está logueado */}
-              {usuarioLogueado ? (
+              {estaLogueado ? (
                 <>
                   <NavDropdown.Item as={Link} to="/descargas/pack-autos">
                     Pack Autos
@@ -96,13 +116,21 @@ function Navbar() {
             </NavDropdown>
 
             {/* PERFIL - Solo para usuarios logueados */}
-            {usuarioLogueado ? (
+            {estaLogueado ? (
               <NavDropdown
                 title={
                   <div className={styles.avatarContainer}>
-                    <div className={styles.avatar}>
-                      {usuario.iniciales}
-                    </div>
+                    {usuario?.fotoPerfil ? (
+                      <img 
+                        src={usuario.fotoPerfil} 
+                        alt={usuario.nombre}
+                        className={styles.avatarImg}
+                      />
+                    ) : (
+                      <div className={styles.avatar}>
+                        {obtenerIniciales(usuario?.nombre)}
+                      </div>
+                    )}
                   </div>
                 }
                 id="perfil-dropdown"
@@ -110,17 +138,36 @@ function Navbar() {
                 align="end"
               >
                 <NavDropdown.ItemText className={styles.nombreUsuario}>
-                  {usuario.nombre} {usuario.apellido}
+                  {usuario?.nombre || 'Usuario'}
                 </NavDropdown.ItemText>
+                
+                {usuario?.equipo && (
+                  <NavDropdown.ItemText className={styles.equipoUsuario}>
+                    {usuario.equipo}
+                  </NavDropdown.ItemText>
+                )}
+                
                 <NavDropdown.Divider />
+                
                 <NavDropdown.Item as={Link} to="/perfil">
+                  <i className="bi bi-person-circle me-2"></i>
                   Ver Perfil
                 </NavDropdown.Item>
+                
                 <NavDropdown.Item as={Link} to="/perfil/editar">
+                  <i className="bi bi-pencil-square me-2"></i>
                   Editar Perfil
                 </NavDropdown.Item>
+                
+                <NavDropdown.Item as={Link} to="/garage">
+                  <i className="bi bi-car-front-fill me-2"></i>
+                  Mi Garage
+                </NavDropdown.Item>
+                
                 <NavDropdown.Divider />
-                <NavDropdown.Item onClick={() => setUsuarioLogueado(false)}>
+                
+                <NavDropdown.Item onClick={handleLogout} className={styles.logoutItem}>
+                  <i className="bi bi-box-arrow-right me-2"></i>
                   Cerrar Sesión
                 </NavDropdown.Item>
               </NavDropdown>

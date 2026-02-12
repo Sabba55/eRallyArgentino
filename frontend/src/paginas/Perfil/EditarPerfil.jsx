@@ -1,234 +1,186 @@
-import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useState, useEffect } from 'react'
 import { Container, Form, Alert } from 'react-bootstrap'
-import { Eye, EyeOff, Save, X, Upload, User } from 'lucide-react'
+import { useNavigate, Link } from 'react-router-dom'
+import { User, Mail, Users, Lock, Eye, EyeOff, Save, X, Image } from 'lucide-react'
+import { useAuth } from '../../contexts/AuthContext'
 import styles from './EditarPerfil.module.css'
 
 function EditarPerfil() {
+  const { usuario, actualizarPerfil, cargando: cargandoAuth } = useAuth()
   const navigate = useNavigate()
 
-  // DATOS MOCK DEL USUARIO (después vendrá del contexto/API)
-  const usuarioOriginal = {
-    id: 1,
-    nombre: "Juan",
-    apellido: "Pérez",
-    email: "juan.perez@email.com",
-    equipo: "Racing Team Argentina",
-    fotoPerfil: null
-  }
-
-  // Estados del formulario
-  const [formData, setFormData] = useState({
-    nombre: usuarioOriginal.nombre,
-    apellido: usuarioOriginal.apellido,
-    email: usuarioOriginal.email,
-    equipo: usuarioOriginal.equipo || '',
-    contraseñaActual: '',
-    nuevaContraseña: '',
-    confirmarContraseña: ''
-  })
-
-  const [fotoPerfil, setFotoPerfil] = useState(usuarioOriginal.fotoPerfil)
-  const [archivoFoto, setArchivoFoto] = useState(null)
-  const [previewFoto, setPreviewFoto] = useState(null)
-
-  // Estados para mostrar/ocultar contraseñas
+  // ========================================
+  // ESTADOS DEL FORMULARIO
+  // ========================================
+  const [nombre, setNombre] = useState('')
+  const [email, setEmail] = useState('')
+  const [equipo, setEquipo] = useState('')
+  const [fotoPerfil, setFotoPerfil] = useState('')
+  
+  // Contraseñas
+  const [contraseñaActual, setContraseñaActual] = useState('')
+  const [nuevaContraseña, setNuevaContraseña] = useState('')
+  const [confirmarContraseña, setConfirmarContraseña] = useState('')
+  
+  // Visibilidad contraseñas
   const [mostrarContraseñaActual, setMostrarContraseñaActual] = useState(false)
   const [mostrarNuevaContraseña, setMostrarNuevaContraseña] = useState(false)
   const [mostrarConfirmarContraseña, setMostrarConfirmarContraseña] = useState(false)
 
-  // Estados de validación y mensajes
-  const [error, setError] = useState('')
-  const [exito, setExito] = useState('')
+  // Estados de UI
   const [cargando, setCargando] = useState(false)
+  const [error, setError] = useState('')
+  const [exito, setExito] = useState(false)
 
-  // Calcular fuerza de contraseña
+  // ========================================
+  // CARGAR DATOS DEL USUARIO AL MONTAR
+  // ========================================
+  useEffect(() => {
+    if (usuario) {
+      setNombre(usuario.nombre || '')
+      setEmail(usuario.email || '')
+      setEquipo(usuario.equipo || '')
+      setFotoPerfil(usuario.fotoPerfil || '')
+    }
+  }, [usuario])
+
+  // ========================================
+  // OBTENER INICIALES
+  // ========================================
+  const obtenerIniciales = () => {
+    if (!nombre) return '?'
+    
+    const palabras = nombre.trim().split(' ')
+    
+    if (palabras.length >= 2) {
+      return (palabras[0][0] + palabras[palabras.length - 1][0]).toUpperCase()
+    } else {
+      return nombre.substring(0, 2).toUpperCase()
+    }
+  }
+
+  // ========================================
+  // FUERZA DE CONTRASEÑA
+  // ========================================
   const calcularFuerzaContraseña = (contraseña) => {
-    if (!contraseña) return { nivel: 0, texto: '', color: '' }
+    if (!contraseña) return { nivel: 0, texto: '', color: '#3a3a3a' }
     
     let fuerza = 0
     
-    // Criterios de fuerza
+    // Longitud
     if (contraseña.length >= 8) fuerza++
     if (contraseña.length >= 12) fuerza++
-    if (/[a-z]/.test(contraseña)) fuerza++
-    if (/[A-Z]/.test(contraseña)) fuerza++
-    if (/[0-9]/.test(contraseña)) fuerza++
-    if (/[^a-zA-Z0-9]/.test(contraseña)) fuerza++
     
-    // Determinar nivel
-    if (fuerza <= 2) {
-      return { nivel: 1, texto: 'Débil', color: '#ff4444' }
-    } else if (fuerza <= 4) {
-      return { nivel: 2, texto: 'Media', color: '#ffeb3b' }
-    } else {
-      return { nivel: 3, texto: 'Fuerte', color: '#39ff14' }
-    }
-  }
-
-  const fuerzaContraseña = calcularFuerzaContraseña(formData.nuevaContraseña)
-
-  // Obtener iniciales
-  const obtenerIniciales = () => {
-    const inicialNombre = formData.nombre ? formData.nombre[0].toUpperCase() : ''
-    const inicialApellido = formData.apellido ? formData.apellido[0].toUpperCase() : ''
-    return `${inicialNombre}${inicialApellido}`
-  }
-
-  // Manejar cambios en inputs
-  const handleChange = (e) => {
-    const { name, value } = e.target
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }))
-    // Limpiar mensajes al escribir
-    if (error) setError('')
-    if (exito) setExito('')
-  }
-
-  // Manejar cambio de foto
-  const handleFotoChange = (e) => {
-    const archivo = e.target.files[0]
+    // Complejidad
+    if (/[a-z]/.test(contraseña) && /[A-Z]/.test(contraseña)) fuerza++
+    if (/\d/.test(contraseña)) fuerza++
+    if (/[^a-zA-Z\d]/.test(contraseña)) fuerza++
     
-    if (archivo) {
-      // Validar tipo de archivo
-      if (!archivo.type.startsWith('image/')) {
-        setError('Por favor seleccioná una imagen válida')
-        return
-      }
-
-      // Validar tamaño (max 5MB)
-      if (archivo.size > 5 * 1024 * 1024) {
-        setError('La imagen no puede superar los 5MB')
-        return
-      }
-
-      setArchivoFoto(archivo)
-      
-      // Crear preview
-      const reader = new FileReader()
-      reader.onloadend = () => {
-        setPreviewFoto(reader.result)
-      }
-      reader.readAsDataURL(archivo)
-      
-      setError('')
-    }
+    if (fuerza <= 2) return { nivel: 1, texto: 'Débil', color: '#ff4444' }
+    if (fuerza <= 3) return { nivel: 2, texto: 'Media', color: '#ffeb3b' }
+    if (fuerza <= 4) return { nivel: 3, texto: 'Buena', color: '#00d4ff' }
+    return { nivel: 4, texto: 'Excelente', color: '#39ff14' }
   }
 
-  // Eliminar foto
-  const eliminarFoto = () => {
-    setArchivoFoto(null)
-    setPreviewFoto(null)
-    setFotoPerfil(null)
-    // Limpiar el input file
-    const fileInput = document.getElementById('inputFoto')
-    if (fileInput) fileInput.value = ''
-  }
+  const fuerzaContraseña = calcularFuerzaContraseña(nuevaContraseña)
 
-  // Validar formulario
-  const validarFormulario = () => {
-    // Validar campos obligatorios
-    if (!formData.nombre.trim() || !formData.apellido.trim()) {
-      setError('El nombre y apellido son obligatorios')
-      return false
-    }
-
-    // Si quiere cambiar contraseña, validar
-    if (formData.nuevaContraseña || formData.confirmarContraseña || formData.contraseñaActual) {
-      if (!formData.contraseñaActual) {
-        setError('Ingresá tu contraseña actual para cambiarla')
-        return false
-      }
-
-      if (!formData.nuevaContraseña) {
-        setError('Ingresá la nueva contraseña')
-        return false
-      }
-
-      if (formData.nuevaContraseña.length < 8) {
-        setError('La nueva contraseña debe tener al menos 8 caracteres')
-        return false
-      }
-
-      if (formData.nuevaContraseña !== formData.confirmarContraseña) {
-        setError('Las contraseñas no coinciden')
-        return false
-      }
-    }
-
-    return true
-  }
-
-  // Manejar submit
-  const handleSubmit = async (e) => {
+  // ========================================
+  // MANEJAR SUBMIT
+  // ========================================
+  const manejarSubmit = async (e) => {
     e.preventDefault()
     setError('')
-    setExito('')
+    setExito(false)
 
-    if (!validarFormulario()) {
+    // Validaciones
+    if (!nombre.trim()) {
+      setError('El nombre es obligatorio')
       return
     }
 
-    setCargando(true)
+    if (nombre.trim().length < 2) {
+      setError('El nombre debe tener al menos 2 caracteres')
+      return
+    }
 
-    try {
-      // Simulación de guardado (después será llamada a API)
-      await new Promise(resolve => setTimeout(resolve, 1500))
+    // Si está cambiando contraseña
+    if (nuevaContraseña) {
+      if (!contraseñaActual) {
+        setError('Debes ingresar tu contraseña actual para cambiarla')
+        return
+      }
 
-      // Acá irían las llamadas reales:
-      // 1. Si hay foto nueva, subirla a Cloudinary
-      // 2. Actualizar datos del usuario en la BD
-      // 3. Si hay nueva contraseña, actualizarla
+      if (nuevaContraseña.length < 8) {
+        setError('La nueva contraseña debe tener al menos 8 caracteres')
+        return
+      }
 
-      console.log('Datos a guardar:', {
-        nombre: formData.nombre,
-        apellido: formData.apellido,
-        equipo: formData.equipo,
-        fotoNueva: archivoFoto ? 'Sí' : 'No',
-        cambioContraseña: formData.nuevaContraseña ? 'Sí' : 'No'
+      if (nuevaContraseña !== confirmarContraseña) {
+        setError('Las contraseñas no coinciden')
+        return
+      }
+    }
+
+    // Preparar datos
+    const datosActualizados = {
+      nombre: nombre.trim(),
+      ...(equipo.trim() && { equipo: equipo.trim() }),
+      ...(fotoPerfil.trim() && { fotoPerfil: fotoPerfil.trim() }),
+      ...(nuevaContraseña && {
+        contraseñaActual,
+        nuevaContraseña
       })
+    }
 
-      setExito('Perfil actualizado correctamente')
-      
+    // Enviar al backend
+    setCargando(true)
+    const resultado = await actualizarPerfil(datosActualizados)
+    setCargando(false)
+
+    if (resultado.exito) {
+      setExito(true)
       // Limpiar campos de contraseña
-      setFormData(prev => ({
-        ...prev,
-        contraseñaActual: '',
-        nuevaContraseña: '',
-        confirmarContraseña: ''
-      }))
-
-      // Redirigir al perfil después de 2 segundos
+      setContraseñaActual('')
+      setNuevaContraseña('')
+      setConfirmarContraseña('')
+      
+      // Redirigir después de 2 segundos
       setTimeout(() => {
         navigate('/perfil')
       }, 2000)
-
-    } catch (err) {
-      console.error('Error al guardar:', err)
-      setError('Hubo un error al guardar los cambios. Intentá nuevamente.')
-    } finally {
-      setCargando(false)
+    } else {
+      setError(resultado.mensaje)
     }
   }
 
-  // Cancelar y volver
-  const handleCancelar = () => {
-    navigate('/perfil')
+  // ========================================
+  // LOADING STATE
+  // ========================================
+  if (cargandoAuth) {
+    return (
+      <div className={styles.contenedorEditarPerfil}>
+        <Container>
+          <div style={{ textAlign: 'center', padding: '4rem 0', color: '#00d4ff' }}>
+            <h2>Cargando...</h2>
+          </div>
+        </Container>
+      </div>
+    )
   }
 
   return (
     <div className={styles.contenedorEditarPerfil}>
       <Container>
 
-        {/* Título */}
+        {/* HEADER */}
         <div className={styles.header}>
           <h1 className={styles.titulo}>Editar Perfil</h1>
-          <p className={styles.subtitulo}>Actualizá tu información personal</p>
+          <p className={styles.subtitulo}>
+            Actualizá tu información personal
+          </p>
         </div>
 
-        {/* Mensajes de error/éxito */}
+        {/* ALERTAS */}
         {error && (
           <Alert variant="danger" className={styles.alerta}>
             {error}
@@ -237,26 +189,31 @@ function EditarPerfil() {
 
         {exito && (
           <Alert variant="success" className={styles.alertaExito}>
-            {exito}
+            ¡Perfil actualizado exitosamente! Redirigiendo...
           </Alert>
         )}
 
-        {/* Formulario */}
-        <Form onSubmit={handleSubmit}>
+        {/* FORMULARIO */}
+        <Form onSubmit={manejarSubmit}>
 
-          {/* SECCIÓN: Foto de Perfil */}
+          {/* SECCIÓN: FOTO DE PERFIL */}
           <div className={styles.seccion}>
-            <h2 className={styles.tituloSeccion}>Foto de Perfil</h2>
-            
+            <h2 className={styles.tituloSeccion}>
+              Foto de Perfil <span className={styles.opcional}>(Opcional)</span>
+            </h2>
+
             <div className={styles.contenedorFoto}>
-              
-              {/* Preview del avatar */}
+              {/* Preview */}
               <div className={styles.avatarPreview}>
-                {previewFoto || fotoPerfil ? (
+                {fotoPerfil ? (
                   <img 
-                    src={previewFoto || fotoPerfil} 
-                    alt="Foto de perfil"
+                    src={fotoPerfil} 
+                    alt="Vista previa"
                     className={styles.fotoPerfil}
+                    onError={(e) => {
+                      e.target.style.display = 'none'
+                      e.target.nextSibling.style.display = 'flex'
+                    }}
                   />
                 ) : (
                   <div className={styles.avatarIniciales}>
@@ -265,24 +222,22 @@ function EditarPerfil() {
                 )}
               </div>
 
-              {/* Controles de foto */}
+              {/* Controles */}
               <div className={styles.controlesFoto}>
-                <input
-                  type="file"
-                  id="inputFoto"
-                  accept="image/*"
-                  onChange={handleFotoChange}
-                  className={styles.inputFile}
-                />
-                <label htmlFor="inputFoto" className={styles.btnSubirFoto}>
-                  <Upload size={20} />
-                  {previewFoto || fotoPerfil ? 'Cambiar Foto' : 'Subir Foto'}
-                </label>
+                <Form.Group>
+                  <Form.Control
+                    type="url"
+                    placeholder="URL de la imagen (ej: https://ejemplo.com/foto.jpg)"
+                    value={fotoPerfil}
+                    onChange={(e) => setFotoPerfil(e.target.value)}
+                    className={styles.input}
+                  />
+                </Form.Group>
 
-                {(previewFoto || fotoPerfil) && (
+                {fotoPerfil && (
                   <button
                     type="button"
-                    onClick={eliminarFoto}
+                    onClick={() => setFotoPerfil('')}
                     className={styles.btnEliminarFoto}
                   >
                     <X size={20} />
@@ -291,181 +246,105 @@ function EditarPerfil() {
                 )}
 
                 <p className={styles.textoAyuda}>
-                  JPG, PNG o GIF. Máximo 5MB.
+                  <Image size={16} /> Ingresá la URL de una imagen desde internet
                 </p>
               </div>
-
             </div>
           </div>
 
-          {/* SECCIÓN: Información Básica */}
+          {/* SECCIÓN: INFORMACIÓN BÁSICA */}
           <div className={styles.seccion}>
-            <h2 className={styles.tituloSeccion}>Información Básica</h2>
+            <h2 className={styles.tituloSeccion}>
+              Información Básica <span className={styles.obligatorio}>*</span>
+            </h2>
 
             <div className={styles.gridInputs}>
-              
               {/* Nombre */}
               <Form.Group className={styles.grupoInput}>
                 <Form.Label className={styles.label}>
-                  Nombre <span className={styles.obligatorio}>*</span>
+                  Nombre Completo <span className={styles.obligatorio}>*</span>
                 </Form.Label>
                 <div className={styles.inputConIcono}>
                   <User className={styles.iconoInput} size={20} />
                   <Form.Control
                     type="text"
-                    name="nombre"
-                    value={formData.nombre}
-                    onChange={handleChange}
+                    placeholder="Tu nombre completo"
+                    value={nombre}
+                    onChange={(e) => setNombre(e.target.value)}
                     className={styles.input}
-                    placeholder="Tu nombre"
-                    disabled={cargando}
+                    required
                   />
                 </div>
               </Form.Group>
 
-              {/* Apellido */}
-              <Form.Group className={styles.grupoInput}>
-                <Form.Label className={styles.label}>
-                  Apellido <span className={styles.obligatorio}>*</span>
-                </Form.Label>
-                <div className={styles.inputConIcono}>
-                  <User className={styles.iconoInput} size={20} />
-                  <Form.Control
-                    type="text"
-                    name="apellido"
-                    value={formData.apellido}
-                    onChange={handleChange}
-                    className={styles.input}
-                    placeholder="Tu apellido"
-                    disabled={cargando}
-                  />
-                </div>
-              </Form.Group>
-
-              {/* Email (no editable) */}
+              {/* Email (bloqueado) */}
               <Form.Group className={styles.grupoInput}>
                 <Form.Label className={styles.label}>
                   Email
                 </Form.Label>
                 <div className={styles.inputConIcono}>
-                  <svg 
-                    className={styles.iconoInput}
-                    fill="none" 
-                    stroke="currentColor" 
-                    viewBox="0 0 24 24"
-                    width="20"
-                    height="20"
-                  >
-                    <path 
-                      strokeLinecap="round" 
-                      strokeLinejoin="round" 
-                      strokeWidth={2} 
-                      d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" 
-                    />
-                  </svg>
+                  <Mail className={styles.iconoInput} size={20} />
                   <Form.Control
                     type="email"
-                    name="email"
-                    value={formData.email}
+                    value={email}
                     className={`${styles.input} ${styles.inputBloqueado}`}
                     disabled
                   />
                   <span className={styles.badgeBloqueado}>No editable</span>
                 </div>
-                <p className={styles.textoAyuda}>
-                  El email no puede modificarse por seguridad
-                </p>
               </Form.Group>
 
               {/* Equipo */}
               <Form.Group className={styles.grupoInput}>
                 <Form.Label className={styles.label}>
-                  Equipo <span className={styles.opcional}>(opcional)</span>
+                  Equipo <span className={styles.opcional}>(Opcional)</span>
                 </Form.Label>
                 <div className={styles.inputConIcono}>
-                  <svg 
-                    className={styles.iconoInput}
-                    fill="none" 
-                    stroke="currentColor" 
-                    viewBox="0 0 24 24"
-                    width="20"
-                    height="20"
-                  >
-                    <path 
-                      strokeLinecap="round" 
-                      strokeLinejoin="round" 
-                      strokeWidth={2} 
-                      d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" 
-                    />
-                  </svg>
+                  <Users className={styles.iconoInput} size={20} />
                   <Form.Control
                     type="text"
-                    name="equipo"
-                    value={formData.equipo}
-                    onChange={handleChange}
-                    className={styles.input}
                     placeholder="Nombre de tu equipo"
-                    disabled={cargando}
+                    value={equipo}
+                    onChange={(e) => setEquipo(e.target.value)}
+                    className={styles.input}
                   />
                 </div>
               </Form.Group>
-
             </div>
           </div>
 
-          {/* SECCIÓN: Cambiar Contraseña (Opcional) */}
+          {/* SECCIÓN: CAMBIAR CONTRASEÑA */}
           <div className={styles.seccion}>
             <h2 className={styles.tituloSeccion}>
-              Cambiar Contraseña 
-              <span className={styles.opcional}> (opcional)</span>
+              Cambiar Contraseña <span className={styles.opcional}>(Opcional)</span>
             </h2>
 
             <div className={styles.gridInputs}>
-              
               {/* Contraseña Actual */}
               <Form.Group className={styles.grupoInput}>
                 <Form.Label className={styles.label}>
                   Contraseña Actual
                 </Form.Label>
                 <div className={styles.inputConIcono}>
-                  <svg 
-                    className={styles.iconoInput}
-                    fill="none" 
-                    stroke="currentColor" 
-                    viewBox="0 0 24 24"
-                    width="20"
-                    height="20"
-                  >
-                    <path 
-                      strokeLinecap="round" 
-                      strokeLinejoin="round" 
-                      strokeWidth={2} 
-                      d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" 
-                    />
-                  </svg>
+                  <Lock className={styles.iconoInput} size={20} />
                   <Form.Control
-                    type={mostrarContraseñaActual ? "text" : "password"}
-                    name="contraseñaActual"
-                    value={formData.contraseñaActual}
-                    onChange={handleChange}
-                    className={styles.input}
+                    type={mostrarContraseñaActual ? 'text' : 'password'}
                     placeholder="Tu contraseña actual"
-                    disabled={cargando}
+                    value={contraseñaActual}
+                    onChange={(e) => setContraseñaActual(e.target.value)}
+                    className={styles.input}
                   />
                   <button
                     type="button"
-                    className={styles.btnOjo}
                     onClick={() => setMostrarContraseñaActual(!mostrarContraseñaActual)}
-                    disabled={cargando}
+                    className={styles.btnOjo}
                   >
-                    {mostrarContraseñaActual ? (
-                      <EyeOff size={20} />
-                    ) : (
-                      <Eye size={20} />
-                    )}
+                    {mostrarContraseñaActual ? <EyeOff size={20} /> : <Eye size={20} />}
                   </button>
                 </div>
               </Form.Group>
+
+              <div></div> {/* Espacio vacío para el grid */}
 
               {/* Nueva Contraseña */}
               <Form.Group className={styles.grupoInput}>
@@ -473,62 +352,42 @@ function EditarPerfil() {
                   Nueva Contraseña
                 </Form.Label>
                 <div className={styles.inputConIcono}>
-                  <svg 
-                    className={styles.iconoInput}
-                    fill="none" 
-                    stroke="currentColor" 
-                    viewBox="0 0 24 24"
-                    width="20"
-                    height="20"
-                  >
-                    <path 
-                      strokeLinecap="round" 
-                      strokeLinejoin="round" 
-                      strokeWidth={2} 
-                      d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" 
-                    />
-                  </svg>
+                  <Lock className={styles.iconoInput} size={20} />
                   <Form.Control
-                    type={mostrarNuevaContraseña ? "text" : "password"}
-                    name="nuevaContraseña"
-                    value={formData.nuevaContraseña}
-                    onChange={handleChange}
-                    className={styles.input}
+                    type={mostrarNuevaContraseña ? 'text' : 'password'}
                     placeholder="Mínimo 8 caracteres"
-                    disabled={cargando}
+                    value={nuevaContraseña}
+                    onChange={(e) => setNuevaContraseña(e.target.value)}
+                    className={styles.input}
                   />
                   <button
                     type="button"
-                    className={styles.btnOjo}
                     onClick={() => setMostrarNuevaContraseña(!mostrarNuevaContraseña)}
-                    disabled={cargando}
+                    className={styles.btnOjo}
                   >
-                    {mostrarNuevaContraseña ? (
-                      <EyeOff size={20} />
-                    ) : (
-                      <Eye size={20} />
-                    )}
+                    {mostrarNuevaContraseña ? <EyeOff size={20} /> : <Eye size={20} />}
                   </button>
                 </div>
-
                 {/* Indicador de fuerza */}
-                {formData.nuevaContraseña && (
+                {nuevaContraseña && (
                   <div className={styles.indicadorFuerza}>
                     <div className={styles.barrasFuerza}>
-                      <div 
-                        className={`${styles.barra} ${fuerzaContraseña.nivel >= 1 ? styles.barraActiva : ''}`}
-                        style={{ backgroundColor: fuerzaContraseña.nivel >= 1 ? fuerzaContraseña.color : '#3a3a3a' }}
-                      ></div>
-                      <div 
-                        className={`${styles.barra} ${fuerzaContraseña.nivel >= 2 ? styles.barraActiva : ''}`}
-                        style={{ backgroundColor: fuerzaContraseña.nivel >= 2 ? fuerzaContraseña.color : '#3a3a3a' }}
-                      ></div>
-                      <div 
-                        className={`${styles.barra} ${fuerzaContraseña.nivel >= 3 ? styles.barraActiva : ''}`}
-                        style={{ backgroundColor: fuerzaContraseña.nivel >= 3 ? fuerzaContraseña.color : '#3a3a3a' }}
-                      ></div>
+                      {[1, 2, 3, 4].map((nivel) => (
+                        <div
+                          key={nivel}
+                          className={`${styles.barra} ${
+                            nivel <= fuerzaContraseña.nivel ? styles.barraActiva : ''
+                          }`}
+                          style={{
+                            backgroundColor:
+                              nivel <= fuerzaContraseña.nivel
+                                ? fuerzaContraseña.color
+                                : '#3a3a3a'
+                          }}
+                        />
+                      ))}
                     </div>
-                    <span 
+                    <span
                       className={styles.textoFuerza}
                       style={{ color: fuerzaContraseña.color }}
                     >
@@ -538,69 +397,41 @@ function EditarPerfil() {
                 )}
               </Form.Group>
 
-              {/* Confirmar Nueva Contraseña */}
+              {/* Confirmar Contraseña */}
               <Form.Group className={styles.grupoInput}>
                 <Form.Label className={styles.label}>
-                  Confirmar Nueva Contraseña
+                  Confirmar Contraseña
                 </Form.Label>
                 <div className={styles.inputConIcono}>
-                  <svg 
-                    className={styles.iconoInput}
-                    fill="none" 
-                    stroke="currentColor" 
-                    viewBox="0 0 24 24"
-                    width="20"
-                    height="20"
-                  >
-                    <path 
-                      strokeLinecap="round" 
-                      strokeLinejoin="round" 
-                      strokeWidth={2} 
-                      d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" 
-                    />
-                  </svg>
+                  <Lock className={styles.iconoInput} size={20} />
                   <Form.Control
-                    type={mostrarConfirmarContraseña ? "text" : "password"}
-                    name="confirmarContraseña"
-                    value={formData.confirmarContraseña}
-                    onChange={handleChange}
+                    type={mostrarConfirmarContraseña ? 'text' : 'password'}
+                    placeholder="Repetí la nueva contraseña"
+                    value={confirmarContraseña}
+                    onChange={(e) => setConfirmarContraseña(e.target.value)}
                     className={styles.input}
-                    placeholder="Repetí tu nueva contraseña"
-                    disabled={cargando}
                   />
                   <button
                     type="button"
-                    className={styles.btnOjo}
                     onClick={() => setMostrarConfirmarContraseña(!mostrarConfirmarContraseña)}
-                    disabled={cargando}
+                    className={styles.btnOjo}
                   >
-                    {mostrarConfirmarContraseña ? (
-                      <EyeOff size={20} />
-                    ) : (
-                      <Eye size={20} />
-                    )}
+                    {mostrarConfirmarContraseña ? <EyeOff size={20} /> : <Eye size={20} />}
                   </button>
                 </div>
               </Form.Group>
-
             </div>
-
-            <p className={styles.textoAyuda}>
-              Dejá estos campos vacíos si no querés cambiar tu contraseña
-            </p>
           </div>
 
           {/* BOTONES DE ACCIÓN */}
           <div className={styles.contenedorBotones}>
-            <button
-              type="button"
+            <Link
+              to="/perfil"
               className={styles.btnCancelar}
-              onClick={handleCancelar}
-              disabled={cargando}
             >
               <X size={20} />
               Cancelar
-            </button>
+            </Link>
 
             <button
               type="submit"

@@ -8,7 +8,18 @@ import { enviarEmailVerificacion, enviarEmailRecuperacion } from '../utilidades/
 // ========================================
 export const registro = async (req, res) => {
   try {
+    console.log('📥 Datos recibidos en registro:', req.body);
+    
     const { nombre, email, contraseña, equipo, fotoPerfil } = req.body;
+
+    // LOG: Verificar cada campo
+    console.log('🔍 Campos procesados:', {
+      nombre: nombre || 'NO RECIBIDO',
+      email: email || 'NO RECIBIDO',
+      contraseña: contraseña ? `${contraseña.length} caracteres` : 'NO RECIBIDO',
+      equipo: equipo || 'vacío (opcional)',
+      fotoPerfil: fotoPerfil || 'vacío (opcional)'
+    });
 
     // Verificar si el email ya existe
     const usuarioExistente = await Usuario.findOne({ where: { email } });
@@ -20,6 +31,7 @@ export const registro = async (req, res) => {
     }
 
     // Crear el usuario
+    console.log('🚀 Intentando crear usuario...');
     const nuevoUsuario = await Usuario.create({
       nombre,
       email,
@@ -29,6 +41,8 @@ export const registro = async (req, res) => {
       rol: 'usuario',
       emailVerificado: false
     });
+
+    console.log('✅ Usuario creado exitosamente:', nuevoUsuario.id);
 
     // Crear token de verificación
     const tokenVerificacion = await TokenVerificacion.crearTokenEmail(nuevoUsuario.id);
@@ -58,7 +72,26 @@ export const registro = async (req, res) => {
       aviso: 'Revisá tu email para verificar tu cuenta'
     });
   } catch (error) {
-    console.error('Error en registro:', error);
+    console.error('❌ Error en registro:', error);
+    
+    // Si es error de validación de Sequelize
+    if (error.name === 'SequelizeValidationError') {
+      const errores = error.errors.map(e => e.message);
+      console.error('🔴 Errores de validación:', errores);
+      return res.status(400).json({
+        error: 'Errores de validación',
+        detalles: errores
+      });
+    }
+    
+    // Si es error de unique constraint
+    if (error.name === 'SequelizeUniqueConstraintError') {
+      console.error('🔴 Email duplicado');
+      return res.status(400).json({
+        error: 'Este email ya está registrado'
+      });
+    }
+    
     res.status(500).json({
       error: 'Error al registrar usuario',
       detalle: error.message

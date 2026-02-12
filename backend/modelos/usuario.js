@@ -61,8 +61,14 @@ const Usuario = sequelize.define(
       allowNull: true,
       defaultValue: null,
       validate: {
-        isUrl: {
-          msg: 'La foto de perfil debe ser una URL válida'
+        // Validar URL solo si NO es null/undefined
+        esUrlValida(value) {
+          if (value !== null && value !== undefined && value !== '') {
+            const urlRegex = /^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$/;
+            if (!urlRegex.test(value)) {
+              throw new Error('La foto de perfil debe ser una URL válida');
+            }
+          }
         }
       }
     },

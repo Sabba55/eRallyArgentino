@@ -1,48 +1,48 @@
 import { useState } from 'react'
-import { useNavigate, Link } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import { Form, Button, Alert } from 'react-bootstrap'
+import { useAuth } from '../../contexts/AuthContext'
 import styles from './Login.module.css'
-import fotoLogin from '../../assets/imagenes/login-foto.jpg'
+import fotoLogin from '../../assets/imagenes/login-foto.png'
 
 function Login() {
-  const navigate = useNavigate()
+  // ========================================
+  // CONTEXTO DE AUTENTICACIÓN
+  // ========================================
+  const { login, cargando } = useAuth()
   
-  // Estados del formulario
+  // ========================================
+  // ESTADOS DEL FORMULARIO
+  // ========================================
   const [email, setEmail] = useState('')
   const [contraseña, setContraseña] = useState('')
   const [error, setError] = useState('')
-  const [cargando, setCargando] = useState(false)
 
-  // Función para manejar el submit del formulario
+  // ========================================
+  // FUNCIÓN PARA MANEJAR EL SUBMIT
+  // ========================================
   const manejarSubmit = async (e) => {
     e.preventDefault()
     setError('')
-    setCargando(true)
 
     // Validaciones básicas
     if (!email || !contraseña) {
       setError('Por favor completá todos los campos')
-      setCargando(false)
       return
     }
 
     if (!email.includes('@')) {
       setError('Por favor ingresá un email válido')
-      setCargando(false)
       return
     }
 
-    // Simulación de login (después conectamos con backend)
-    setTimeout(() => {
-      // Por ahora cualquier email/contraseña funciona
-      console.log('Login exitoso:', { email, contraseña })
-      
-      // Acá iría la lógica de autenticación real
-      // Por ahora solo redirigimos
-      navigate('/')
-      
-      setCargando(false)
-    }, 1000)
+    // Intentar hacer login con el backend
+    const resultado = await login(email, contraseña)
+
+    if (!resultado.exito) {
+      setError(resultado.mensaje)
+    }
+    // Si fue exitoso, el AuthContext redirige automáticamente a /garage
   }
 
   return (
@@ -89,6 +89,7 @@ function Login() {
                   onChange={(e) => setEmail(e.target.value)}
                   className={styles.input}
                   disabled={cargando}
+                  autoComplete="email"
                 />
               </Form.Group>
 
@@ -102,6 +103,7 @@ function Login() {
                   onChange={(e) => setContraseña(e.target.value)}
                   className={styles.input}
                   disabled={cargando}
+                  autoComplete="current-password"
                 />
               </Form.Group>
 

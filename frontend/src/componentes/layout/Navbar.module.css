@@ -125,6 +125,21 @@
   box-shadow: 0 0 15px rgba(0, 212, 255, 0.5);
 }
 
+/* Foto de perfil (si el usuario tiene) */
+.avatarImg {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #ffffff;
+  transition: all 0.3s ease;
+}
+
+.avatarImg:hover {
+  transform: scale(1.1);
+  box-shadow: 0 0 15px rgba(0, 212, 255, 0.5);
+}
+
 /* Dropdown del perfil */
 .perfilDropdown :global(.dropdown-toggle::after) {
   display: none; /* Oculta la flechita por defecto de Bootstrap */
@@ -137,7 +152,7 @@
   padding: 0.5rem 0;
   margin-top: 0.5rem;
   box-shadow: 0 4px 15px rgba(0, 212, 255, 0.2);
-  min-width: 200px;
+  min-width: 220px;
 }
 
 .nombreUsuario {
@@ -146,6 +161,14 @@
   padding: 0.5rem 1.5rem !important;
   font-size: 0.95rem;
   text-align: center;
+}
+
+.equipoUsuario {
+  color: #39ff14 !important;
+  font-size: 0.85rem;
+  padding: 0.2rem 1.5rem 0.5rem 1.5rem !important;
+  text-align: center;
+  font-style: italic;
 }
 
 .perfilDropdown :global(.dropdown-item) {
@@ -163,6 +186,16 @@
 
 .perfilDropdown :global(.dropdown-divider) {
   border-color: #444;
+}
+
+/* Estilo especial para Cerrar Sesión */
+.logoutItem {
+  color: #ff6b6b !important;
+}
+
+.logoutItem:hover {
+  background-color: #ff6b6b !important;
+  color: #1a1a1a !important;
 }
 
 /* Botón INGRESAR */
@@ -272,7 +305,8 @@
     margin: 1rem 0;
   }
 
-  .avatar {
+  .avatar,
+  .avatarImg {
     width: 50px;
     height: 50px;
     font-size: 1.1rem;

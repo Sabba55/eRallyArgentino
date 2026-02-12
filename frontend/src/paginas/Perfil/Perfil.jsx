@@ -1,82 +1,110 @@
-import { useState, useMemo } from 'react'
+import { useMemo } from 'react'
 import { Container } from 'react-bootstrap'
 import { Link } from 'react-router-dom'
-import { Edit, ShoppingCart, Calendar, Mail, Users, Clock } from 'lucide-react'
+import { Edit, ShoppingCart, Calendar, Mail, Users, Clock, Shield } from 'lucide-react'
+import { useAuth } from '../../contexts/AuthContext'
 import styles from './Perfil.module.css'
 
 function Perfil() {
-  // DATOS MOCK DEL USUARIO
-  // Después esto vendrá del contexto de autenticación o API
-  const usuario = {
-    id: 1,
-    nombre: "Juan",
-    apellido: "Pérez",
-    email: "juan.perez@email.com",
-    equipo: "Racing Team Argentina",
-    fotoPerfil: null, // Si es null, mostramos iniciales
-    emailVerificado: true,
-    createdAt: "2025-01-15T10:00:00"
-  }
+  // ========================================
+  // OBTENER USUARIO DEL CONTEXTO
+  // ========================================
+  const { usuario, cargando } = useAuth()
 
-  // DATOS MOCK DE VEHÍCULOS DEL USUARIO
-  // Después esto vendrá de la API
-  const vehiculosUsuario = {
-    comprados: [
-      {
-        id: 1,
-        marca: "Toyota",
-        nombre: "Yaris",
-        categoria: "Rally2",
-        fechaCompra: "2025-01-29T10:00:00"
-      },
-      {
-        id: 2,
-        marca: "Ford",
-        nombre: "Fiesta",
-        categoria: "Rally2",
-        fechaCompra: "2025-07-20T10:00:00"
-      }
-    ],
-    alquilados: [
-      {
-        id: 3,
-        marca: "Skoda",
-        nombre: "Fabia",
-        categoria: "R5",
-        rally: "Rally de Misiones",
-        fechaAlquiler: "2026-01-20T10:00:00"
-      },
-      {
-        id: 4,
-        marca: "Subaru",
-        nombre: "Impreza",
-        categoria: "N4",
-        rally: "Rally de Córdoba",
-        fechaAlquiler: "2026-01-25T10:00:00"
-      }
-    ]
-  }
-
-  // Obtener iniciales del nombre
+  // ========================================
+  // OBTENER INICIALES DEL NOMBRE
+  // ========================================
   const obtenerIniciales = () => {
-    const inicialNombre = usuario.nombre ? usuario.nombre[0].toUpperCase() : ''
-    const inicialApellido = usuario.apellido ? usuario.apellido[0].toUpperCase() : ''
-    return `${inicialNombre}${inicialApellido}`
+    if (!usuario?.nombre) return '?'
+    
+    const palabras = usuario.nombre.trim().split(' ')
+    
+    if (palabras.length >= 2) {
+      // Si tiene nombre y apellido: "Juan Pérez" → "JP"
+      return (palabras[0][0] + palabras[palabras.length - 1][0]).toUpperCase()
+    } else {
+      // Si solo tiene un nombre: "Juan" → "JU"
+      return usuario.nombre.substring(0, 2).toUpperCase()
+    }
   }
 
-  // Formatear fecha de miembro desde
+  // ========================================
+  // FORMATEAR FECHA DE MIEMBRO DESDE
+  // ========================================
   const formatearFechaMiembro = (fechaISO) => {
+    if (!fechaISO) return 'Fecha no disponible'
+    
     const fecha = new Date(fechaISO)
     const opciones = { year: 'numeric', month: 'long', day: 'numeric' }
     return fecha.toLocaleDateString('es-AR', opciones)
   }
 
-  // Calcular estadísticas
+  // ========================================
+  // OBTENER NOMBRE DEL ROL
+  // ========================================
+  const obtenerNombreRol = (rol) => {
+    const roles = {
+      'usuario': 'Usuario',
+      'creador_fechas': 'Creador de Fechas',
+      'admin': 'Administrador'
+    }
+    return roles[rol] || 'Usuario'
+  }
+
+  // ========================================
+  // OBTENER COLOR DEL ROL
+  // ========================================
+  const obtenerColorRol = (rol) => {
+    const colores = {
+      'usuario': '#00d4ff',
+      'creador_fechas': '#39ff14',
+      'admin': '#ff6b6b'
+    }
+    return colores[rol] || '#00d4ff'
+  }
+
+  // ========================================
+  // CALCULAR ESTADÍSTICAS
+  // ========================================
+  // TODO: Cuando tengamos el endpoint del backend para vehículos del usuario
   const estadisticas = useMemo(() => ({
-    comprados: vehiculosUsuario.comprados.length,
-    alquilados: vehiculosUsuario.alquilados.length,
-    total: vehiculosUsuario.comprados.length + vehiculosUsuario.alquilados.length
-  }), [vehiculosUsuario])
+    comprados: 0, // TODO: Obtener del backend
+    alquilados: 0, // TODO: Obtener del backend
+    total: 0
+  }), [])
+
+  // ========================================
+  // LOADING STATE
+  // ========================================
+  if (cargando) {
+    return (
+      <div className={styles.contenedorPerfil}>
+        <Container>
+          <div style={{ textAlign: 'center', padding: '4rem 0', color: '#00d4ff' }}>
+            <h2>Cargando perfil...</h2>
+          </div>
+        </Container>
+      </div>
+    )
+  }
+
+  // ========================================
+  // SI NO HAY USUARIO (NO DEBERÍA PASAR)
+  // ========================================
+  if (!usuario) {
+    return (
+      <div className={styles.contenedorPerfil}>
+        <Container>
+          <div style={{ textAlign: 'center', padding: '4rem 0', color: '#ff6b6b' }}>
+            <h2>No se pudo cargar el perfil</h2>
+            <Link to="/login" className={styles.btnEditarPerfil}>
+              Iniciar Sesión
+            </Link>
+          </div>
+        </Container>
+      </div>
+    )
+  }
 
   return (
     <div className={styles.contenedorPerfil}>
@@ -90,7 +118,7 @@ function Perfil() {
             {usuario.fotoPerfil ? (
               <img 
                 src={usuario.fotoPerfil} 
-                alt={`${usuario.nombre} ${usuario.apellido}`}
+                alt={usuario.nombre}
                 className={styles.fotoPerfil}
               />
             ) : (
@@ -103,7 +131,7 @@ function Perfil() {
           {/* Info del usuario */}
           <div className={styles.infoHeader}>
             <h1 className={styles.nombreUsuario}>
-              {usuario.nombre} {usuario.apellido}
+              {usuario.nombre}
             </h1>
             
             <div className={styles.metadataUsuario}>
@@ -126,6 +154,20 @@ function Perfil() {
                   <span>{usuario.equipo}</span>
                 </div>
               )}
+
+              {/* Badge de Rol */}
+              <div className={styles.itemMetadata}>
+                <Shield className={styles.iconoMetadata} size={18} />
+                <span 
+                  className={styles.badgeRol}
+                  style={{ 
+                    borderColor: obtenerColorRol(usuario.rol),
+                    color: obtenerColorRol(usuario.rol)
+                  }}
+                >
+                  {obtenerNombreRol(usuario.rol)}
+                </span>
+              </div>
             </div>
 
             {/* Botón Editar Perfil */}
@@ -236,7 +278,7 @@ function Perfil() {
                 Nombre Completo
               </div>
               <div className={styles.valorInfo}>
-                {usuario.nombre} {usuario.apellido}
+                {usuario.nombre}
               </div>
             </div>
 
@@ -253,52 +295,24 @@ function Perfil() {
               </div>
             </div>
 
-            {/* Fecha de registro */}
+            {/* Rol */}
             <div className={styles.itemInfo}>
               <div className={styles.labelInfo}>
-                <Clock size={20} className={styles.iconoInfo} />
-                Miembro desde
+                <Shield size={20} className={styles.iconoInfo} />
+                Rol
               </div>
               <div className={styles.valorInfo}>
-                {formatearFechaMiembro(usuario.createdAt)}
+                <span 
+                  className={styles.badgeRol}
+                  style={{ 
+                    borderColor: obtenerColorRol(usuario.rol),
+                    color: obtenerColorRol(usuario.rol)
+                  }}
+                >
+                  {obtenerNombreRol(usuario.rol)}
+                </span>
               </div>
             </div>
-
-          </div>
-        </div>
-
-        {/* ACCESOS RÁPIDOS */}
-        <div className={styles.seccionAccesos}>
-          <h2 className={styles.tituloSeccion}>Accesos Rápidos</h2>
-          
-          <div className={styles.gridAccesos}>
-            
-            <Link to="/garage" className={styles.cardAcceso}>
-              <svg 
-                className={styles.iconoAcceso}
-                fill="none" 
-                stroke="currentColor" 
-                viewBox="0 0 24 24"
-              >
-                <path 
-                  strokeLinecap="round" 
-                  strokeLinejoin="round" 
-                  strokeWidth={2} 
-                  d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" 
-                />
-              </svg>
-              <span>Ir al Garage</span>
-            </Link>
-
-            <Link to="/tienda" className={styles.cardAcceso}>
-              <ShoppingCart className={styles.iconoAcceso} />
-              <span>Ir a la Tienda</span>
-            </Link>
-
-            <Link to="/fechas" className={styles.cardAcceso}>
-              <Calendar className={styles.iconoAcceso} />
-              <span>Ver Fechas</span>
-            </Link>
 
           </div>
         </div>
