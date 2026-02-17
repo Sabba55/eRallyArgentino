@@ -1,0 +1,147 @@
+/* Modal */
+.modal :global(.modal-content) {
+  background-color: #2a2a2a !important;
+  border: 2px solid #00d4ff !important;
+  border-radius: 12px !important;
+}
+
+.header {
+  background-color: #1a1a1a !important;
+  border-bottom: 2px solid #3a3a3a !important;
+  padding: 1.5rem !important;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.titulo {
+  color: #00d4ff !important;
+  font-weight: 700;
+  margin: 0;
+}
+
+.btnCerrar {
+  background: none;
+  border: none;
+  color: #ffffff;
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: 6px;
+  transition: all 0.2s;
+}
+
+.btnCerrar:hover {
+  background-color: #3a3a3a;
+}
+
+.body {
+  background-color: #2a2a2a !important;
+  padding: 1.5rem !important;
+}
+
+/* Error */
+.error {
+  background-color: rgba(220, 53, 69, 0.1);
+  border: 1px solid #dc3545;
+  color: #ff6b6b;
+  padding: 0.8rem;
+  border-radius: 6px;
+  margin-bottom: 1rem;
+}
+
+/* Grupos de formulario */
+.grupo {
+  margin-bottom: 1.2rem;
+}
+
+.grupo label {
+  color: #ffffff;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.grupo input,
+.grupo select,
+.grupo textarea {
+  background-color: #1a1a1a !important;
+  border: 1px solid #3a3a3a !important;
+  color: #ffffff !important;
+  padding: 0.6rem !important;
+  border-radius: 6px !important;
+}
+
+.grupo input:focus,
+.grupo select:focus,
+.grupo textarea:focus {
+  border-color: #00d4ff !important;
+  box-shadow: 0 0 0 0.2rem rgba(0, 212, 255, 0.25) !important;
+}
+
+/* Preview de foto */
+.preview {
+  width: 100%;
+  max-height: 200px;
+  object-fit: contain;
+  margin-top: 1rem;
+  border-radius: 6px;
+}
+
+/* Categorías */
+.categorias {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.5rem;
+}
+
+.categorias label {
+  color: #ffffff;
+  margin: 0;
+}
+
+/* Precios */
+.precios {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+/* Botones */
+.botones {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid #3a3a3a;
+}
+
+.btnGuardar {
+  background: linear-gradient(135deg, #00d4ff, #39ff14) !important;
+  border: none !important;
+  color: #1a1a1a !important;
+  font-weight: 700 !important;
+}
+
+.btnGuardar:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(0, 212, 255, 0.4);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .categorias {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .precios {
+    grid-template-columns: 1fr;
+  }
+
+  .botones {
+    flex-direction: column;
+  }
+
+  .botones button {
+    width: 100%;
+  }
+}

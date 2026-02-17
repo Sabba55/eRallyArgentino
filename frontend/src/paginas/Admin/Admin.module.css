@@ -1,0 +1,336 @@
+/* ========================================
+   CONTENEDOR PRINCIPAL
+   ======================================== */
+
+.contenedorAdmin {
+  min-height: calc(100vh - 86px - 200px);
+  background-color: #1a1a1a;
+  padding: 3rem 0;
+}
+
+/* ========================================
+   BANNER DE BIENVENIDA
+   ======================================== */
+
+.banner {
+  background: linear-gradient(135deg, #2a2a2a, #1a1a1a);
+  border: 3px solid #00d4ff; /* Se cambia dinámicamente según el rol */
+  border-radius: 15px;
+  padding: 2rem 2.5rem;
+  margin-bottom: 3rem;
+  box-shadow: 0 8px 30px rgba(0, 212, 255, 0.2);
+}
+
+.banner:hover {
+  box-shadow: 0 12px 40px rgba(0, 212, 255, 0.3);
+}
+
+.bienvenida {
+  font-family: 'Orbitron', 'Impact', sans-serif;
+  font-size: 2rem;
+  font-weight: 700;
+  color: #ffffff;
+  margin-bottom: 0.5rem;
+  letter-spacing: 1px;
+}
+
+.nombreUsuario {
+  color: #00d4ff;
+  font-weight: 900;
+}
+
+.rol {
+  font-size: 1.1rem;
+  color: #a0a0a0;
+  font-weight: 600;
+}
+
+.badgeRol {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.3rem 1rem;
+  background: rgba(0, 212, 255, 0.1);
+  border: 2px solid #00d4ff; /* Se cambia dinámicamente */
+  border-radius: 12px;
+  font-size: 1rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-left: 0.5rem;
+}
+
+/* ========================================
+   GRID DE CARDS
+   ======================================== */
+
+.gridCards {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 2rem;
+  animation: fadeIn 0.5s ease-out;
+}
+
+
+
+/* ========================================
+   CARD INDIVIDUAL
+   ======================================== */
+
+.card {
+  background: linear-gradient(135deg, #2a2a2a, #1a1a1a);
+  border: 2px solid #3a3a3a;
+  border-radius: 15px;
+  padding: 2.5rem 2rem;
+  text-align: center;
+  text-decoration: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  min-height: 180px;
+  position: relative;
+  overflow: hidden;
+}
+
+.card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, rgba(0, 212, 255, 0.05), rgba(57, 255, 20, 0.05));
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.card:hover::before {
+  opacity: 1;
+}
+
+.card:hover {
+  border-color: #00d4ff;
+  box-shadow: 0 12px 35px rgba(0, 212, 255, 0.4);
+}
+
+.card:active {
+  transform: translateY(-4px);
+}
+
+/* ========================================
+   CONTENIDO DE LA CARD
+   ======================================== */
+
+.emoji {
+  font-size: 4rem;
+  line-height: 1;
+  transition: all 0.3s ease;
+  position: relative;
+  z-index: 1;
+}
+
+.titulo {
+  font-family: 'Orbitron', 'Impact', sans-serif;
+  font-size: 1.3rem;
+  font-weight: 900;
+  color: #00d4ff;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  line-height: 1.2;
+  transition: all 0.3s ease;
+  position: relative;
+  z-index: 1;
+}
+
+.card:hover .titulo {
+  color: #39ff14;
+}
+
+.cantidad {
+  font-family: 'Orbitron', 'Impact', sans-serif;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #a0a0a0;
+  letter-spacing: 0.5px;
+  position: relative;
+  z-index: 1;
+  transition: color 0.3s ease;
+}
+
+.card:hover .cantidad {
+  color: #00d4ff;
+}
+
+/* ========================================
+   RESPONSIVE
+   ======================================== */
+
+/* Tablets grandes */
+@media (max-width: 1200px) {
+  .gridCards {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+  }
+
+  .bienvenida {
+    font-size: 1.8rem;
+  }
+
+  .card {
+    min-height: 160px;
+    padding: 2rem 1.5rem;
+  }
+
+  .emoji {
+    font-size: 3.5rem;
+  }
+
+  .titulo {
+    font-size: 1.2rem;
+  }
+}
+
+/* Tablets */
+@media (max-width: 992px) {
+  .contenedorAdmin {
+    padding: 2.5rem 0;
+  }
+
+  .banner {
+    padding: 1.8rem 2rem;
+    margin-bottom: 2.5rem;
+  }
+
+  .bienvenida {
+    font-size: 1.6rem;
+  }
+
+  .rol {
+    font-size: 1rem;
+  }
+
+  .badgeRol {
+    font-size: 0.9rem;
+    padding: 0.25rem 0.8rem;
+  }
+
+  .gridCards {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+  }
+
+  .card {
+    min-height: 150px;
+    padding: 1.8rem 1.5rem;
+  }
+
+  .emoji {
+    font-size: 3.2rem;
+  }
+
+  .titulo {
+    font-size: 1.1rem;
+  }
+
+  .cantidad {
+    font-size: 1rem;
+  }
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+  .contenedorAdmin {
+    padding: 2rem 0;
+  }
+
+  .banner {
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+  }
+
+  .bienvenida {
+    font-size: 1.4rem;
+  }
+
+  .rol {
+    font-size: 0.95rem;
+  }
+
+  .badgeRol {
+    font-size: 0.85rem;
+    padding: 0.2rem 0.7rem;
+    margin-left: 0.3rem;
+  }
+
+  .gridCards {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.2rem;
+  }
+
+  .card {
+    min-height: 140px;
+    padding: 1.5rem 1rem;
+    gap: 0.8rem;
+  }
+
+  .emoji {
+    font-size: 2.8rem;
+  }
+
+  .titulo {
+    font-size: 1rem;
+  }
+
+  .cantidad {
+    font-size: 0.95rem;
+  }
+}
+
+/* Mobile pequeño */
+@media (max-width: 576px) {
+  .banner {
+    padding: 1.2rem;
+  }
+
+  .bienvenida {
+    font-size: 1.2rem;
+    margin-bottom: 0.3rem;
+  }
+
+  .rol {
+    font-size: 0.9rem;
+  }
+
+  .badgeRol {
+    font-size: 0.8rem;
+    display: block;
+    margin-left: 0;
+    margin-top: 0.3rem;
+    width: fit-content;
+  }
+
+  .gridCards {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .card {
+    min-height: 120px;
+    padding: 1.2rem;
+  }
+
+  .emoji {
+    font-size: 2.5rem;
+  }
+
+  .titulo {
+    font-size: 0.95rem;
+  }
+
+  .cantidad {
+    font-size: 0.9rem;
+  }
+}

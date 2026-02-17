@@ -16,6 +16,7 @@ import {
 } from '../controladores/ralliesControlador.js';
 import { verificarAutenticacion } from '../middlewares/autenticacion.js';
 import { esAdmin, esCreadorFechas } from '../middlewares/esAdmin.js';
+import { puedeEditarRally, puedeEliminarRally } from '../middlewares/permisosRally.js';
 import { manejarErroresValidacion } from '../middlewares/validaciones.js';
 
 const router = express.Router();
@@ -168,6 +169,7 @@ router.put(
   '/:id',
   verificarAutenticacion,
   esCreadorFechas,
+  puedeEditarRally,
   upload.single('logo'),
   [
     param('id')
@@ -225,6 +227,7 @@ router.patch(
   '/:id/reprogramar',
   verificarAutenticacion,
   esCreadorFechas,
+  puedeEditarRally,
   [
     param('id')
       .isInt({ min: 1 }).withMessage('ID de rally inválido'),
@@ -254,6 +257,7 @@ router.patch(
   '/:id/resultados',
   verificarAutenticacion,
   esCreadorFechas,
+  puedeEditarRally,
   [
     param('id')
       .isInt({ min: 1 }).withMessage('ID de rally inválido'),
@@ -276,6 +280,7 @@ router.post(
   '/:id/categorias',
   verificarAutenticacion,
   esCreadorFechas,
+  puedeEditarRally,
   [
     param('id')
       .isInt({ min: 1 }).withMessage('ID de rally inválido'),
@@ -297,6 +302,7 @@ router.delete(
   '/:id/categorias/:categoriaId',
   verificarAutenticacion,
   esCreadorFechas,
+  puedeEditarRally,
   [
     param('id')
       .isInt({ min: 1 }).withMessage('ID de rally inválido'),
@@ -316,7 +322,8 @@ router.delete(
 router.delete(
   '/:id',
   verificarAutenticacion,
-  esAdmin,
+  esCreadorFechas,
+  puedeEditarRally,
   [
     param('id')
       .isInt({ min: 1 }).withMessage('ID de rally inválido'),

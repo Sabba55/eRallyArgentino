@@ -124,29 +124,28 @@ export const obtenerRally = async (req, res) => {
 
 // ========================================
 // CREAR RALLY (CREADOR FECHAS / ADMIN)
+// ACTUALIZADO - Asigna automáticamente creadoPorId
 // ========================================
 export const crearRally = async (req, res) => {
   try {
     const { campeonato, nombre, subtitulo, fecha, contactos, categoriasIds } = req.body;
+    const usuario = req.usuario; // Usuario autenticado
 
-    // Verificar que se haya enviado un logo
-    if (!req.file) {
-      return res.status(400).json({
-        error: 'Debes subir un logo del rally'
-      });
+    // Verificar que se haya enviado un logo (OPCIONAL)
+    let urlLogo = null;
+    if (req.file) {
+      urlLogo = await subirImagen(req.file.buffer, 'rallies');
     }
 
-    // Subir logo a Cloudinary
-    const urlLogo = await subirImagen(req.file.buffer, 'rallies');
-
-    // Crear rally
+    // Crear rally CON creadoPorId
     const nuevoRally = await Rally.create({
       campeonato,
       nombre,
       subtitulo,
       fecha: new Date(fecha),
       logo: urlLogo,
-      contactos: contactos ? JSON.parse(contactos) : null
+      contactos: contactos ? JSON.parse(contactos) : null,
+      creadoPorId: usuario.id // ASIGNAR CREADOR
     });
 
     // Asignar categorías permitidas si se especificaron
@@ -176,7 +175,7 @@ export const crearRally = async (req, res) => {
 export const actualizarRally = async (req, res) => {
   try {
     const { id } = req.params;
-    const { campeonato, nombre, subtitulo, fecha, contactos, categoriasIds } = req.body;
+    const { campeonato, nombre, subtitulo, fecha, contactos, categoriasIds, logo } = req.body;
 
     const rally = await Rally.findByPk(id);
 
@@ -186,20 +185,29 @@ export const actualizarRally = async (req, res) => {
       });
     }
 
-    // Si se envió nuevo logo, actualizar
+    // Si se envió nuevo logo como archivo, actualizar
     if (req.file) {
-      // Eliminar logo anterior
-      await eliminarImagen(rally.logo);
+      // Eliminar logo anterior solo si existe
+      if (rally.logo) {
+        await eliminarImagen(rally.logo);
+      }
 
       // Subir nuevo logo
       const urlLogo = await subirImagen(req.file.buffer, 'rallies');
       rally.logo = urlLogo;
+    } else if (logo !== undefined) {
+      // Si se envió logo como URL en el body
+      if (rally.logo && logo !== rally.logo) {
+        await eliminarImagen(rally.logo);
+      }
+      rally.logo = logo || null;
     }
 
     // Actualizar campos
     if (campeonato) rally.campeonato = campeonato;
     if (nombre) rally.nombre = nombre;
     if (subtitulo !== undefined) rally.subtitulo = subtitulo;
+    if (fecha) rally.fecha = new Date(fecha);
     if (contactos) rally.contactos = JSON.parse(contactos);
 
     await rally.save();

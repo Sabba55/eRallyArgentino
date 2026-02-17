@@ -1,0 +1,505 @@
+/* MODAL BASE */
+.modal :global(.modal-content) {
+  background-color: #2a2a2a !important;
+  border: 2px solid #00d4ff !important;
+  border-radius: 12px !important;
+  overflow: hidden;
+}
+
+.modal :global(.modal-dialog) {
+  max-width: 900px !important;
+}
+
+/* HEADER */
+.modalHeader {
+  background: linear-gradient(135deg, #1a1a1a, #222);
+  padding: 1.5rem 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 2px solid #3a3a3a;
+}
+
+.usuarioHeader {
+  display: flex;
+  align-items: center;
+  gap: 1.2rem;
+}
+
+.fotoPerfil {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid #00d4ff;
+}
+
+.fotoPlaceholder {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #00d4ff, #39ff14);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 900;
+  font-size: 1.5rem;
+  color: #1a1a1a;
+  flex-shrink: 0;
+}
+
+.usuarioNombre {
+  font-size: 1.3rem;
+  font-weight: 800;
+  color: #ffffff;
+  margin-bottom: 0.2rem;
+}
+
+.usuarioEmail {
+  font-size: 0.9rem;
+  color: #a0a0a0;
+  margin-bottom: 0.5rem;
+}
+
+.badges {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.btnCerrar {
+  background: none;
+  border: none;
+  color: #ffffff;
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: 6px;
+  transition: all 0.2s;
+  flex-shrink: 0;
+}
+
+.btnCerrar:hover { background-color: #3a3a3a; }
+
+/* PESTAÑAS */
+.pestañas {
+  display: flex;
+  background-color: #1f1f1f;
+  border-bottom: 2px solid #3a3a3a;
+  overflow-x: auto;
+}
+
+.pestañaBtn {
+  background: none;
+  border: none;
+  color: #a0a0a0;
+  padding: 1rem 1.5rem;
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 0.9rem;
+  transition: all 0.2s;
+  white-space: nowrap;
+  border-bottom: 3px solid transparent;
+  margin-bottom: -2px;
+}
+
+.pestañaBtn:hover { color: #ffffff; background-color: rgba(255,255,255,0.04); }
+
+.pestañaActiva {
+  color: #00d4ff !important;
+  border-bottom-color: #00d4ff !important;
+}
+
+/* BODY */
+.body {
+  background-color: #2a2a2a !important;
+  padding: 1.5rem !important;
+  max-height: 60vh;
+  overflow-y: auto;
+}
+
+.loading {
+  text-align: center;
+  padding: 3rem;
+  color: #00d4ff;
+}
+
+.vacio {
+  text-align: center;
+  padding: 3rem;
+  color: #666;
+  font-style: italic;
+}
+
+/* INFO GENERAL */
+.infoGrid {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+}
+
+.infoRow {
+  display: flex;
+  align-items: center;
+  padding: 0.9rem 0;
+  border-bottom: 1px solid #333;
+  gap: 1rem;
+}
+
+.infoRow:last-child { border-bottom: none; }
+
+.infoLabel {
+  width: 160px;
+  flex-shrink: 0;
+  color: #a0a0a0;
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.infoValor {
+  color: #ffffff;
+  font-size: 0.95rem;
+  font-weight: 500;
+}
+
+.verificadoSi { color: #39ff14; font-weight: 700; }
+.verificadoNo { color: #ff6b6b; font-weight: 700; }
+
+/* ROL EDITABLE */
+.rolEditar {
+  display: flex;
+  gap: 0.8rem;
+  align-items: center;
+  flex: 1;
+}
+
+.selectRol {
+  background-color: #1a1a1a !important;
+  border: 2px solid #3a3a3a !important;
+  color: #ffffff !important;
+  padding: 0.5rem 0.8rem !important;
+  border-radius: 8px !important;
+  max-width: 180px;
+}
+
+.selectRol:focus {
+  border-color: #00d4ff !important;
+  box-shadow: none !important;
+}
+
+.selectRol option { background-color: #1a1a1a; }
+
+.btnGuardarRol {
+  background: linear-gradient(135deg, #00d4ff, #39ff14);
+  border: none;
+  color: #1a1a1a;
+  font-weight: 700;
+  padding: 0.5rem 1.2rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 0.9rem;
+}
+
+.btnGuardarRol:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 212, 255, 0.4);
+}
+
+.btnGuardarRol:disabled { opacity: 0.4; cursor: not-allowed; }
+
+/* TABLA INTERNA */
+.tablaInterna {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+.tablaInterna thead {
+  border-bottom: 2px solid #00d4ff;
+}
+
+.tablaInterna th {
+  padding: 0.8rem;
+  text-align: left;
+  color: #00d4ff;
+  font-weight: 700;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.tablaInterna td {
+  padding: 0.9rem 0.8rem;
+  border-bottom: 1px solid #333;
+  color: #ffffff;
+  vertical-align: middle;
+}
+
+.tablaInterna tbody tr:hover td {
+  background-color: rgba(0, 212, 255, 0.03);
+}
+
+/* VEHÍCULO CELL */
+.vehiculoCell {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+}
+
+.vehiculoFoto {
+  width: 50px;
+  height: 38px;
+  object-fit: cover;
+  border-radius: 4px;
+  border: 1px solid #3a3a3a;
+  flex-shrink: 0;
+}
+
+.vehiculoNombre {
+  font-weight: 700;
+  font-size: 0.9rem;
+  margin-bottom: 0.25rem;
+}
+
+/* RALLY CELL */
+.rallyCell { line-height: 1.4; }
+
+.rallyNombre {
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+
+.rallyFecha {
+  font-size: 0.8rem;
+  color: #a0a0a0;
+  font-family: Arial, sans-serif;
+  margin-top: 0.2rem;
+}
+
+/* BADGES */
+.badgeCategoria {
+  display: inline-block;
+  padding: 0.2rem 0.6rem;
+  border-radius: 5px;
+  font-size: 0.7rem;
+  font-weight: 800;
+  color: #1a1a1a;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.badgeReprogramado {
+  display: inline-block;
+  padding: 0.2rem 0.5rem;
+  border-radius: 5px;
+  font-size: 0.65rem;
+  font-weight: 700;
+  background-color: #ffd60a;
+  color: #1a1a1a;
+  text-transform: uppercase;
+  margin-top: 0.2rem;
+}
+
+.badgeCompra {
+  display: inline-block;
+  padding: 0.3rem 0.7rem;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  background-color: #00d4ff;
+  color: #1a1a1a;
+  text-transform: uppercase;
+}
+
+.badgeAlquiler {
+  display: inline-block;
+  padding: 0.3rem 0.7rem;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  background-color: #39ff14;
+  color: #1a1a1a;
+  text-transform: uppercase;
+}
+
+.badgeAdmin {
+  display: inline-block;
+  padding: 0.25rem 0.7rem;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 800;
+  background: linear-gradient(135deg, #00d4ff, #39ff14);
+  color: #1a1a1a;
+  text-transform: uppercase;
+}
+
+.badgeCreador {
+  display: inline-block;
+  padding: 0.25rem 0.7rem;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 800;
+  background-color: #ffd60a;
+  color: #1a1a1a;
+  text-transform: uppercase;
+}
+
+.badgeUsuario {
+  display: inline-block;
+  padding: 0.25rem 0.7rem;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 800;
+  background-color: #3a3a3a;
+  color: #ffffff;
+  text-transform: uppercase;
+}
+
+.badgeVerificado {
+  display: inline-block;
+  padding: 0.25rem 0.7rem;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 800;
+  background-color: #39ff14;
+  color: #1a1a1a;
+  text-transform: uppercase;
+}
+
+/* MÉTODO PAGO */
+.metodoPago {
+  font-size: 0.85rem;
+  color: #a0a0a0;
+}
+
+.fechaHistorial {
+  font-family: Arial, sans-serif;
+  font-size: 0.85rem;
+  color: #a0a0a0;
+}
+
+/* BOTONES ACCIÓN TABLA */
+.accionesTabla {
+  display: flex;
+  gap: 0.4rem;
+}
+
+.btnAccionTabla {
+  background: linear-gradient(135deg, #3a3a3a, #2a2a2a);
+  border: 1px solid #4a4a4a;
+  color: #ffffff;
+  padding: 0.4rem;
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.btnAccionTabla:hover {
+  background: linear-gradient(135deg, #00d4ff, #39ff14);
+  color: #1a1a1a;
+  border-color: #00d4ff;
+  transform: translateY(-2px);
+}
+
+/* MINI MODAL CAMBIO RALLY */
+.miniModal {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1100;
+}
+
+.miniModalContenido {
+  background-color: #2a2a2a;
+  border: 2px solid #00d4ff;
+  border-radius: 12px;
+  padding: 2rem;
+  width: 400px;
+  max-width: 90vw;
+}
+
+.miniModalTitulo {
+  color: #00d4ff;
+  font-weight: 800;
+  font-size: 1.1rem;
+  margin-bottom: 0.5rem;
+  text-transform: uppercase;
+}
+
+.miniModalSub {
+  color: #a0a0a0;
+  font-size: 0.9rem;
+  margin-bottom: 1rem;
+}
+
+.miniModalSub strong { color: #ffffff; }
+
+.selectRally {
+  background-color: #1a1a1a !important;
+  border: 2px solid #3a3a3a !important;
+  color: #ffffff !important;
+  padding: 0.6rem !important;
+  border-radius: 8px !important;
+  width: 100%;
+  margin-bottom: 1.2rem;
+}
+
+.selectRally option { background-color: #1a1a1a; }
+
+.miniModalBotones {
+  display: flex;
+  gap: 0.8rem;
+  justify-content: flex-end;
+}
+
+.btnCancelarMini {
+  background: #3a3a3a;
+  border: 1px solid #4a4a4a;
+  color: #ffffff;
+  padding: 0.6rem 1.3rem;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.2s;
+}
+
+.btnCancelarMini:hover { background: #4a4a4a; }
+
+.btnGuardarMini {
+  background: linear-gradient(135deg, #00d4ff, #39ff14);
+  border: none;
+  color: #1a1a1a;
+  padding: 0.6rem 1.3rem;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 700;
+  transition: all 0.2s;
+}
+
+.btnGuardarMini:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 212, 255, 0.4);
+}
+
+.btnGuardarMini:disabled { opacity: 0.4; cursor: not-allowed; }
+
+/* RESPONSIVE */
+@media (max-width: 768px) {
+  .modal :global(.modal-dialog) {
+    max-width: 100% !important;
+    margin: 0.5rem !important;
+  }
+
+  .infoLabel { width: 110px; font-size: 0.8rem; }
+  .pestañaBtn { padding: 0.8rem 1rem; font-size: 0.8rem; }
+  .body { max-height: 55vh; }
+  .rolEditar { flex-direction: column; align-items: flex-start; }
+}

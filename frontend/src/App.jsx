@@ -29,6 +29,16 @@ import LinksTramos from './paginas/Descargas/LinksTramos'
 import Perfil from './paginas/Perfil/Perfil'
 import EditarPerfil from './paginas/Perfil/EditarPerfil'
 
+// ========================================
+// ADMIN
+// ========================================
+import Admin from './paginas/Admin/Admin'
+import AdminVehiculos from './paginas/Admin/Vehiculos/AdminVehiculos.jsx'
+import AdminCategorias from './paginas/Admin/Categorias/AdminCategorias'
+import AdminRallies from './paginas/Admin/Rallies/AdminRallies'
+import AdminUsuarios from './paginas/Admin/Usuarios/AdminUsuarios'
+
+
 import './App.css'
 
 function App() {
@@ -105,7 +115,46 @@ function App() {
                   </RutaProtegida>
                 } 
               />
-              
+              {/* ========================================
+                RUTAS DEL PANEL ADMIN (Privadas)
+              ======================================== */}
+              <Route 
+                path="/admin" 
+                element={
+                  <RutaProtegida rolesPermitidos={['admin', 'creador_fechas']}>
+                    <Admin />
+                  </RutaProtegida>
+                } 
+              />
+              <Route 
+                path="/admin/vehiculos" 
+                element={
+                  <RutaProtegida rolesPermitidos={['admin']}>
+                    <AdminVehiculos />
+                  </RutaProtegida>
+                } 
+              />
+              <Route 
+                path="/admin/categorias" 
+                element={
+                  <RutaProtegida rolesPermitidos={['admin']}>
+                    <AdminCategorias />
+                  </RutaProtegida>
+                } 
+              />
+              <Route 
+                path="/admin/rallies" 
+                element={
+                  <RutaProtegida rolesPermitidos={['admin', 'creador_fechas']}>
+                    <AdminRallies />
+                  </RutaProtegida>
+                } 
+              />
+              <Route path="/admin/usuarios" element={
+                <RutaProtegida rolesPermitidos={['admin']}>
+                  <AdminUsuarios />
+                </RutaProtegida>
+              } />
               {/* ========================================
                   RUTAS DE DESCARGAS (Públicas)
                   ======================================== */}

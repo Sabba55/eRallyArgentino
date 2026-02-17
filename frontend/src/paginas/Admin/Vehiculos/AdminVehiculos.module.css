@@ -1,0 +1,492 @@
+/* ========================================
+   CONTENEDOR
+   ======================================== */
+
+.contenedor {
+  min-height: calc(100vh - 86px);
+  background-color: #1a1a1a;
+  padding: 2rem 0;
+}
+
+.loading {
+  text-align: center;
+  padding: 3rem;
+  color: #00d4ff;
+  font-size: 1.2rem;
+}
+
+.error {
+  background-color: rgba(220, 53, 69, 0.1);
+  border: 2px solid #dc3545;
+  color: #ff6b6b;
+  padding: 1rem;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+}
+
+/* ========================================
+   HEADER - MEJORADO
+   ======================================== */
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+  background: linear-gradient(135deg, #2a2a2a, #1f1f1f);
+  padding: 2rem 2.5rem;
+  border-radius: 15px;
+  border: 2px solid #3a3a3a;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
+  position: relative;
+  overflow: hidden;
+}
+
+.header::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, rgba(0, 212, 255, 0.05), transparent);
+  pointer-events: none;
+}
+
+.titulo {
+  font-family: 'Orbitron', 'Impact', sans-serif;
+  font-size: 2rem;
+  font-weight: 900;
+  color: #00d4ff;
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  text-shadow: 0 0 25px rgba(0, 212, 255, 0.6);
+  position: relative;
+  z-index: 1;
+}
+
+.btnCrear {
+  font-family: 'Orbitron', 'Impact', sans-serif !important;  display: flex;
+  align-items: center;
+  gap: 1rem;
+  background: linear-gradient(135deg, #00d4ff, #39ff14) !important;
+  border: none !important;
+  color: #1a1a1a !important;
+  font-weight: 900 !important;
+  font-size: 1rem;
+  padding: 1rem 2.5rem;
+  border-radius: 12px;
+  box-shadow: 0 5px 20px rgba(0, 212, 255, 0.4);
+  position: relative;
+  overflow: hidden;
+  text-transform: uppercase;
+  z-index: 1;
+}
+
+.btnCrear:hover {
+  box-shadow: 0 8px 30px rgba(0, 212, 255, 0.6);
+}
+
+/* ========================================
+   FILTROS - MEJORADOS CON LABELS
+   ======================================== */
+
+.filtros {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+  background: linear-gradient(135deg, #252525, #1f1f1f);
+  padding: 2rem;
+  border-radius: 12px;
+  border: 2px solid #3a3a3a;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+.grupoFiltro {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.labelFiltro {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #00d4ff;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.inputBuscar,
+.select {
+  background-color: #1a1a1a !important;
+  border: 2px solid #3a3a3a !important;
+  color: #ffffff !important;
+  padding: 0.8rem 1rem !important;
+  border-radius: 8px !important;
+  font-size: 0.95rem;
+  transition: all 0.3s ease;
+}
+
+.inputBuscar:focus,
+.select:focus {
+  border-color: #00d4ff !important;
+  box-shadow: 0 0 0 3px rgba(0, 212, 255, 0.15) !important;
+  background-color: #242424 !important;
+}
+
+.inputBuscar::placeholder {
+  color: #666;
+  font-style: italic;
+}
+
+.select option {
+  background-color: #1a1a1a;
+  color: #ffffff;
+  padding: 0.5rem;
+}
+
+/* ========================================
+   TABLA - MEJORADA
+   ======================================== */
+
+.tablaWrapper {
+  overflow-x: auto;
+  background: linear-gradient(135deg, #252525, #1f1f1f);
+  border-radius: 12px;
+  margin-bottom: 1.5rem;
+  border: 2px solid #3a3a3a;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+.tabla {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.tabla thead {
+  background: linear-gradient(135deg, #2a2a2a, #1f1f1f);
+  border-bottom: 3px solid #00d4ff;
+}
+
+.tabla th {
+  padding: 1.2rem 1rem;
+  text-align: left;
+  color: #00d4ff;
+  font-weight: 900;
+  text-transform: uppercase;
+  font-size: 0.85rem;
+  letter-spacing: 1.5px;
+  position: relative;
+}
+
+.tabla th, .tabla td {
+  text-align: center; /* Por defecto todo centrado */
+  vertical-align: middle;
+}
+
+/* Centrar headers específicos */
+.tabla th:nth-child(2),
+.tabla th:nth-child(3),
+.tabla th:nth-child(4),
+.tabla th:nth-child(5),
+.tabla th:nth-child(6) {
+  text-align: center;
+}
+
+.tabla th::after {
+  content: '';
+  position: absolute;
+  bottom: -3px;
+  left: 0;
+  width: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #00d4ff, #39ff14);
+  transition: width 0.3s ease;
+}
+
+.tabla th:hover::after {
+  width: 100%;
+}
+
+.tabla td {
+  padding: 1.2rem 1rem;
+  border-bottom: 1px solid #2a2a2a;
+  color: #ffffff;
+  vertical-align: middle;
+  background-color: #1f1f1f;
+  transition: background-color 0.2s ease;
+}
+
+/* Centrar contenido de columnas específicas */
+.tabla td:nth-child(2),
+.tabla td:nth-child(3),
+.tabla td:nth-child(4),
+.tabla td:nth-child(5),
+.tabla td:nth-child(6) {
+  text-align: center;
+}
+
+.tabla tbody tr {
+  transition: all 0.3s ease;
+}
+
+.tabla tbody tr:hover {
+  background-color: rgba(0, 212, 255, 0.05) !important;
+  box-shadow: 0 0 20px rgba(0, 212, 255, 0.1);
+}
+
+.tabla tbody tr:hover td {
+  background-color: transparent;
+}
+
+.vacio {
+  text-align: center;
+  padding: 4rem !important;
+  color: #666;
+  font-style: italic;
+  font-size: 1.1rem;
+}
+
+/* ========================================
+   FOTO - MEJORADA
+   ======================================== */
+
+.foto {
+  width: 90px;
+  height: 70px;
+  object-fit: cover;
+  border-radius: 8px;
+  display: block;
+  margin: 0 auto;
+  border: 2px solid #3a3a3a;
+}
+
+/* ========================================
+   VEHÍCULO
+   ======================================== */
+
+.marca {
+  font-weight: 800;
+  color: #ffffff;
+  margin-bottom: 0.3rem;
+  font-size: 1.1rem;
+}
+
+.modelo {
+  font-size: 1rem;
+  color: #a0a0a0;
+  font-weight: 500;
+}
+
+/* ========================================
+   CATEGORÍA - MEJORADA
+   ======================================== */
+
+.badgeCategoria {
+  display: inline-block;
+  padding: 0.4rem 0.9rem;
+  border-radius: 8px;
+  font-size: 0.75rem;
+  font-weight: 800;
+  color: #1a1a1a;
+  margin: 0.2rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  transition: all 0.2s ease;
+}
+
+.badgeCategoria:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+/* ========================================
+   PRECIO - SIMPLIFICADO
+   ======================================== */
+
+.precio {
+  font-weight: 600;
+  font-family: Arial, sans-serif;
+  font-size: 1rem;
+}
+
+/* ========================================
+   ACCIONES - MEJORADAS
+   ======================================== */
+
+.acciones {
+  display: flex;
+  flex-direction: column;
+  align-items: center; 
+  justify-content: center; 
+  gap: 0.8rem;
+  width: 100%;
+}
+
+.botones {
+  display: flex;
+  gap: 0.6rem;
+}
+
+.btnAccion {
+  background: linear-gradient(135deg, #3a3a3a, #2a2a2a);
+  border: 2px solid #4a4a4a;
+  color: #ffffff;
+  padding: 0.5rem;
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.btnAccion:hover {
+  background: linear-gradient(135deg, #00d4ff, #39ff14);
+  color: #1a1a1a;
+  border-color: #00d4ff;
+  transform: translateY(-3px);
+  box-shadow: 0 4px 15px rgba(0, 212, 255, 0.4);
+}
+
+.btnAccion:active {
+  transform: translateY(-1px);
+}
+
+.switchDisponibilidad {
+  margin: 0;
+}
+
+.switchDisponibilidad label {
+  font-size: 0.85rem;
+  color: #a0a0a0;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.switchDisponibilidad input:checked ~ label {
+  color: #39ff14;
+  font-weight: 700;
+}
+
+/* ========================================
+   PAGINACIÓN - MEJORADA
+   ======================================== */
+
+.paginacion {
+  display: flex;
+  justify-content: center;
+  gap: 0.8rem;
+  flex-wrap: wrap;
+  padding: 1.5rem 0;
+}
+
+.btnPaginacion {
+  background: linear-gradient(135deg, #2a2a2a, #1f1f1f);
+  border: 2px solid #3a3a3a;
+  color: #ffffff;
+  padding: 0.7rem 1.3rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-weight: 700;
+  min-width: 45px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.btnPaginacion:hover:not(:disabled) {
+  background: linear-gradient(135deg, #00d4ff, #39ff14);
+  color: #1a1a1a;
+  border-color: #00d4ff;
+  transform: translateY(-3px);
+  box-shadow: 0 4px 15px rgba(0, 212, 255, 0.4);
+}
+
+.btnPaginacion:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.btnPaginacion.activo {
+  background: linear-gradient(135deg, #00d4ff, #39ff14);
+  color: #1a1a1a;
+  border-color: #00d4ff;
+  font-weight: 900;
+  box-shadow: 0 4px 15px rgba(0, 212, 255, 0.5);
+}
+
+/* ========================================
+   ICONOS DE FILTROS
+   ======================================== */
+.headerClickable {
+  cursor: pointer;
+  user-select: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.headerClickable:hover {
+  color: #39ff14;
+}
+
+/* ========================================
+   RESPONSIVE - MOBILE
+   ======================================== */
+
+@media (max-width: 992px) {
+  .filtros {
+    grid-template-columns: 1fr 1fr;
+    padding: 1.5rem;
+  }
+
+  .tabla {
+    font-size: 0.9rem;
+  }
+
+  .tabla th,
+  .tabla td {
+    padding: 0.9rem;
+  }
+
+  .foto {
+    width: 70px;
+    height: 53px;
+  }
+
+  .titulo {
+    font-size: 1.8rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .header {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 1.5rem;
+  }
+
+  .btnCrear {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .filtros {
+    grid-template-columns: 1fr;
+    padding: 1.2rem;
+  }
+
+  .tablaWrapper {
+    display: none;
+  }
+
+  .titulo {
+    font-size: 1.5rem;
+  }
+}

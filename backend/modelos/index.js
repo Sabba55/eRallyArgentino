@@ -91,6 +91,21 @@ CategoriaRally.belongsTo(Categoria, {
   as: 'Categoria'
 });
 
+// ===================================
+// 4.1 USUARIO ↔ RALLY (Creador)
+// ===================================
+// Un usuario puede crear muchos rallies
+Usuario.hasMany(Rally, {
+  foreignKey: 'creadoPorId',
+  as: 'ralliesCreados'
+});
+
+// Un rally pertenece a un usuario creador
+Rally.belongsTo(Usuario, {
+  foreignKey: 'creadoPorId',
+  as: 'creador'
+});
+
 // ========================================
 // 4. USUARIO ↔ COMPRA ↔ VEHICULO
 // ========================================

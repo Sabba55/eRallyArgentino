@@ -1,66 +1,68 @@
 import { useState, useEffect } from 'react'
-import { Modal } from 'react-bootstrap'
+import { Modal, Alert } from 'react-bootstrap'
 import { X } from 'lucide-react'
+import api from '../../config/api'
 import styles from './ModalDetalleVehiculo.module.css'
 
 function ModalDetalleVehiculo({ show, onHide, vehiculo, tipo, categoria, colorCategoria }) {
-  // Estado para la fecha seleccionada (solo para alquileres)
+  // ========================================
+  // ESTADOS
+  // ========================================
   const [fechaSeleccionada, setFechaSeleccionada] = useState('')
-  
-  // Estado para la cotización del dólar
   const [cotizacionDolar, setCotizacionDolar] = useState(null)
   const [cargandoDolar, setCargandoDolar] = useState(true)
+  const [rallies, setRallies] = useState([])
+  const [cargandoRallies, setCargandoRallies] = useState(false)
+  const [procesandoPago, setProcesandoPago] = useState(false)
+  const [error, setError] = useState('')
 
-  // Rallies mock
-  const rallies = [
-    {
-      id: 1,
-      campeonato: "eRally",
-      nombre: "Rally de Misiones",
-      subtitulo: "Entre tierra y selva",
-      fecha: "15/03/2026",
-      fechaOriginal: "15/03/2026",
-      contactos: { whatsapp: "3794123456", email: "info@rallymisiones.com" },
-      categoriasHabilitadas: ["Rally2", "R5", "Rally3", "N4", "Maxi Rally"]
-    },
-    {
-      id: 2,
-      campeonato: "eRally",
-      nombre: "Rally de Córdoba",
-      subtitulo: "Entre sierras",
-      fecha: "20/04/2026",
-      fechaOriginal: "20/04/2026",
-      contactos: { whatsapp: "3514567890", email: "info@rallycordoba.com" },
-      categoriasHabilitadas: ["Rally2", "R5", "Rally3", "Rally4", "N4", "A1", "N1"]
-    },
-    {
-      id: 3,
-      campeonato: "CARV",
-      nombre: "Rally Laguna Larga",
-      subtitulo: "Viento y arena",
-      fecha: "10/06/2026",
-      fechaOriginal: "10/06/2026",
-      contactos: { whatsapp: "2234445566", email: "info@rallycosta.com" },
-      categoriasHabilitadas: ["Rally2", "R5", "Rally4", "RC3"]
-    },
-    {
-      id: 4,
-      campeonato: "VRally",
-      nombre: "Rally de Cuyo",
-      subtitulo: "Al pie de la cordillera",
-      fecha: "25/07/2026",
-      fechaOriginal: "25/07/2026",
-      contactos: { whatsapp: "2614445566", email: "info@rallycuyo.com" },
-      categoriasHabilitadas: ["Rally2", "R5", "Rally3", "N4", "Maxi Rally", "Rally4"]
+  // ========================================
+  // CARGAR RALLIES (SOLO PARA ALQUILERES)
+  // ========================================
+  useEffect(() => {
+    const cargarRallies = async () => {
+      if (show && tipo === 'ALQUILAR') {
+        try {
+          setCargandoRallies(true)
+          
+          // TODO: Cuando tengas el endpoint de rallies, reemplazar por la llamada real
+          // const response = await api.get('/rallies', {
+          //   params: {
+          //     disponible: true,
+          //     categoriaId: vehiculo?.categorias?.[0]?.id
+          //   }
+          // })
+          // setRallies(response.data.rallies)
+
+          // Por ahora, datos MOCK (reemplazar cuando tengas el endpoint)
+          setRallies([
+            {
+              id: 1,
+              nombre: "Rally de Misiones",
+              fecha: "2026-03-15T10:00:00",
+              campeonato: "eRally"
+            },
+            {
+              id: 2,
+              nombre: "Rally de Córdoba",
+              fecha: "2026-04-20T10:00:00",
+              campeonato: "eRally"
+            }
+          ])
+        } catch (error) {
+          console.error('Error al cargar rallies:', error)
+        } finally {
+          setCargandoRallies(false)
+        }
+      }
     }
-  ]
 
-  // Filtrar rallies según categoría del vehículo
-  const ralliesDisponibles = rallies.filter(rally => 
-    rally.categoriasHabilitadas.includes(categoria)
-  )
+    cargarRallies()
+  }, [show, tipo, vehiculo])
 
-  // Consultar API del dólar blue al montar el componente
+  // ========================================
+  // CONSULTAR COTIZACIÓN DEL DÓLAR
+  // ========================================
   useEffect(() => {
     const obtenerCotizacion = async () => {
       try {
@@ -78,18 +80,23 @@ function ModalDetalleVehiculo({ show, onHide, vehiculo, tipo, categoria, colorCa
 
     if (show) {
       obtenerCotizacion()
-      // Resetear fecha al abrir
+      // Resetear estados al abrir
       setFechaSeleccionada('')
+      setError('')
     }
   }, [show])
 
-  // Formatear precio con puntos de miles
+  // ========================================
+  // FORMATEAR PRECIO CON PUNTOS DE MILES
+  // ========================================
   const formatearPrecio = (precio) => {
     return precio.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")
   }
 
-    // Calcular precio en USD con comisiones de PayPal
-    const calcularPrecioUSD = (precioARS) => {
+  // ========================================
+  // CALCULAR PRECIO EN USD CON COMISIONES
+  // ========================================
+  const calcularPrecioUSD = (precioARS) => {
     if (!cotizacionDolar) return '---'
     
     // Convertir ARS a USD
@@ -101,27 +108,88 @@ function ModalDetalleVehiculo({ show, onHide, vehiculo, tipo, categoria, colorCa
     const precioFinal = precioBase + comisionVariable + comisionFija
     
     return precioFinal.toFixed(2)
+  }
+
+  // ========================================
+  // FORMATEAR FECHA PARA MOSTRAR
+  // ========================================
+  const formatearFechaRally = (fechaISO) => {
+    const fecha = new Date(fechaISO)
+    const dia = String(fecha.getDate()).padStart(2, '0')
+    const mes = String(fecha.getMonth() + 1).padStart(2, '0')
+    const año = fecha.getFullYear()
+    return `${dia}/${mes}/${año}`
+  }
+
+  // ========================================
+  // MANEJAR PAGO
+  // ========================================
+  const manejarPago = async (metodoPago) => {
+    try {
+      setProcesandoPago(true)
+      setError('')
+
+      // Validar que se haya seleccionado fecha para alquileres
+      if (tipo === 'ALQUILAR' && !fechaSeleccionada) {
+        setError('Debes seleccionar una fecha de rally')
+        setProcesandoPago(false)
+        return
+      }
+
+      // Determinar endpoint según tipo y método
+      let endpoint = ''
+      let body = {}
+
+      if (tipo === 'COMPRAR') {
+        if (metodoPago === 'Mercado Pago') {
+          endpoint = '/pagos/compras/mercadopago'
+        } else {
+          endpoint = '/pagos/compras/paypal'
+        }
+        body = { vehiculoId: vehiculo.id }
+      } else {
+        // ALQUILAR
+        if (metodoPago === 'Mercado Pago') {
+          endpoint = '/pagos/alquileres/mercadopago'
+        } else {
+          endpoint = '/pagos/alquileres/paypal'
+        }
+        body = { 
+          vehiculoId: vehiculo.id,
+          rallyId: parseInt(fechaSeleccionada)
+        }
+      }
+
+      // Realizar petición al backend
+      const response = await api.post(endpoint, body)
+
+      // Redirigir a la URL de pago
+      if (response.data.urlPago) {
+        window.location.href = response.data.urlPago
+      } else {
+        setError('No se recibió la URL de pago. Intentá de nuevo.')
+      }
+
+    } catch (error) {
+      console.error('Error al procesar pago:', error)
+      
+      if (error.response?.data?.error) {
+        setError(error.response.data.error)
+      } else {
+        setError('Error al procesar el pago. Intentá de nuevo.')
+      }
+    } finally {
+      setProcesandoPago(false)
     }
+  }
 
   if (!vehiculo) return null
 
-    // Ahora sí, calcular estas cosas:
-    const precio = tipo === 'COMPRAR' ? vehiculo.precioCompra : vehiculo.precioAlquiler
+  // Determinar precio según tipo
+  const precio = tipo === 'COMPRAR' ? vehiculo.precioCompra : vehiculo.precioAlquiler
 
-    // Determinar si los botones deben estar habilitados
-    const botonesHabilitados = tipo === 'COMPRAR' || (tipo === 'ALQUILAR' && fechaSeleccionada !== '')
-
-    // Manejar click en botones de pago
-    const manejarPago = (metodoPago) => {
-    console.log(`Pago con ${metodoPago}:`, {
-        vehiculo: `${vehiculo.marca} ${vehiculo.nombre}`,
-        tipo,
-        precio,
-        fecha: fechaSeleccionada || 'N/A',
-        metodoPago
-    })
-    // Acá después irá la redirección a WhatsApp
-    }
+  // Determinar si los botones deben estar habilitados
+  const botonesHabilitados = !procesandoPago && (tipo === 'COMPRAR' || (tipo === 'ALQUILAR' && fechaSeleccionada !== ''))
 
   return (
     <Modal 
@@ -138,6 +206,7 @@ function ModalDetalleVehiculo({ show, onHide, vehiculo, tipo, categoria, colorCa
           className={styles.btnCerrar}
           onClick={onHide}
           aria-label="Cerrar"
+          disabled={procesandoPago}
         >
           <X size={24} />
         </button>
@@ -163,6 +232,18 @@ function ModalDetalleVehiculo({ show, onHide, vehiculo, tipo, categoria, colorCa
         <h2 className={styles.nombreVehiculo}>
           {vehiculo.marca} {vehiculo.nombre}
         </h2>
+
+        {/* Alerta de error */}
+        {error && (
+          <Alert 
+            variant="danger" 
+            className={styles.alerta}
+            onClose={() => setError('')}
+            dismissible
+          >
+            {error}
+          </Alert>
+        )}
         
         {/* Selector de fecha (solo para alquileres) */}
         {tipo === 'ALQUILAR' && (
@@ -170,18 +251,25 @@ function ModalDetalleVehiculo({ show, onHide, vehiculo, tipo, categoria, colorCa
             <label className={styles.labelFecha}>
               Seleccioná fecha del rally:
             </label>
-            <select 
-              className={styles.selectFecha}
-              value={fechaSeleccionada}
-              onChange={(e) => setFechaSeleccionada(e.target.value)}
-            >
-              <option value="">Elegí una fecha</option>
-              {ralliesDisponibles.map(rally => (
-                <option key={rally.id} value={rally.id}>
-                  {rally.fecha} | {rally.campeonato} - {rally.nombre}
-                </option>
-              ))}
-            </select>
+            {cargandoRallies ? (
+              <div style={{ textAlign: 'center', padding: '1rem', color: '#00d4ff' }}>
+                Cargando rallies...
+              </div>
+            ) : (
+              <select 
+                className={styles.selectFecha}
+                value={fechaSeleccionada}
+                onChange={(e) => setFechaSeleccionada(e.target.value)}
+                disabled={procesandoPago}
+              >
+                <option value="">Elegí una fecha</option>
+                {rallies.map(rally => (
+                  <option key={rally.id} value={rally.id}>
+                    {formatearFechaRally(rally.fecha)} | {rally.campeonato} - {rally.nombre}
+                  </option>
+                ))}
+              </select>
+            )}
           </div>
         )}
 
@@ -206,7 +294,7 @@ function ModalDetalleVehiculo({ show, onHide, vehiculo, tipo, categoria, colorCa
                 }}
               />
               <span className={styles.precioPago}>
-                ${formatearPrecio(precio)}
+                {procesandoPago ? 'Procesando...' : `$${formatearPrecio(precio)}`}
               </span>
             </button>
 
@@ -225,7 +313,7 @@ function ModalDetalleVehiculo({ show, onHide, vehiculo, tipo, categoria, colorCa
                 }}
               />
               <span className={styles.precioPago}>
-                {cargandoDolar ? '...' : `USD ${calcularPrecioUSD(precio)}`}
+                {procesandoPago ? 'Procesando...' : (cargandoDolar ? '...' : `USD ${calcularPrecioUSD(precio)}`)}
               </span>
             </button>
 
@@ -235,7 +323,7 @@ function ModalDetalleVehiculo({ show, onHide, vehiculo, tipo, categoria, colorCa
         {/* Texto aclarativo */}
         <p className={styles.textoAclarativo}>
           {tipo === 'COMPRAR' 
-            ? 'Vigencia: 1 año desde la compra | Podes participar en todas las fechas'
+            ? 'Vigencia: 1 año desde la compra | Podés participar en todas las fechas'
             : fechaSeleccionada 
               ? `Válido hasta la fecha del rally seleccionado`
               : 'Válido hasta la fecha del rally'

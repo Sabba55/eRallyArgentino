@@ -70,6 +70,17 @@ const Rally = sequelize.define(
       allowNull: true,
       defaultValue: null,
       comment: 'Almacena redes sociales y contactos: {whatsapp, email, instagram, facebook, web}'
+    },
+    creadoPorId: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+      references: {
+        model: 'usuarios',
+        key: 'id'
+      },
+      onDelete: 'SET NULL',
+      onUpdate: 'CASCADE',
+      comment: 'Usuario que creó este rally (para control de permisos de creador_fechas)'
     }
   },
   {
@@ -81,21 +92,21 @@ const Rally = sequelize.define(
       },
       {
         fields: ['campeonato']
+      },
+      {
+        fields: ['creadoPorId']
       }
-    ]
+    ],
+    hooks: {
+      // Hook: Al crear un rally, la fechaOriginal es igual a la fecha
+      beforeValidate: (rally) => {
+        if (!rally.fechaOriginal && rally.fecha) {
+          rally.fechaOriginal = rally.fecha;
+        }
+      }
+    }
   }
 );
-
-// ========================================
-// HOOKS
-// ========================================
-
-// Hook: Al crear un rally, la fechaOriginal es igual a la fecha
-Rally.beforeCreate((rally) => {
-  if (!rally.fechaOriginal) {
-    rally.fechaOriginal = rally.fecha;
-  }
-});
 
 // ========================================
 // MÉTODOS ESTÁTICOS
@@ -142,6 +153,14 @@ Rally.buscarConCategorias = async function (id) {
   });
 };
 
+// Obtener rallies creados por un usuario
+Rally.obtenerPorCreador = async function (usuarioId) {
+  return await Rally.findAll({
+    where: { creadoPorId: usuarioId },
+    order: [['fecha', 'DESC']]
+  });
+};
+
 // ========================================
 // MÉTODOS DE INSTANCIA
 // ========================================
@@ -175,6 +194,11 @@ Rally.prototype.cargarResultados = async function (resultados) {
 // Obtener contacto específico
 Rally.prototype.obtenerContacto = function (tipo) {
   return this.contactos?.[tipo] || null;
+};
+
+// Verificar si un usuario es el creador de este rally
+Rally.prototype.esCreador = function (usuarioId) {
+  return this.creadoPorId === usuarioId;
 };
 
 export default Rally;
