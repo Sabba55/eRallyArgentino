@@ -103,7 +103,14 @@ export const obtenerVehiculo = async (req, res) => {
 // ========================================
 export const crearVehiculo = async (req, res) => {
   try {
-    const { marca, nombre, descripcion, precioCompra, precioAlquiler, categoriasIds } = req.body;
+    const { marca, nombre, descripcion, precioCompra, precioAlquiler } = req.body;
+
+    // Normalizar categoriasIds — FormData los envía como strings
+    let categoriasIds = req.body.categoriasIds || [];
+    if (!Array.isArray(categoriasIds)) categoriasIds = [categoriasIds];
+    categoriasIds = categoriasIds.map(id => parseInt(id)).filter(id => !isNaN(id));
+
+    console.log('DEBUG categoriasIds:', categoriasIds, 'tipo:', typeof categoriasIds, 'isArray:', Array.isArray(categoriasIds));
 
     // Verificar que se haya enviado una imagen
     if (!req.file) {
@@ -112,8 +119,31 @@ export const crearVehiculo = async (req, res) => {
       });
     }
 
-    // Subir imagen a Cloudinary
-    const urlImagen = await subirImagen(req.file.buffer, 'vehiculos');
+    // Construir carpeta y nombre según categoría principal
+    // Formato: vehiculos/[categoria]/[marca]-[modelo]
+    let carpeta = 'vehiculos';
+    let nombrePublicId = null;
+
+    if (categoriasIds.length > 0) {
+      // Obtener el nombre de la primera categoría seleccionada
+      const categoriaPrincipal = await Categoria.findByPk(categoriasIds[0]);
+      if (categoriaPrincipal) {
+        const nombreCategoria = categoriaPrincipal.nombre
+          .toLowerCase()
+          .replace(/\s+/g, '_')
+          .replace(/[^a-z0-9_]/g, '');
+        carpeta = `vehiculos/${nombreCategoria}`;
+      }
+    }
+
+    // Nombre del archivo: marca-modelo (sin espacios, en minúscula)
+    const nombreArchivo = `${marca}-${nombre}`
+      .toLowerCase()
+      .replace(/\s+/g, '_')
+      .replace(/[^a-z0-9_-]/g, '');
+
+    // Subir imagen a Cloudinary con carpeta y nombre personalizados
+    const urlImagen = await subirImagen(req.file.buffer, carpeta, nombreArchivo);
 
     // Crear vehículo
     const nuevoVehiculo = await Vehiculo.create({
@@ -127,7 +157,7 @@ export const crearVehiculo = async (req, res) => {
     });
 
     // Asignar categorías si se especificaron
-    if (categoriasIds && Array.isArray(categoriasIds) && categoriasIds.length > 0) {
+    if (categoriasIds.length > 0) {
       await VehiculoCategoria.asignarCategorias(nuevoVehiculo.id, categoriasIds);
     }
 

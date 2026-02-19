@@ -171,9 +171,10 @@ function AdminVehiculos() {
       <Container>
         <div className={styles.header}>
           <h1 className={styles.titulo}>VEHÍCULOS ({vehiculosProcesados.length})</h1>
-          <Button className={styles.btnCrear} onClick={abrirModalCrear}>
-            <Plus size={20} /> CREAR VEHÍCULO
-          </Button>
+          <button className={styles.btnCrear} onClick={abrirModalCrear}>
+            <Plus size={20} />
+            Crear Vehículo
+          </button>
         </div>
 
         {error && <div className={styles.error}>{error}</div>}

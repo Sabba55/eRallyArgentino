@@ -97,7 +97,6 @@
   width: 100%;
   height: 100%;
   background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
-  transition: left 0.6s;
 }
 
 .btnCrear:hover::before {
@@ -105,12 +104,7 @@
 }
 
 .btnCrear:hover {
-  transform: translateY(-4px);
   box-shadow: 0 8px 30px rgba(0, 212, 255, 0.6);
-}
-
-.btnCrear:active {
-  transform: translateY(-2px);
 }
 
 /* ========================================
@@ -196,19 +190,13 @@
 
 .tabla th {
   padding: 1.2rem 1rem;
-  text-align: left;
+  text-align: center;
   color: #00d4ff;
   font-weight: 900;
   text-transform: uppercase;
   font-size: 0.85rem;
   letter-spacing: 1.5px;
   position: relative;
-}
-
-/* Centrar headers específicos */
-.tabla th:nth-child(4),
-.tabla th:nth-child(5) {
-  text-align: center;
 }
 
 .tabla th::after {
@@ -232,12 +220,17 @@
   color: #ffffff;
   vertical-align: middle;
   background-color: #1f1f1f;
+  text-align: center;
   transition: background-color 0.2s ease;
 }
 
-/* Centrar contenido de columnas específicas */
+.tabla td:first-child {
+  text-align: center;
+}
+
 .tabla td:nth-child(4),
-.tabla td:nth-child(5) {
+.tabla td:nth-child(5),
+.tabla td:last-child {
   text-align: center;
 }
 
@@ -260,6 +253,45 @@
   color: #666;
   font-style: italic;
   font-size: 1.1rem;
+}
+
+/* ========================================
+   LOGO
+   ======================================== */
+
+.logo {
+  width: 60px;
+  height: 60px;
+  object-fit: contain;
+  border-radius: 6px;
+  border: 2px solid #3a3a3a;
+  background-color: #1a1a1a;
+  padding: 0.1rem;
+}
+
+.sinLogo {
+  width: 60px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #3a3a3a, #2a2a2a);
+  border: 2px solid #4a4a4a;
+  border-radius: 6px;
+  color: #00d4ff;
+  font-weight: 900;
+  font-size: 1.4rem;
+  margin: 0 auto;
+}
+
+/* ========================================
+   CAMPEONATO
+   ======================================== */
+
+.campeonato {
+  font-weight: 600;
+  color: #a0a0a0;
+  font-size: 0.9rem;
 }
 
 /* ========================================
@@ -294,6 +326,7 @@
   text-transform: uppercase;
   letter-spacing: 0.5px;
   margin-top: 0.3rem;
+  margin-right: 0.3rem;
 }
 
 .badgePasado {
@@ -310,7 +343,7 @@
 }
 
 /* ========================================
-   FECHA
+   FECHA Y HORA
    ======================================== */
 
 .fecha {
@@ -320,14 +353,11 @@
   font-size: 0.95rem;
 }
 
-/* ========================================
-   CAMPEONATO
-   ======================================== */
-
-.campeonato {
-  font-weight: 600;
-  color: #a0a0a0;
-  font-size: 0.9rem;
+.hora {
+  font-weight: 900;
+  font-family: Arial, sans-serif;
+  color: #00d4ff;
+  font-size: 0.95rem;
 }
 
 /* ========================================
@@ -469,7 +499,7 @@
 
   .tabla th,
   .tabla td {
-    padding: 0.9rem;
+    padding: 0.9rem 0.5rem;
   }
 
   .titulo {

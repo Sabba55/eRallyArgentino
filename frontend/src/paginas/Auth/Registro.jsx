@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Form, Button, Alert, InputGroup } from 'react-bootstrap'
-import { Eye, EyeOff } from 'lucide-react'
+import { Eye, EyeOff, Mail, Lock, User, Users } from 'lucide-react'
 import { useAuth } from '../../contexts/AuthContext'
 import styles from './Registro.module.css'
 import fotoRegistro from '../../assets/imagenes/login-foto.png'
@@ -134,15 +134,18 @@ function Registro() {
                   <Form.Label className={styles.label}>
                     Nombre completo <span className={styles.obligatorio}>*</span>
                   </Form.Label>
-                  <Form.Control
-                    type="text"
-                    placeholder="Juan Pérez"
-                    value={nombre}
-                    onChange={(e) => setNombre(e.target.value)}
-                    className={styles.input}
-                    disabled={cargando}
-                    autoComplete="name"
-                  />
+                  <div className={styles.grupoInputRelativo}>
+                    <User className={styles.iconoInput} size={20} />
+                    <Form.Control
+                      type="text"
+                      placeholder="Juan Pérez"
+                      value={nombre}
+                      onChange={(e) => setNombre(e.target.value)}
+                      className={styles.input} // Nueva clase para dar espacio al icono
+                      disabled={cargando}
+                      autoComplete="name"
+                    />
+                  </div>
                 </Form.Group>
 
                 {/* Campo Email */}
@@ -150,75 +153,72 @@ function Registro() {
                   <Form.Label className={styles.label}>
                     Email <span className={styles.obligatorio}>*</span>
                   </Form.Label>
-                  <Form.Control
-                    type="email"
-                    placeholder="tu@email.com"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    className={styles.input}
-                    disabled={cargando}
-                    autoComplete="email"
-                  />
+                  <div className={styles.grupoInputRelativo}>
+                    <Mail className={styles.iconoInput} size={20} />
+                    <Form.Control
+                      type="email"
+                      placeholder="tu@email.com"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      className={styles.input}
+                      disabled={cargando}
+                      autoComplete="email"
+                    />
+                  </div>
                 </Form.Group>
 
-                {/* Campo Contraseña con ojo */}
+                {/* Campo Contraseña - Aquí combinamos Icono + Input + Ojo */}
                 <Form.Group className={styles.grupoInput}>
                   <Form.Label className={styles.label}>
                     Contraseña <span className={styles.obligatorio}>*</span>
                   </Form.Label>
-                  <InputGroup>
+                  <div className={styles.grupoInputRelativo}>
+                    <Lock className={styles.iconoInput} size={20} />
                     <Form.Control
                       type={mostrarContraseña ? "text" : "password"}
                       placeholder="Mínimo 8 caracteres"
                       value={contraseña}
                       onChange={(e) => setContraseña(e.target.value)}
-                      className={styles.input}
+                      className={`${styles.input} ${styles.inputConIcono}`}
                       disabled={cargando}
                       autoComplete="new-password"
                     />
                     <button
                       type="button"
-                      className={styles.btnOjo}
+                      className={styles.botonOjoRegistro}
                       onClick={() => setMostrarContraseña(!mostrarContraseña)}
-                      disabled={cargando}
+                      tabIndex="-1"
                     >
-                      {mostrarContraseña ? (
-                        <EyeOff size={20} />
-                      ) : (
-                        <Eye size={20} />
-                      )}
+                      {mostrarContraseña ? <EyeOff size={20} /> : <Eye size={20} />}
                     </button>
-                  </InputGroup>
+                  </div>
                 </Form.Group>
 
-                {/* Campo Confirmar Contraseña con ojo */}
+                {/* Campo Confirmar Contraseña */}
                 <Form.Group className={styles.grupoInput}>
                   <Form.Label className={styles.label}>
                     Confirmar contraseña <span className={styles.obligatorio}>*</span>
                   </Form.Label>
-                  <InputGroup>
+                  <div className={styles.grupoInputRelativo}>
+                    <Lock className={styles.iconoInput} size={20} />
                     <Form.Control
                       type={mostrarConfirmarContraseña ? "text" : "password"}
                       placeholder="Repetí tu contraseña"
                       value={confirmarContraseña}
                       onChange={(e) => setConfirmarContraseña(e.target.value)}
-                      className={styles.input}
+                      className={`${styles.input} ${styles.inputConIcono} ${styles.inputConOjo}`}
                       disabled={cargando}
                       autoComplete="new-password"
                     />
                     <button
                       type="button"
-                      className={styles.btnOjo}
+                      className={styles.botonOjoRegistro}
                       onClick={() => setMostrarConfirmarContraseña(!mostrarConfirmarContraseña)}
-                      disabled={cargando}
+                      tabIndex="-1"
                     >
-                      {mostrarConfirmarContraseña ? (
-                        <EyeOff size={20} />
-                      ) : (
-                        <Eye size={20} />
-                      )}
+                      {mostrarConfirmarContraseña ? <EyeOff size={20} /> : <Eye size={20} />}
                     </button>
-                  </InputGroup>
+                  </div>
                 </Form.Group>
 
                 {/* Campo Equipo (opcional) */}
@@ -226,14 +226,17 @@ function Registro() {
                   <Form.Label className={styles.label}>
                     Equipo <span className={styles.opcional}>(opcional)</span>
                   </Form.Label>
-                  <Form.Control
-                    type="text"
-                    placeholder="Nombre de tu equipo"
-                    value={equipo}
-                    onChange={(e) => setEquipo(e.target.value)}
-                    className={styles.input}
-                    disabled={cargando}
-                  />
+                  <div className={styles.grupoInputRelativo}>
+                    <Users className={styles.iconoInput} size={20} />
+                    <Form.Control
+                      type="text"
+                      placeholder="Nombre de tu equipo"
+                      value={equipo}
+                      onChange={(e) => setEquipo(e.target.value)}
+                      className={`${styles.input} ${styles.inputConIcono}`}
+                      disabled={cargando}
+                    />
+                  </div>
                 </Form.Group>
 
                 {/* Botón Registrarse */}

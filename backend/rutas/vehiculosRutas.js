@@ -19,12 +19,9 @@ import { manejarErroresValidacion } from '../middlewares/validaciones.js';
 
 const router = express.Router();
 
-// Configurar multer para subir imágenes
 const upload = multer({
   storage: multer.memoryStorage(),
-  limits: {
-    fileSize: 5 * 1024 * 1024 // 5MB máximo
-  },
+  limits: { fileSize: 5 * 1024 * 1024 },
   fileFilter: (req, file, cb) => {
     const tiposPermitidos = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
     if (tiposPermitidos.includes(file.mimetype)) {
@@ -44,32 +41,15 @@ router.get('/disponibles', listarDisponibles);
 // ========================================
 // LISTAR TODOS LOS VEHÍCULOS
 // GET /api/vehiculos
-// Público con filtros opcionales
 // ========================================
 router.get(
   '/',
   [
-    query('disponible')
-      .optional()
-      .isBoolean().withMessage('disponible debe ser true o false'),
-
-    query('marca')
-      .optional()
-      .trim()
-      .isLength({ min: 1, max: 50 }).withMessage('La marca debe tener entre 1 y 50 caracteres'),
-
-    query('categoriaId')
-      .optional()
-      .isInt({ min: 1 }).withMessage('ID de categoría inválido'),
-
-    query('limite')
-      .optional()
-      .isInt({ min: 1, max: 200 }).withMessage('Límite debe ser entre 1 y 200'),
-
-    query('pagina')
-      .optional()
-      .isInt({ min: 1 }).withMessage('Página debe ser mayor a 0'),
-
+    query('disponible').optional().isBoolean().withMessage('disponible debe ser true o false'),
+    query('marca').optional().trim().isLength({ min: 1, max: 50 }),
+    query('categoriaId').optional().isInt({ min: 1 }),
+    query('limite').optional().isInt({ min: 1, max: 200 }),
+    query('pagina').optional().isInt({ min: 1 }),
     manejarErroresValidacion
   ],
   listarVehiculos
@@ -82,9 +62,7 @@ router.get(
 router.get(
   '/:id',
   [
-    param('id')
-      .isInt({ min: 1 }).withMessage('ID de vehículo inválido'),
-
+    param('id').isInt({ min: 1 }).withMessage('ID de vehículo inválido'),
     manejarErroresValidacion
   ],
   obtenerVehiculo
@@ -113,7 +91,7 @@ router.post(
     body('descripcion')
       .optional()
       .trim()
-      .isLength({ max: 500 }).withMessage('La descripción no puede tener más de 500 caracteres'),
+      .isLength({ max: 500 }),
 
     body('precioCompra')
       .notEmpty().withMessage('El precio de compra es obligatorio')
@@ -123,13 +101,19 @@ router.post(
       .notEmpty().withMessage('El precio de alquiler es obligatorio')
       .isFloat({ min: 0.01 }).withMessage('El precio de alquiler debe ser mayor a 0'),
 
+    // ✅ Aceptar tanto strings como números (FormData siempre envía strings)
     body('categoriasIds')
-      .optional()
-      .isArray().withMessage('categoriasIds debe ser un array'),
+      .optional(),
 
     body('categoriasIds.*')
       .optional()
-      .isInt({ min: 1 }).withMessage('ID de categoría inválido'),
+      .custom((value) => {
+        const num = parseInt(value);
+        if (isNaN(num) || num < 1) {
+          throw new Error('ID de categoría inválido');
+        }
+        return true;
+      }),
 
     manejarErroresValidacion
   ],
@@ -146,23 +130,11 @@ router.put(
   esAdmin,
   upload.single('foto'),
   [
-    param('id')
-      .isInt({ min: 1 }).withMessage('ID de vehículo inválido'),
+    param('id').isInt({ min: 1 }).withMessage('ID de vehículo inválido'),
 
-    body('marca')
-      .optional()
-      .trim()
-      .isLength({ min: 1, max: 50 }).withMessage('La marca debe tener entre 1 y 50 caracteres'),
-
-    body('nombre')
-      .optional()
-      .trim()
-      .isLength({ min: 1, max: 100 }).withMessage('El nombre debe tener entre 1 y 100 caracteres'),
-
-    body('descripcion')
-      .optional()
-      .trim()
-      .isLength({ max: 500 }).withMessage('La descripción no puede tener más de 500 caracteres'),
+    body('marca').optional().trim().isLength({ min: 1, max: 50 }),
+    body('nombre').optional().trim().isLength({ min: 1, max: 100 }),
+    body('descripcion').optional().trim().isLength({ max: 500 }),
 
     body('precioCompra')
       .optional()
@@ -172,13 +144,18 @@ router.put(
       .optional()
       .isFloat({ min: 0.01 }).withMessage('El precio de alquiler debe ser mayor a 0'),
 
-    body('categoriasIds')
-      .optional()
-      .isArray().withMessage('categoriasIds debe ser un array'),
+    // ✅ Aceptar strings (FormData)
+    body('categoriasIds').optional(),
 
     body('categoriasIds.*')
       .optional()
-      .isInt({ min: 1 }).withMessage('ID de categoría inválido'),
+      .custom((value) => {
+        const num = parseInt(value);
+        if (isNaN(num) || num < 1) {
+          throw new Error('ID de categoría inválido');
+        }
+        return true;
+      }),
 
     manejarErroresValidacion
   ],
@@ -194,13 +171,8 @@ router.patch(
   verificarAutenticacion,
   esAdmin,
   [
-    param('id')
-      .isInt({ min: 1 }).withMessage('ID de vehículo inválido'),
-
-    body('disponible')
-      .notEmpty().withMessage('El campo disponible es obligatorio')
-      .isBoolean().withMessage('disponible debe ser true o false'),
-
+    param('id').isInt({ min: 1 }).withMessage('ID de vehículo inválido'),
+    body('disponible').notEmpty().isBoolean().withMessage('disponible debe ser true o false'),
     manejarErroresValidacion
   ],
   cambiarDisponibilidad
@@ -215,25 +187,15 @@ router.patch(
   verificarAutenticacion,
   esAdmin,
   [
-    param('id')
-      .isInt({ min: 1 }).withMessage('ID de vehículo inválido'),
-
-    body('precioCompra')
-      .optional()
-      .isFloat({ min: 0.01 }).withMessage('El precio de compra debe ser mayor a 0'),
-
-    body('precioAlquiler')
-      .optional()
-      .isFloat({ min: 0.01 }).withMessage('El precio de alquiler debe ser mayor a 0'),
-
-    body()
-      .custom((value) => {
-        if (!value.precioCompra && !value.precioAlquiler) {
-          throw new Error('Debes especificar al menos un precio para actualizar');
-        }
-        return true;
-      }),
-
+    param('id').isInt({ min: 1 }).withMessage('ID de vehículo inválido'),
+    body('precioCompra').optional().isFloat({ min: 0.01 }),
+    body('precioAlquiler').optional().isFloat({ min: 0.01 }),
+    body().custom((value) => {
+      if (!value.precioCompra && !value.precioAlquiler) {
+        throw new Error('Debes especificar al menos un precio para actualizar');
+      }
+      return true;
+    }),
     manejarErroresValidacion
   ],
   actualizarPrecios
@@ -248,13 +210,8 @@ router.post(
   verificarAutenticacion,
   esAdmin,
   [
-    param('id')
-      .isInt({ min: 1 }).withMessage('ID de vehículo inválido'),
-
-    body('categoriaId')
-      .notEmpty().withMessage('El ID de categoría es obligatorio')
-      .isInt({ min: 1 }).withMessage('ID de categoría inválido'),
-
+    param('id').isInt({ min: 1 }).withMessage('ID de vehículo inválido'),
+    body('categoriaId').notEmpty().isInt({ min: 1 }).withMessage('ID de categoría inválido'),
     manejarErroresValidacion
   ],
   asignarCategoria
@@ -269,12 +226,8 @@ router.delete(
   verificarAutenticacion,
   esAdmin,
   [
-    param('id')
-      .isInt({ min: 1 }).withMessage('ID de vehículo inválido'),
-
-    param('categoriaId')
-      .isInt({ min: 1 }).withMessage('ID de categoría inválido'),
-
+    param('id').isInt({ min: 1 }).withMessage('ID de vehículo inválido'),
+    param('categoriaId').isInt({ min: 1 }).withMessage('ID de categoría inválido'),
     manejarErroresValidacion
   ],
   eliminarCategoria
@@ -289,13 +242,10 @@ router.delete(
   verificarAutenticacion,
   esAdmin,
   [
-    param('id')
-      .isInt({ min: 1 }).withMessage('ID de vehículo inválido'),
-
+    param('id').isInt({ min: 1 }).withMessage('ID de vehículo inválido'),
     manejarErroresValidacion
   ],
   eliminarVehiculo
 );
-
 
 export default router;

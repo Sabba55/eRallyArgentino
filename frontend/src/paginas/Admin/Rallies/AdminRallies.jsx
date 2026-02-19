@@ -6,15 +6,10 @@ import ModalRally from './ModalRally'
 import styles from './AdminRallies.module.css'
 
 function AdminRallies() {
-  // ========================================
-  // ESTADOS
-  // ========================================
   const [rallies, setRallies] = useState([])
   const [categorias, setCategorias] = useState([])
   const [cargando, setCargando] = useState(true)
   const [error, setError] = useState('')
-
-  // Usuario actual
   const [usuarioActual, setUsuarioActual] = useState(null)
 
   // Filtros
@@ -28,11 +23,8 @@ function AdminRallies() {
   // Modal
   const [modalAbierto, setModalAbierto] = useState(false)
   const [rallyEditando, setRallyEditando] = useState(null)
-  const [modoModal, setModoModal] = useState('crear') // 'crear' o 'editar'
+  const [modoModal, setModoModal] = useState('crear')
 
-  // ========================================
-  // CARGAR DATOS
-  // ========================================
   useEffect(() => {
     cargarDatos()
   }, [])
@@ -42,7 +34,6 @@ function AdminRallies() {
       setCargando(true)
       setError('')
 
-      // Cargar rallies, categorías y usuario actual en paralelo
       const [resRallies, resCategorias, resUsuario] = await Promise.all([
         api.get('/rallies', { params: { limite: 200 } }),
         api.get('/categorias'),
@@ -52,7 +43,6 @@ function AdminRallies() {
       setRallies(resRallies.data.rallies || [])
       setCategorias(resCategorias.data.categorias || [])
       setUsuarioActual(resUsuario.data.usuario)
-
     } catch (error) {
       console.error('Error al cargar datos:', error)
       setError('Error al cargar los rallies')
@@ -61,52 +51,44 @@ function AdminRallies() {
     }
   }
 
-  // ========================================
-  // FILTRAR RALLIES
-  // ========================================
   const ralliesFiltrados = rallies.filter(rally => {
-    // Búsqueda por nombre
     const cumpleBusqueda = busqueda === '' || 
       rally.nombre.toLowerCase().includes(busqueda.toLowerCase()) ||
       rally.campeonato.toLowerCase().includes(busqueda.toLowerCase())
 
-    // Filtro de campeonato
     const cumpleCampeonato = filtroCampeonato === 'todos' ||
       rally.campeonato === filtroCampeonato
 
     return cumpleBusqueda && cumpleCampeonato
   })
 
-  // ========================================
-  // PAGINACIÓN
-  // ========================================
   const indiceUltimo = paginaActual * ralliesPorPagina
   const indicePrimero = indiceUltimo - ralliesPorPagina
   const ralliesPaginados = ralliesFiltrados.slice(indicePrimero, indiceUltimo)
   const totalPaginas = Math.ceil(ralliesFiltrados.length / ralliesPorPagina)
 
-  // ========================================
-  // EXTRAER CAMPEONATOS ÚNICOS
-  // ========================================
   const campeonatos = ['todos', ...new Set(rallies.map(r => r.campeonato).sort())]
 
-  // ========================================
-  // FORMATEAR FECHA
-  // ========================================
+  // ✅ Formatear fecha (DD/MM/AAAA)
   const formatearFecha = (fecha) => {
     const date = new Date(fecha)
     return date.toLocaleDateString('es-AR', { 
       day: '2-digit', 
       month: '2-digit', 
-      year: '2-digit',
-      hour: '2-digit',
-      minute: '2-digit'
+      year: 'numeric'
     })
   }
 
-  // ========================================
-  // VERIFICAR PERMISOS
-  // ========================================
+  // ✅ Formatear hora (HH:MM)
+  const formatearHora = (fecha) => {
+    const date = new Date(fecha)
+    return date.toLocaleTimeString('es-AR', { 
+      hour: '2-digit', 
+      minute: '2-digit',
+      hour12: false
+    })
+  }
+
   const puedeEditar = (rally) => {
     if (!usuarioActual) return false
     if (usuarioActual.rol === 'admin') return true
@@ -118,18 +100,22 @@ function AdminRallies() {
     return puedeEditar(rally)
   }
 
-  // ========================================
-  // ELIMINAR RALLY
-  // ========================================
+  // ✅ ELIMINAR CON CONFIRMACIÓN MEJORADA
   const eliminarRally = async (rallyId, nombreRally) => {
-    if (!window.confirm(`¿Eliminar "${nombreRally}"? Esta acción notificará a todos los usuarios con alquileres.`)) return
+    const confirmar = window.confirm(
+      `¿Estás seguro de eliminar "${nombreRally}"?\n\n` +
+      `Esta acción:\n` +
+      `• Notificará a todos los usuarios con alquileres\n` +
+      `• Marcará los alquileres como "rally cancelado"\n` +
+      `• NO se puede deshacer\n\n` +
+      `¿Continuar?`
+    )
+    
+    if (!confirmar) return
 
     try {
       await api.delete(`/rallies/${rallyId}`)
-      
-      // Actualizar lista
       setRallies(rallies.filter(r => r.id !== rallyId))
-      
       alert('Rally eliminado exitosamente')
     } catch (error) {
       console.error('Error al eliminar:', error)
@@ -137,9 +123,6 @@ function AdminRallies() {
     }
   }
 
-  // ========================================
-  // ABRIR MODALES
-  // ========================================
   const abrirModalCrear = () => {
     setRallyEditando(null)
     setModoModal('crear')
@@ -152,17 +135,11 @@ function AdminRallies() {
     setModalAbierto(true)
   }
 
-  // ========================================
-  // DESPUÉS DE GUARDAR
-  // ========================================
   const despuesDeGuardar = () => {
     setModalAbierto(false)
     cargarDatos()
   }
 
-  // ========================================
-  // LOADING
-  // ========================================
   if (cargando) {
     return (
       <div className={styles.contenedor}>
@@ -173,9 +150,6 @@ function AdminRallies() {
     )
   }
 
-  // ========================================
-  // RENDER
-  // ========================================
   return (
     <div className={styles.contenedor}>
       <Container>
@@ -183,30 +157,20 @@ function AdminRallies() {
         {/* HEADER */}
         <div className={styles.header}>
           <h1 className={styles.titulo}>
-            RALLIES ({ralliesFiltrados.length})
+            Fechas ({ralliesFiltrados.length})
           </h1>
-          <button 
-            className={styles.btnCrear}
-            onClick={abrirModalCrear}
-          >
+          <button className={styles.btnCrear} onClick={abrirModalCrear}>
             <Calendar size={20} />
             Crear Rally
           </button>
         </div>
 
-        {/* ERROR */}
-        {error && (
-          <div className={styles.error}>{error}</div>
-        )}
+        {error && <div className={styles.error}>{error}</div>}
 
         {/* FILTROS */}
         <div className={styles.filtros}>
-          
-          {/* Buscador */}
           <div className={styles.grupoFiltro}>
-            <label className={styles.labelFiltro}>
-              Búsqueda
-            </label>
+            <label className={styles.labelFiltro}>Búsqueda</label>
             <Form.Control
               type="text"
               placeholder="Buscar por nombre o campeonato..."
@@ -219,11 +183,8 @@ function AdminRallies() {
             />
           </div>
 
-          {/* Campeonato */}
           <div className={styles.grupoFiltro}>
-            <label className={styles.labelFiltro}>
-              Campeonato
-            </label>
+            <label className={styles.labelFiltro}>Campeonato</label>
             <Form.Select
               value={filtroCampeonato}
               onChange={(e) => {
@@ -239,17 +200,18 @@ function AdminRallies() {
               ))}
             </Form.Select>
           </div>
-
         </div>
 
-        {/* TABLA */}
+        {/* TABLA ACTUALIZADA */}
         <div className={styles.tablaWrapper}>
           <table className={styles.tabla}>
             <thead>
               <tr>
+                <th>Logo</th>
+                <th>Campeonato</th>
                 <th>Nombre</th>
                 <th>Fecha</th>
-                <th>Campeonato</th>
+                <th>Hora</th>
                 <th>Categorías</th>
                 <th>Acciones</th>
               </tr>
@@ -257,7 +219,7 @@ function AdminRallies() {
             <tbody>
               {ralliesPaginados.length === 0 ? (
                 <tr>
-                  <td colSpan="5" className={styles.vacio}>
+                  <td colSpan="7" className={styles.vacio}>
                     No se encontraron rallies
                   </td>
                 </tr>
@@ -265,6 +227,27 @@ function AdminRallies() {
                 ralliesPaginados.map(rally => (
                   <tr key={rally.id}>
                     
+                    {/* Logo */}
+                    <td>
+                      {rally.logo ? (
+                        <img 
+                          src={rally.logo} 
+                          alt={rally.campeonato}
+                          className={styles.logo}
+                          onError={(e) => e.target.src = '/placeholder-logo.png'}
+                        />
+                      ) : (
+                        <div className={styles.sinLogo}>
+                          {rally.campeonato.charAt(0).toUpperCase()}
+                        </div>
+                      )}
+                    </td>
+
+                    {/* Campeonato */}
+                    <td>
+                      <div className={styles.campeonato}>{rally.campeonato}</div>
+                    </td>
+
                     {/* Nombre */}
                     <td>
                       <div className={styles.nombre}>{rally.nombre}</div>
@@ -274,19 +257,19 @@ function AdminRallies() {
                       {rally.fueReprogramado && (
                         <span className={styles.badgeReprogramado}>Reprogramado</span>
                       )}
-                    </td>
-
-                    {/* Fecha */}
-                    <td>
-                      <div className={styles.fecha}>{formatearFecha(rally.fecha)}</div>
                       {rally.yaPaso && (
                         <span className={styles.badgePasado}>Finalizado</span>
                       )}
                     </td>
 
-                    {/* Campeonato */}
+                    {/* Fecha */}
                     <td>
-                      <div className={styles.campeonato}>{rally.campeonato}</div>
+                      <div className={styles.fecha}>{formatearFecha(rally.fecha)}</div>
+                    </td>
+
+                    {/* Hora */}
+                    <td>
+                      <div className={styles.hora}>{formatearHora(rally.fecha)}</div>
                     </td>
 
                     {/* Categorías */}
@@ -311,7 +294,6 @@ function AdminRallies() {
                     {/* Acciones */}
                     <td>
                       <div className={styles.acciones}>
-                        
                         {puedeEditar(rally) && (
                           <button
                             className={styles.btnAccion}
@@ -335,7 +317,6 @@ function AdminRallies() {
                         {!puedeEditar(rally) && (
                           <span className={styles.sinPermisos}>Sin permisos</span>
                         )}
-
                       </div>
                     </td>
 

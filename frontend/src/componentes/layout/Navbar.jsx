@@ -36,6 +36,11 @@ function Navbar() {
     }
   }
 
+  // ========================================
+  // ✅ VERIFICAR SI ES ADMIN O CREADOR
+  // ========================================
+  const esAdminOCreador = usuario?.rol === 'admin' || usuario?.rol === 'creador_fechas'
+
   return (
     <NavbarBootstrap expand="lg" className={styles.navbar} variant="dark">
       <Container fluid>
@@ -159,10 +164,18 @@ function Navbar() {
                   Editar Perfil
                 </NavDropdown.Item>
                 
-                <NavDropdown.Item as={Link} to="/garage">
-                  <i className="bi bi-car-front-fill me-2"></i>
-                  Mi Garage
-                </NavDropdown.Item>
+                {/* ✅ CONDICIONAL: Administración para admin/creador_fechas, Garage para usuarios normales */}
+                {esAdminOCreador ? (
+                  <NavDropdown.Item as={Link} to="/admin">
+                    <i className="bi bi-speedometer2 me-2"></i>
+                    Administración
+                  </NavDropdown.Item>
+                ) : (
+                  <NavDropdown.Item as={Link} to="/garage">
+                    <i className="bi bi-car-front-fill me-2"></i>
+                    Mi Garage
+                  </NavDropdown.Item>
+                )}
                 
                 <NavDropdown.Divider />
                 

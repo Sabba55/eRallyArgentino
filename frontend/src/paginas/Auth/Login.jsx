@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Form, Button, Alert } from 'react-bootstrap'
+import { Mail, Lock, Eye, EyeOff } from 'lucide-react'
 import { useAuth } from '../../contexts/AuthContext'
 import styles from './Login.module.css'
 import fotoLogin from '../../assets/imagenes/login-foto.png'
@@ -17,6 +18,7 @@ function Login() {
   const [email, setEmail] = useState('')
   const [contraseña, setContraseña] = useState('')
   const [error, setError] = useState('')
+  const [mostrarPassword, setMostrarPassword] = useState(false)
 
   // ========================================
   // FUNCIÓN PARA MANEJAR EL SUBMIT
@@ -82,29 +84,46 @@ function Login() {
               {/* Campo Email */}
               <Form.Group className={styles.grupoInput}>
                 <Form.Label className={styles.label}>Email</Form.Label>
-                <Form.Control
-                  type="email"
-                  placeholder="tu@email.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className={styles.input}
-                  disabled={cargando}
-                  autoComplete="email"
-                />
+                  <div className={styles.grupoInputRelativo}> {/* Nuevo contenedor */}
+                    <Mail className={styles.iconoInput} size={20} />
+                    <Form.Control
+                      type="email"
+                      placeholder="nombre@ejemplo.com"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      className={styles.input}
+                      disabled={cargando}
+                      autoComplete="email"
+                    />
+                  </div>
               </Form.Group>
 
               {/* Campo Contraseña */}
               <Form.Group className={styles.grupoInput}>
                 <Form.Label className={styles.label}>Contraseña</Form.Label>
-                <Form.Control
-                  type="password"
-                  placeholder="••••••••"
-                  value={contraseña}
-                  onChange={(e) => setContraseña(e.target.value)}
-                  className={styles.input}
-                  disabled={cargando}
-                  autoComplete="current-password"
-                />
+                <div className={styles.grupoInputRelativo}>
+                  <Lock className={styles.iconoInput} size={20} />
+                  
+                  <Form.Control
+                    type={mostrarPassword ? "text" : "password"}
+                    placeholder="••••••••"
+                    value={contraseña}
+                    onChange={(e) => setContraseña(e.target.value)}
+                    className={styles.input}
+                    disabled={cargando}
+                    autoComplete="current-password"
+                  />
+
+                  {/* Botón para alternar visibilidad */}
+                  <button
+                    type="button"
+                    className={styles.botonOjo}
+                    onClick={() => setMostrarPassword(!mostrarPassword)}
+                    tabIndex="-1" // Para que el tab del teclado no se trabe acá
+                  >
+                    {mostrarPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                  </button>
+                </div>
               </Form.Group>
 
               {/* Link olvidaste contraseña */}

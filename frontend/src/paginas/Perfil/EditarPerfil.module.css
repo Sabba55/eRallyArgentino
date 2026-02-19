@@ -241,14 +241,15 @@
 }
 
 .input {
-  width: 100%;
   background-color: #1a1a1a !important;
   border: 2px solid #3a3a3a !important;
   color: #ffffff !important;
-  padding: 1rem 1rem 1rem 3rem;
-  border-radius: 10px;
+  padding: 0.8rem 1rem 0.8rem 2.5rem !important;
+  border-radius: 10px !important;
+  width: 100%;
   font-size: 1rem;
   transition: all 0.3s ease;
+  outline: none !important;
 }
 
 .input:focus {

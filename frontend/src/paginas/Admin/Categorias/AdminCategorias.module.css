@@ -69,22 +69,24 @@
 }
 
 .btnCrear {
-  font-family: 'Orbitron', 'Impact', sans-serif !important;
   display: flex;
   align-items: center;
   gap: 0.8rem;
-  background: linear-gradient(135deg, #00d4ff, #39ff14) !important;
-  border: none !important;
-  color: #1a1a1a !important;
-  font-weight: 900 !important;
-  font-size: 1.2rem;
+  background: linear-gradient(135deg, #00d4ff, #39ff14);
+  border: none;
+  color: #1a1a1a;
+  font-weight: 900;
+  font-size: 1.05rem;
   padding: 1rem 2.5rem;
   border-radius: 12px;
+  text-transform: uppercase;
   letter-spacing: 1.5px;
+  transition: all 0.3s ease;
   box-shadow: 0 5px 20px rgba(0, 212, 255, 0.4);
   position: relative;
   overflow: hidden;
   z-index: 1;
+  cursor: pointer;
 }
 
 .btnCrear:hover {

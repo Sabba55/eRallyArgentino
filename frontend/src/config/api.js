@@ -20,20 +20,29 @@ api.interceptors.request.use(
   (config) => {
     // Si hay un token guardado, lo agregamos al header
     const token = localStorage.getItem('token')
-    
     if (token) {
       config.headers.Authorization = `Bearer ${token}`
     }
-    
+
+    // ✅ Si el data es FormData, eliminar Content-Type para que
+    // el browser lo setee automáticamente con el boundary correcto
+    // (multipart/form-data; boundary=----WebKitFormBoundaryXXXX)
+    if (config.data instanceof FormData) {
+      delete config.headers['Content-Type']
+    }
+
     // Mostramos en consola qué estamos enviando (solo en desarrollo)
     if (import.meta.env.DEV) {
-      console.log(`🚀 ${config.method.toUpperCase()} ${config.url}`, config.data)
+      if (config.data instanceof FormData) {
+        console.log(`🚀 ${config.method.toUpperCase()} ${config.url}`, '[FormData]')
+      } else {
+        console.log(`🚀 ${config.method.toUpperCase()} ${config.url}`, config.data)
+      }
     }
-    
+
     return config
   },
   (error) => {
-    // Si hay error antes de enviar el request
     console.error('❌ Error en request:', error)
     return Promise.reject(error)
   }
@@ -42,58 +51,42 @@ api.interceptors.request.use(
 // Interceptor para RESPONSES (se ejecuta DESPUÉS de cada respuesta)
 api.interceptors.response.use(
   (response) => {
-    // Si la respuesta es exitosa (status 200-299)
     if (import.meta.env.DEV) {
       console.log(`✅ ${response.config.method.toUpperCase()} ${response.config.url}`, response.data)
     }
-    
     return response
   },
   (error) => {
-    // Si hay error en la respuesta
     if (error.response) {
-      // El servidor respondió con un status fuera del rango 200-299
       const { status, data } = error.response
-      
+
       console.error(`❌ Error ${status}:`, data.mensaje || data.error || 'Error desconocido')
-      
-      // Si el token expiró o es inválido
+
       if (status === 401) {
         console.warn('⚠️ Token inválido o expirado. Redirigiendo a login...')
-        
-        // Limpiamos el token
         localStorage.removeItem('token')
-        
-        // Redirigimos a login (solo si no estamos ya ahí)
         if (window.location.pathname !== '/login') {
           window.location.href = '/login'
         }
       }
-      
-      // Si el servidor no autorizó la acción (permisos insuficientes)
+
       if (status === 403) {
         console.error('🚫 No tenés permisos para realizar esta acción')
       }
-      
-      // Si hubo error en el servidor
+
       if (status === 500) {
         console.error('💥 Error en el servidor. Intentá de nuevo más tarde.')
       }
-      
+
     } else if (error.request) {
-      // El request se envió pero no hubo respuesta (servidor caído o sin internet)
       console.error('🔌 No se pudo conectar con el servidor. Verificá tu conexión.')
     } else {
-      // Error al configurar el request
       console.error('⚙️ Error al configurar la petición:', error.message)
     }
-    
+
     return Promise.reject(error)
   }
 )
 
-// Exportamos la instancia configurada
 export default api
-
-// También exportamos la URL por si la necesitamos en algún lado
 export { API_URL }

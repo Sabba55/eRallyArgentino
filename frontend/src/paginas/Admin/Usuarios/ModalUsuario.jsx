@@ -39,9 +39,9 @@ function ModalUsuario({ show, onHide, usuario, onGuardado }) {
     try {
       setCargando(true)
       const [resCompras, resAlquileres, resRallies] = await Promise.all([
-        api.get(`/usuarios/${usuario.id}/compras`),
-        api.get(`/usuarios/${usuario.id}/alquileres`),
-        api.get('/rallies/futuros')
+        api.get(`/admin/usuarios/${usuario.id}/compras`),
+        api.get(`/admin/usuarios/${usuario.id}/alquileres`),
+        api.get('/rallies/proximos')
       ])
 
       const todasCompras = resCompras.data.compras || []
@@ -91,7 +91,7 @@ function ModalUsuario({ show, onHide, usuario, onGuardado }) {
     if (rolSeleccionado === usuario.rol) return
     try {
       setGuardandoRol(true)
-      await api.patch(`/usuarios/${usuario.id}/rol`, { rol: rolSeleccionado })
+      await api.put(`/usuarios/${usuario.id}/rol`, { rol: rolSeleccionado })
       onGuardado()
     } catch (err) {
       alert(err.response?.data?.error || 'Error al cambiar el rol')
@@ -106,7 +106,7 @@ function ModalUsuario({ show, onHide, usuario, onGuardado }) {
   const eliminarCompra = async (compraId) => {
     if (!window.confirm('¿Estás seguro de eliminar esta compra?')) return
     try {
-      await api.delete(`/compras/${compraId}`)
+      await api.delete(`/admin/compras/${compraId}`)
       setCompras(compras.filter(c => c.id !== compraId))
     } catch (err) {
       alert(err.response?.data?.error || 'Error al eliminar la compra')
@@ -119,7 +119,7 @@ function ModalUsuario({ show, onHide, usuario, onGuardado }) {
   const eliminarAlquiler = async (alquilerId) => {
     if (!window.confirm('¿Estás seguro de eliminar este alquiler?')) return
     try {
-      await api.delete(`/alquileres/${alquilerId}`)
+      await api.delete(`/admin/alquileres/${alquilerId}`)
       setAlquileres(alquileres.filter(a => a.id !== alquilerId))
     } catch (err) {
       alert(err.response?.data?.error || 'Error al eliminar el alquiler')
@@ -141,9 +141,9 @@ function ModalUsuario({ show, onHide, usuario, onGuardado }) {
     }
     try {
       setGuardandoRally(true)
-      await api.patch(`/alquileres/${alquilerCambiando.id}/rally`, { rallyId: nuevoRallyId })
+      await api.patch(`/admin/alquileres/${alquilerCambiando.id}/rally`, { rallyId: nuevoRallyId })
       // Recargar alquileres
-      const res = await api.get(`/usuarios/${usuario.id}/alquileres`)
+      const res = await api.get(`/admin/usuarios/${usuario.id}/alquileres`)
       const ahora = new Date()
       const activos = (res.data.alquileres || []).filter(a => {
         const fechaFin = a.fechaReprogramada || a.fechaFinalizacion

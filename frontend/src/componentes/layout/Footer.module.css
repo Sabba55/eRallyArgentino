@@ -33,11 +33,6 @@
   filter: drop-shadow(0 0 10px rgba(0, 212, 255, 0.3));
 }
 
-.logo:hover {
-  transform: scale(1.05);
-  filter: drop-shadow(0 0 15px rgba(0, 212, 255, 0.5));
-}
-
 /* Sección de patrocinadores (vacía por ahora) */
 .patrocinadoresSection {
   flex: 1;
@@ -51,7 +46,6 @@
 }
 
 .patrocinadoresSection::after {
-  content: 'Espacio reservado para patrocinadores';
   position: absolute;
   color: rgba(255, 255, 255, 0.1);
   font-size: 0.8rem;

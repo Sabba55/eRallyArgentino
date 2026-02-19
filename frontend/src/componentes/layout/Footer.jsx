@@ -24,7 +24,7 @@ function Footer() {
 
       {/* Copyright */}
       <div className={styles.copyright}>
-        <p>© {new Date().getFullYear()} eRally Argentino. Todos los derechos reservados.</p>
+        <p>Desarrollado por Martin Sabbatini | Copyright © {new Date().getFullYear()} | Soporte: +54 9 3513977714</p>
       </div>
     </footer>
   )

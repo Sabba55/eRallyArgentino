@@ -1,5 +1,6 @@
 import Categoria from '../modelos/Categoria.js';
 import Vehiculo from '../modelos/Vehiculo.js';
+import VehiculoCategoria from '../modelos/VehiculoCategoria.js';
 import Rally from '../modelos/Rally.js';
 import { Op } from 'sequelize';
 
@@ -62,7 +63,14 @@ export const obtenerVehiculosCategoria = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const categoria = await Categoria.findByPk(id);
+    const categoria = await Categoria.findByPk(id, {
+      include: [{
+        model: Vehiculo,
+        as: 'vehiculos',
+        through: { attributes: [] },
+        order: [['marca', 'ASC'], ['nombre', 'ASC']]
+      }]
+    });
 
     if (!categoria) {
       return res.status(404).json({
@@ -70,19 +78,14 @@ export const obtenerVehiculosCategoria = async (req, res) => {
       });
     }
 
-    const vehiculos = await Vehiculo.findAll({
-      where: { categoriaId: id },
-      order: [['marca', 'ASC'], ['nombre', 'ASC']]
-    });
-
     res.json({
       categoria: {
         id: categoria.id,
         nombre: categoria.nombre,
         color: categoria.color
       },
-      vehiculos,
-      total: vehiculos.length
+      vehiculos: categoria.vehiculos || [],
+      total: categoria.vehiculos?.length || 0
     });
   } catch (error) {
     console.error('Error al obtener vehículos de categoría:', error);
@@ -241,8 +244,8 @@ export const eliminarCategoria = async (req, res) => {
       });
     }
 
-    // Verificar si tiene vehículos asociados
-    const vehiculosAsociados = await Vehiculo.count({
+    // ✅ Verificar si tiene vehículos asociados en la tabla intermedia
+    const vehiculosAsociados = await VehiculoCategoria.count({
       where: { categoriaId: id }
     });
 
@@ -332,8 +335,8 @@ export const obtenerEstadisticas = async (req, res) => {
       });
     }
 
-    // Contar vehículos
-    const totalVehiculos = await Vehiculo.count({
+    // ✅ Contar vehículos desde la tabla intermedia
+    const totalVehiculos = await VehiculoCategoria.count({
       where: { categoriaId: id }
     });
 

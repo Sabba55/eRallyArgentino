@@ -37,8 +37,7 @@ function Admin() {
             api.get('/vehiculos').then(res => res.data.paginacion?.total || res.data.vehiculos?.length || 0),
             api.get('/categorias').then(res => res.data.categorias?.length || 0),
             // TODO: Cuando tengas el endpoint de rallies
-            // api.get('/rallies').then(res => res.data.rallies?.length || 0),
-            Promise.resolve(12), // Placeholder rallies
+            api.get('/rallies').then(res => res.data.rallies?.length || 0),
             api.get('/pagos/compras').then(res => res.data.compras?.length || 0),
             api.get('/pagos/alquileres').then(res => res.data.alquileres?.length || 0),
             api.get('/usuarios').then(res => res.data.paginacion?.total || 0)
@@ -48,9 +47,7 @@ function Admin() {
           requests.push(
             Promise.resolve(0), // vehiculos
             Promise.resolve(0), // categorias
-            Promise.resolve(12), // rallies TODO: api.get('/rallies')
-            Promise.resolve(0), // compras
-            Promise.resolve(0), // alquileres
+            Promise.resolve(0), // rallies TODO: api.get('/rallies')
             Promise.resolve(0)  // usuarios
           )
         }
@@ -126,20 +123,6 @@ function Admin() {
       cantidad: estadisticas.rallies,
       ruta: '/admin/rallies',
       roles: ['admin', 'creador_fechas']
-    },
-    {
-      emoji: '💰',
-      titulo: 'Compras',
-      cantidad: estadisticas.compras,
-      ruta: '/admin/compras',
-      roles: ['admin']
-    },
-    {
-      emoji: '🎫',
-      titulo: 'Alquileres',
-      cantidad: estadisticas.alquileres,
-      ruta: '/admin/alquileres',
-      roles: ['admin']
     },
     {
       emoji: '👥',

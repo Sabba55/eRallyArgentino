@@ -4,6 +4,7 @@
   min-height: calc(100vh - 86px - 200px); /* Resta altura del navbar y footer */
   width: 100%;
   background-color: #1a1a1a;
+  height: 750px;
 }
 
 /* ========================================
@@ -12,6 +13,7 @@
 
 .ladoFoto {
   flex: 1;
+  height: 100%;
   position: relative;
   overflow: hidden;
 }
@@ -19,7 +21,6 @@
 .foto {
   width: 100%;
   height: 100%;
-  min-height: 600px;
   object-fit: cover;
   object-position: center;
 }
@@ -45,10 +46,12 @@
 
 .ladoFormulario {
   flex: 1;
+  height: 100%;
+  overflow-y: auto;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 3rem 2rem;
+  padding: 3rem;
   background-color: #1a1a1a;
 }
 
@@ -104,20 +107,20 @@
 }
 
 .input {
+  width: 100%;
+  padding: 0.9rem 1.1rem 0.9rem 3rem !important; /* El 3rem evita la superposición */
   background-color: #2a2a2a !important;
   border: 2px solid #3a3a3a !important;
   color: #ffffff !important;
-  padding: 1rem 1.3rem;
-  border-radius: 10px;
-  font-size: 1.1rem;
+  border-radius: 10px !important;
+  font-size: 1rem;
   transition: all 0.3s ease;
 }
 
 .input:focus {
-  background-color: #2a2a2a !important;
   border-color: #00d4ff !important;
-  box-shadow: 0 0 0 0.2rem rgba(0, 212, 255, 0.25) !important;
-  color: #ffffff !important;
+  box-shadow: 0 0 10px rgba(0, 212, 255, 0.2) !important;
+  background-color: #1f1f1f !important;
 }
 
 .input::placeholder {
@@ -192,6 +195,45 @@
 
 .textoGris {
   color: #a0a0a0;
+}
+
+.grupoInputRelativo {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.iconoInput {
+  position: absolute;
+  left: 1rem;
+  color: #00d4ff;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.botonOjo {
+  position: absolute;
+  right: 1rem;
+  background: none;
+  border: none;
+  color: #00d4ff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 3;
+  padding: 0;
+  transition: transform 0.2s ease, color 0.2s ease;
+}
+
+.botonOjo:hover {
+  color: #39ff14;
+  transform: scale(1.1);
+}
+
+.botonOjo:focus {
+  outline: none;
 }
 
 /* ========================================

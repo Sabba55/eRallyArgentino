@@ -1,57 +1,72 @@
-/* Reset básico */
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
+// src/config/sweetalert-config.js
+import Swal from 'sweetalert2'
+
+// Configuración global con el estilo de eRally
+const Toast = Swal.mixin({
+  toast: true,
+  position: 'top-right',
+  iconColor: 'white',
+  customClass: {
+    popup: 'colored-toast'
+  },
+  showConfirmButton: false,
+  timer: 4000,
+  timerProgressBar: true
+})
+
+// Función para notificaciones de éxito
+export const toastExito = (mensaje) => {
+  Toast.fire({
+    icon: 'success',
+    title: mensaje,
+    background: '#2a2a2a',
+    color: '#39ff14'
+  })
 }
 
-/* Configuración global de la app */
-.App {
-  min-height: 100vh;
-  background-color: #1a1a1a;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+// Función para notificaciones de error
+export const toastError = (mensaje) => {
+  Toast.fire({
+    icon: 'error',
+    title: mensaje,
+    background: '#2a2a2a',
+    color: '#ff4444'
+  })
 }
 
-/* Contenedor principal de cada página */
-main {
-  min-height: calc(100vh - 86px); /* 86px es la altura aproximada del navbar */
-  background-color: #1a1a1a;
+// Función para notificaciones de info
+export const toastInfo = (mensaje) => {
+  Toast.fire({
+    icon: 'info',
+    title: mensaje,
+    background: '#2a2a2a',
+    color: '#00d4ff'
+  })
 }
 
-/* Variables de colores para usar en toda la app */
-:root {
-  --color-primario: #00d4ff;
-  --color-secundario: #39ff14;
-  --color-fondo: #1a1a1a;
-  --color-fondo-claro: #2a2a2a;
-  --color-texto: #ffffff;
-  --color-texto-secundario: #a0a0a0;
+// Función para confirmaciones
+export const confirmar = async (titulo, texto) => {
+  const result = await Swal.fire({
+    title: titulo,
+    text: texto,
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#00d4ff',
+    cancelButtonColor: '#ff4444',
+    confirmButtonText: 'Sí, continuar',
+    cancelButtonText: 'Cancelar',
+    background: '#2a2a2a',
+    color: '#ffffff',
+    customClass: {
+      popup: 'erally-swal'
+    }
+  })
+  
+  return result.isConfirmed
 }
 
-/* Scrollbar personalizado */
-::-webkit-scrollbar {
-  width: 10px;
-}
-
-::-webkit-scrollbar-track {
-  background: #1a1a1a;
-}
-
-::-webkit-scrollbar-thumb {
-  background: linear-gradient(180deg, #00d4ff, #39ff14);
-  border-radius: 5px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(180deg, #39ff14, #00d4ff);
-}
-
-/* Estilos para texto */
-body {
-  color: #ffffff;
-  background-color: #1a1a1a;
-}
-
+// CSS personalizado (agregar al index.css o App.css)
+export const swalStyles = `
 .colored-toast.swal2-icon-success {
   background-color: #2a2a2a !important;
   border: 2px solid #39ff14 !important;
@@ -111,3 +126,4 @@ body {
   background: #ff4444 !important;
   color: #1a1a1a !important;
 }
+`

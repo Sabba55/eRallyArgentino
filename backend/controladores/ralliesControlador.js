@@ -1,6 +1,7 @@
 import { Rally, Categoria, CategoriaRally, Alquiler } from '../modelos/index.js';
 import { subirImagen, eliminarImagen } from '../config/cloudinary.js';
 import { enviarEmailReprogramacion, enviarEmailCancelacion } from '../utilidades/enviarEmail.js';
+import { Op } from 'sequelize';
 
 // ========================================
 // LISTAR TODOS LOS RALLIES
@@ -12,7 +13,6 @@ export const listarRallies = async (req, res) => {
     const whereClause = {};
     if (campeonato) whereClause.campeonato = campeonato;
 
-    // Filtrar por estado (próximos, pasados, todos)
     const ahora = new Date();
     if (estado === 'proximos') {
       whereClause.fecha = { [Op.gte]: ahora };
@@ -56,11 +56,7 @@ export const listarRallies = async (req, res) => {
 export const listarProximos = async (req, res) => {
   try {
     const rallies = await Rally.obtenerProximos();
-
-    res.json({
-      rallies,
-      total: rallies.length
-    });
+    res.json({ rallies, total: rallies.length });
   } catch (error) {
     console.error('Error al listar próximos rallies:', error);
     res.status(500).json({
@@ -76,11 +72,7 @@ export const listarProximos = async (req, res) => {
 export const listarPasados = async (req, res) => {
   try {
     const rallies = await Rally.obtenerPasados();
-
-    res.json({
-      rallies,
-      total: rallies.length
-    });
+    res.json({ rallies, total: rallies.length });
   } catch (error) {
     console.error('Error al listar rallies pasados:', error);
     res.status(500).json({
@@ -96,23 +88,17 @@ export const listarPasados = async (req, res) => {
 export const obtenerRally = async (req, res) => {
   try {
     const { id } = req.params;
-
     const rally = await Rally.buscarConCategorias(id);
 
     if (!rally) {
-      return res.status(404).json({
-        error: 'Rally no encontrado'
-      });
+      return res.status(404).json({ error: 'Rally no encontrado' });
     }
 
-    // Agregar información adicional
     const rallyData = rally.toJSON();
     rallyData.fueReprogramado = rally.fueReprogramado();
     rallyData.yaPaso = rally.yaPaso();
 
-    res.json({
-      rally: rallyData
-    });
+    res.json({ rally: rallyData });
   } catch (error) {
     console.error('Error al obtener rally:', error);
     res.status(500).json({
@@ -123,39 +109,57 @@ export const obtenerRally = async (req, res) => {
 };
 
 // ========================================
-// CREAR RALLY (CREADOR FECHAS / ADMIN)
-// ACTUALIZADO - Asigna automáticamente creadoPorId
+// CREAR RALLY - ACTUALIZADO
 // ========================================
 export const crearRally = async (req, res) => {
   try {
-    const { campeonato, nombre, subtitulo, fecha, contactos, categoriasIds } = req.body;
-    const usuario = req.usuario; // Usuario autenticado
+    const { campeonato, nombre, subtitulo, fecha } = req.body;
+    const usuario = req.usuario;
 
-    // Verificar que se haya enviado un logo (OPCIONAL)
-    let urlLogo = null;
-    if (req.file) {
-      urlLogo = await subirImagen(req.file.buffer, 'rallies');
+    // Normalizar categoriasIds (FormData los envía como strings)
+    let categoriasIds = req.body.categoriasIds || [];
+    if (!Array.isArray(categoriasIds)) categoriasIds = [categoriasIds];
+    categoriasIds = categoriasIds.map(id => parseInt(id)).filter(id => !isNaN(id));
+
+    // Normalizar contactos
+    let contactos = null;
+    if (req.body.contactos) {
+      try {
+        contactos = typeof req.body.contactos === 'string' 
+          ? JSON.parse(req.body.contactos) 
+          : req.body.contactos;
+      } catch (e) {
+        contactos = null;
+      }
     }
 
-    // Crear rally CON creadoPorId
+    // Subir logo a Cloudinary si se envió archivo
+    let urlLogo = null;
+    if (req.file) {
+      // Construir nombre: primera-segunda (en minúsculas, sin espacios)
+      const palabras = campeonato.trim().toLowerCase().split(/\s+/);
+      const nombreArchivo = palabras.slice(0, 2).join('-').replace(/[^a-z0-9-]/g, '');
+      urlLogo = await subirImagen(req.file.buffer, 'campeonato', nombreArchivo);
+    } else if (req.body.logoExistente) {
+      // Si se seleccionó un logo existente
+      urlLogo = req.body.logoExistente;
+    }
+
     const nuevoRally = await Rally.create({
       campeonato,
       nombre,
-      subtitulo,
+      subtitulo: subtitulo || null,
       fecha: new Date(fecha),
       logo: urlLogo,
-      contactos: contactos ? JSON.parse(contactos) : null,
-      creadoPorId: usuario.id // ASIGNAR CREADOR
+      contactos,
+      creadoPorId: usuario.id
     });
 
-    // Asignar categorías permitidas si se especificaron
-    if (categoriasIds && Array.isArray(categoriasIds) && categoriasIds.length > 0) {
+    if (categoriasIds.length > 0) {
       await CategoriaRally.habilitarCategorias(nuevoRally.id, categoriasIds);
     }
 
-    // Obtener rally con categorías
     const rallyConCategorias = await Rally.buscarConCategorias(nuevoRally.id);
-
     res.status(201).json({
       mensaje: 'Rally creado exitosamente',
       rally: rallyConCategorias
@@ -170,37 +174,56 @@ export const crearRally = async (req, res) => {
 };
 
 // ========================================
-// ACTUALIZAR RALLY (CREADOR FECHAS / ADMIN)
+// ACTUALIZAR RALLY - ACTUALIZADO
 // ========================================
 export const actualizarRally = async (req, res) => {
   try {
     const { id } = req.params;
-    const { campeonato, nombre, subtitulo, fecha, contactos, categoriasIds, logo } = req.body;
+    const { campeonato, nombre, subtitulo, fecha } = req.body;
 
     const rally = await Rally.findByPk(id);
-
     if (!rally) {
-      return res.status(404).json({
-        error: 'Rally no encontrado'
-      });
+      return res.status(404).json({ error: 'Rally no encontrado' });
     }
 
-    // Si se envió nuevo logo como archivo, actualizar
-    if (req.file) {
-      // Eliminar logo anterior solo si existe
-      if (rally.logo) {
-        await eliminarImagen(rally.logo);
-      }
+    // Normalizar categoriasIds
+    let categoriasIds = req.body.categoriasIds || [];
+    if (!Array.isArray(categoriasIds)) categoriasIds = [categoriasIds];
+    categoriasIds = categoriasIds.map(id => parseInt(id)).filter(id => !isNaN(id));
 
+    // Normalizar contactos
+    let contactos = null;
+    if (req.body.contactos) {
+      try {
+        contactos = typeof req.body.contactos === 'string'
+          ? JSON.parse(req.body.contactos)
+          : req.body.contactos;
+      } catch (e) {
+        contactos = null;
+      }
+    }
+
+    // Manejar logo
+    if (req.file) {
+      // Eliminar logo anterior si existe
+      if (rally.logo) await eliminarImagen(rally.logo);
+      
       // Subir nuevo logo
-      const urlLogo = await subirImagen(req.file.buffer, 'rallies');
-      rally.logo = urlLogo;
-    } else if (logo !== undefined) {
-      // Si se envió logo como URL en el body
-      if (rally.logo && logo !== rally.logo) {
+      const palabras = (campeonato || rally.campeonato).trim().toLowerCase().split(/\s+/);
+      const nombreArchivo = palabras.slice(0, 2).join('-').replace(/[^a-z0-9-]/g, '');
+      rally.logo = await subirImagen(req.file.buffer, 'campeonato', nombreArchivo);
+    } else if (req.body.logoExistente) {
+      // Seleccionó un logo existente
+      if (rally.logo && rally.logo !== req.body.logoExistente) {
         await eliminarImagen(rally.logo);
       }
-      rally.logo = logo || null;
+      rally.logo = req.body.logoExistente;
+    } else if (req.body.logo !== undefined) {
+      // Si se envió logo como string (vacío = eliminar)
+      if (rally.logo && req.body.logo !== rally.logo) {
+        await eliminarImagen(rally.logo);
+      }
+      rally.logo = req.body.logo || null;
     }
 
     // Actualizar campos
@@ -208,11 +231,11 @@ export const actualizarRally = async (req, res) => {
     if (nombre) rally.nombre = nombre;
     if (subtitulo !== undefined) rally.subtitulo = subtitulo;
     if (fecha) rally.fecha = new Date(fecha);
-    if (contactos) rally.contactos = JSON.parse(contactos);
+    if (contactos) rally.contactos = contactos;
 
     await rally.save();
 
-    // Actualizar categorías si se especificaron
+    // Actualizar categorías
     if (categoriasIds && Array.isArray(categoriasIds)) {
       await CategoriaRally.deshabilitarTodasCategoriasRally(rally.id);
       if (categoriasIds.length > 0) {
@@ -220,9 +243,7 @@ export const actualizarRally = async (req, res) => {
       }
     }
 
-    // Obtener rally actualizado
     const rallyActualizado = await Rally.buscarConCategorias(rally.id);
-
     res.json({
       mensaje: 'Rally actualizado exitosamente',
       rally: rallyActualizado
@@ -237,7 +258,7 @@ export const actualizarRally = async (req, res) => {
 };
 
 // ========================================
-// REPROGRAMAR RALLY (CREADOR FECHAS / ADMIN)
+// REPROGRAMAR RALLY (sin cambios)
 // ========================================
 export const reprogramarRally = async (req, res) => {
   try {
@@ -245,26 +266,18 @@ export const reprogramarRally = async (req, res) => {
     const { nuevaFecha } = req.body;
 
     const rally = await Rally.findByPk(id);
-
     if (!rally) {
-      return res.status(404).json({
-        error: 'Rally no encontrado'
-      });
+      return res.status(404).json({ error: 'Rally no encontrado' });
     }
 
-    // Guardar fecha anterior
     const fechaAnterior = rally.fecha;
-
-    // Reprogramar rally
     await rally.reprogramar(new Date(nuevaFecha));
 
-    // Actualizar todos los alquileres asociados
     const alquileres = await Alquiler.obtenerPorRally(id);
 
     for (const alquiler of alquileres) {
       await alquiler.reprogramar(new Date(nuevaFecha));
 
-      // Enviar email de notificación al usuario
       const usuario = await alquiler.Usuario;
       const vehiculo = await alquiler.Vehiculo;
 
@@ -299,7 +312,7 @@ export const reprogramarRally = async (req, res) => {
 };
 
 // ========================================
-// CARGAR RESULTADOS (CREADOR FECHAS / ADMIN)
+// CARGAR RESULTADOS (sin cambios)
 // ========================================
 export const cargarResultados = async (req, res) => {
   try {
@@ -307,11 +320,8 @@ export const cargarResultados = async (req, res) => {
     const { resultados } = req.body;
 
     const rally = await Rally.findByPk(id);
-
     if (!rally) {
-      return res.status(404).json({
-        error: 'Rally no encontrado'
-      });
+      return res.status(404).json({ error: 'Rally no encontrado' });
     }
 
     await rally.cargarResultados(resultados);
@@ -334,31 +344,25 @@ export const cargarResultados = async (req, res) => {
 };
 
 // ========================================
-// ELIMINAR RALLY (ADMIN)
+// ELIMINAR RALLY (sin cambios)
 // ========================================
 export const eliminarRally = async (req, res) => {
   try {
     const { id } = req.params;
 
     const rally = await Rally.findByPk(id);
-
     if (!rally) {
-      return res.status(404).json({
-        error: 'Rally no encontrado'
-      });
+      return res.status(404).json({ error: 'Rally no encontrado' });
     }
 
-    // Notificar a usuarios con alquileres
     const alquileres = await Alquiler.obtenerPorRally(id);
 
     for (const alquiler of alquileres) {
       const usuario = await alquiler.Usuario;
       const vehiculo = await alquiler.Vehiculo;
 
-      // Marcar alquiler como rally cancelado
       await alquiler.marcarRallyCancelado();
 
-      // Enviar email
       await enviarEmailCancelacion(
         usuario.email,
         usuario.nombre,
@@ -367,10 +371,10 @@ export const eliminarRally = async (req, res) => {
       );
     }
 
-    // Eliminar logo de Cloudinary
-    await eliminarImagen(rally.logo);
+    if (rally.logo) {
+      await eliminarImagen(rally.logo);
+    }
 
-    // Eliminar rally
     await rally.destroy();
 
     res.json({
@@ -394,10 +398,8 @@ export const eliminarRally = async (req, res) => {
 };
 
 // ========================================
-// GESTIÓN DE CATEGORÍAS DEL RALLY
+// GESTIÓN DE CATEGORÍAS (sin cambios)
 // ========================================
-
-// Habilitar categoría en un rally
 export const habilitarCategoria = async (req, res) => {
   try {
     const { id } = req.params;
@@ -415,9 +417,7 @@ export const habilitarCategoria = async (req, res) => {
 
     await CategoriaRally.habilitarCategoria(id, categoriaId);
 
-    res.json({
-      mensaje: 'Categoría habilitada exitosamente'
-    });
+    res.json({ mensaje: 'Categoría habilitada exitosamente' });
   } catch (error) {
     console.error('Error al habilitar categoría:', error);
     res.status(500).json({
@@ -427,16 +427,13 @@ export const habilitarCategoria = async (req, res) => {
   }
 };
 
-// Deshabilitar categoría de un rally
 export const deshabilitarCategoria = async (req, res) => {
   try {
     const { id, categoriaId } = req.params;
 
     await CategoriaRally.deshabilitarCategoria(id, categoriaId);
 
-    res.json({
-      mensaje: 'Categoría deshabilitada exitosamente'
-    });
+    res.json({ mensaje: 'Categoría deshabilitada exitosamente' });
   } catch (error) {
     console.error('Error al deshabilitar categoría:', error);
     res.status(500).json({

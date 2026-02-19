@@ -44,11 +44,12 @@ export const obtenerPerfil = async (req, res) => {
 export const actualizarPerfil = async (req, res) => {
   try {
     const usuario = req.usuario; // Viene del middleware
-    const { nombre, equipo } = req.body;
+    const { nombre, equipo, fotoPerfil } = req.body;
 
     // Actualizar solo los campos permitidos
     if (nombre) usuario.nombre = nombre;
     if (equipo !== undefined) usuario.equipo = equipo;
+    if (fotoPerfil !== undefined) usuario.fotoPerfil = fotoPerfil;
 
     await usuario.save();
 
@@ -92,8 +93,14 @@ export const actualizarFotoPerfil = async (req, res) => {
       await eliminarImagen(usuario.fotoPerfil);
     }
 
-    // Subir nueva foto a Cloudinary
-    const urlImagen = await subirImagen(req.file.buffer, 'perfiles');
+    // Construir nombre del archivo: nombre-usuario (sin espacios, en minúsculas)
+    const nombreArchivo = usuario.nombre
+      .toLowerCase()
+      .replace(/\s+/g, '-')
+      .replace(/[^a-z0-9-]/g, '');
+
+    // Subir nueva foto a Cloudinary con carpeta y nombre personalizados
+    const urlImagen = await subirImagen(req.file.buffer, 'usuarios-photos', nombreArchivo);
 
     // Actualizar en la base de datos
     usuario.fotoPerfil = urlImagen;
@@ -117,8 +124,14 @@ export const actualizarFotoPerfil = async (req, res) => {
 // ========================================
 export const cambiarContraseña = async (req, res) => {
   try {
-    const usuario = req.usuario;
     const { contraseñaActual, nuevaContraseña } = req.body;
+
+    // Recargar usuario con contraseña (req.usuario no la tiene por toJSON)
+    const usuario = await Usuario.findByPk(req.usuario.id);
+
+    if (!usuario) {
+      return res.status(404).json({ error: 'Usuario no encontrado' });
+    }
 
     // Verificar que la contraseña actual sea correcta
     const contraseñaValida = await usuario.verificarContraseña(contraseñaActual);

@@ -1,45 +1,569 @@
-/* Modal */
+/* ========================================
+   MODAL
+   ======================================== */
+
 .modal :global(.modal-content) {
-  background-color: #2a2a2a !important;
-  border: 2px solid #00d4ff !important;
-  border-radius: 12px !important;
+  background-color: #1a1a1a;
+  border: 2px solid #00d4ff;
+  border-radius: 15px;
+  color: #ffffff;
+}
+
+.modalContenido {
+  padding: 2rem;
+  position: relative;
+}
+
+.btnCerrar {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: transparent;
+  border: 2px solid #3a3a3a;
+  color: #a0a0a0;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  z-index: 10;
+}
+
+.btnCerrar:hover:not(:disabled) {
+  border-color: #ff6b6b;
+  color: #ff6b6b;
+  background-color: rgba(255, 107, 107, 0.1);
+}
+
+.btnCerrar:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.titulo {
+  font-family: 'Orbitron', 'Impact', sans-serif;
+  font-size: 1.8rem;
+  font-weight: 900;
+  color: #00d4ff;
+  margin-bottom: 1.5rem;
+  letter-spacing: 1px;
+}
+
+/* ========================================
+   ALERTA
+   ======================================== */
+
+.alerta {
+  background-color: rgba(255, 107, 107, 0.1);
+  border: 2px solid #ff6b6b;
+  border-radius: 10px;
+  padding: 1rem;
+  margin-bottom: 1.5rem;
+  color: #ff6b6b;
+  font-weight: 600;
+}
+
+/* ========================================
+   FORMULARIO
+   ======================================== */
+
+.formulario {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.fila {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.campoForm {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.campoForm label {
+  font-weight: 700;
+  color: #00d4ff;
+  font-size: 0.95rem;
+}
+
+.campoForm input,
+.campoForm select {
+  padding: 0.8rem 1rem;
+  background-color: #2a2a2a;
+  border: 2px solid #3a3a3a;
+  border-radius: 10px;
+  color: #ffffff;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+}
+
+.campoForm input:focus,
+.campoForm select:focus {
+  outline: none;
+  border-color: #00d4ff;
+  box-shadow: 0 0 0 3px rgba(0, 212, 255, 0.1);
+}
+
+.campoForm input:disabled,
+.campoForm select:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ========================================
+   SECCIÓN IMAGEN
+   ======================================== */
+
+.seccionImagen {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.labelImagen {
+  font-weight: 700;
+  color: #00d4ff;
+  font-size: 0.95rem;
+}
+
+.previsualizacion {
+  width: 100%;
+  max-width: 400px;
+  margin: 0 auto;
+  border: 2px solid #3a3a3a;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.previsualizacion img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.opcionesImagen {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.btnUpload {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.8rem 1.5rem;
+  background: linear-gradient(135deg, #00d4ff, #39ff14);
+  color: #1a1a1a;
+  border: none;
+  border-radius: 10px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+}
+
+.btnUpload:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(0, 212, 255, 0.4);
+}
+
+.btnUpload:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.inputUrl {
+  flex: 1;
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.inputUrl svg {
+  position: absolute;
+  left: 1rem;
+  color: #00d4ff;
+  pointer-events: none;
+}
+
+.inputUrl input {
+  width: 100%;
+  padding: 0.8rem 1rem 0.8rem 3rem;
+  background-color: #2a2a2a;
+  border: 2px solid #3a3a3a;
+  border-radius: 10px;
+  color: #ffffff;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+}
+
+.inputUrl input:focus {
+  outline: none;
+  border-color: #00d4ff;
+  box-shadow: 0 0 0 3px rgba(0, 212, 255, 0.1);
+}
+
+.inputUrl input:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ========================================
+   CATEGORÍAS
+   ======================================== */
+
+.categoriasGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 0.8rem;
+}
+
+.btnCategoria {
+  padding: 0.7rem 1rem;
+  background-color: transparent;
+  border: 2px solid #3a3a3a;
+  border-radius: 8px;
+  color: #a0a0a0;
+  font-weight: 700;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.btnCategoria:hover:not(:disabled) {
+  background-color: rgba(0, 212, 255, 0.05);
+}
+
+.btnCategoria:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.categoriaSeleccionada {
+  background-color: rgba(0, 212, 255, 0.1) !important;
+  font-weight: 900 !important;
+}
+
+/* ========================================
+   CHECKBOX
+   ======================================== */
+
+.campoCheckbox {
+  display: flex;
+  align-items: center;
+  padding: 1rem;
+  background-color: #2a2a2a;
+  border: 2px solid #3a3a3a;
+  border-radius: 10px;
+}
+
+.campoCheckbox label {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  cursor: pointer;
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.campoCheckbox input[type="checkbox"] {
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+  accent-color: #00d4ff;
+}
+
+.campoCheckbox input[type="checkbox"]:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ========================================
+   BOTONES
+   ======================================== */
+
+.botones {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.btnCancelar,
+.btnGuardar {
+  flex: 1;
+  padding: 1rem;
+  border: none;
+  border-radius: 10px;
+  font-weight: 700;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btnCancelar {
+  background-color: transparent;
+  border: 2px solid #3a3a3a;
+  color: #a0a0a0;
+}
+
+.btnCancelar:hover:not(:disabled) {
+  border-color: #ff6b6b;
+  color: #ff6b6b;
+  background-color: rgba(255, 107, 107, 0.1);
+}
+
+.btnGuardar {
+  background: linear-gradient(135deg, #00d4ff, #39ff14);
+  color: #1a1a1a;
+  box-shadow: 0 4px 15px rgba(0, 212, 255, 0.3);
+}
+
+.btnGuardar:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 212, 255, 0.5);
+}
+
+.btnCancelar:disabled,
+.btnGuardar:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* ========================================
+   DETALLES (MODO VER)
+   ======================================== */
+
+.detalles {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.imagenGrande {
+  width: 100%;
+  max-width: 500px;
+  margin: 0 auto;
+  border-radius: 15px;
+  border: 2px solid #3a3a3a;
+}
+
+.info {
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+}
+
+.campo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 1rem;
+  background-color: #2a2a2a;
+  border-radius: 10px;
+  border: 2px solid #3a3a3a;
+}
+
+.label {
+  font-weight: 700;
+  color: #00d4ff;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.valor {
+  font-size: 1.1rem;
+  color: #ffffff;
+  font-weight: 600;
+}
+
+.valorPrecio {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 1.3rem;
+  color: #39ff14;
+  font-weight: 700;
+}
+
+.categorias {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.badgeCategoria {
+  display: inline-block;
+  padding: 0.4rem 0.9rem;
+  background: rgba(0, 212, 255, 0.1);
+  border: 2px solid #00d4ff;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.disponible {
+  color: #39ff14;
+  font-weight: 700;
+  font-size: 1.1rem;
+}
+
+.noDisponible {
+  color: #ff6b6b;
+  font-weight: 700;
+  font-size: 1.1rem;
+}
+
+/* ========================================
+   RESPONSIVE
+   ======================================== */
+
+@media (max-width: 768px) {
+  .modalContenido {
+    padding: 1.5rem;
+  }
+
+  .titulo {
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+  }
+
+  .fila {
+    grid-template-columns: 1fr;
+  }
+
+  .opcionesImagen {
+    flex-direction: column;
+  }
+
+  .btnUpload {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .categoriasGrid {
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+  }
+
+  .botones {
+    flex-direction: column;
+  }
+}
+
+/* ========================================
+   ESTILOS NUEVOS
+   ======================================== */
+
+.grupo {
+  margin-bottom: 1.2rem;
+}
+
+.grupo :global(.form-label) {
+  color: #ffffff;
+  font-weight: 600;
+}
+
+.grupo :global(.form-control) {
+  background-color: #1a1a1a !important;
+  border: 2px solid #3a3a3a !important;
+  color: #ffffff !important;
+  border-radius: 8px !important;
+  padding: 0.7rem 1rem !important;
+}
+
+.grupo :global(.form-control:focus) {
+  border-color: #00d4ff !important;
+  box-shadow: 0 0 0 3px rgba(0, 212, 255, 0.15) !important;
+}
+
+.grupo :global(.form-control::placeholder) {
+  color: #555;
+  font-style: italic;
+}
+
+.precios {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.previewWrapper {
+  position: relative;
+  margin-bottom: 1rem;
+}
+
+.preview {
+  width: 100%;
+  max-height: 200px;
+  object-fit: contain;
+  border-radius: 8px;
+  background-color: #1a1a1a;
+  border: 2px solid #3a3a3a;
+  padding: 0.5rem;
+  display: block;
+}
+
+.previewNueva {
+  display: inline-block;
+  margin-top: 0.4rem;
+  font-size: 0.8rem;
+  color: #39ff14;
+  font-weight: 600;
+}
+
+.btnSubirFoto {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  background: linear-gradient(135deg, #2a2a2a, #1f1f1f);
+  border: 2px solid #00d4ff;
+  color: #00d4ff;
+  padding: 0.7rem 1.5rem;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 0.95rem;
+  transition: all 0.3s ease;
+}
+
+.btnSubirFoto:hover {
+  background: linear-gradient(135deg, #00d4ff, #39ff14);
+  color: #1a1a1a;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(0, 212, 255, 0.4);
+}
+
+.fotoHint {
+  margin-top: 0.4rem;
+  font-size: 0.8rem;
+  color: #666;
+  font-style: italic;
 }
 
 .header {
   background-color: #1a1a1a !important;
   border-bottom: 2px solid #3a3a3a !important;
   padding: 1.5rem !important;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.titulo {
-  color: #00d4ff !important;
-  font-weight: 700;
-  margin: 0;
-}
-
-.btnCerrar {
-  background: none;
-  border: none;
-  color: #ffffff;
-  cursor: pointer;
-  padding: 0.5rem;
-  border-radius: 6px;
-  transition: all 0.2s;
-}
-
-.btnCerrar:hover {
-  background-color: #3a3a3a;
 }
 
 .body {
   background-color: #2a2a2a !important;
   padding: 1.5rem !important;
+  max-height: 75vh;
+  overflow-y: auto;
 }
 
-/* Error */
 .error {
   background-color: rgba(220, 53, 69, 0.1);
   border: 1px solid #dc3545;
@@ -49,99 +573,12 @@
   margin-bottom: 1rem;
 }
 
-/* Grupos de formulario */
-.grupo {
-  margin-bottom: 1.2rem;
-}
-
-.grupo label {
-  color: #ffffff;
-  font-weight: 600;
-  margin-bottom: 0.5rem;
-}
-
-.grupo input,
-.grupo select,
-.grupo textarea {
-  background-color: #1a1a1a !important;
-  border: 1px solid #3a3a3a !important;
-  color: #ffffff !important;
-  padding: 0.6rem !important;
-  border-radius: 6px !important;
-}
-
-.grupo input:focus,
-.grupo select:focus,
-.grupo textarea:focus {
-  border-color: #00d4ff !important;
-  box-shadow: 0 0 0 0.2rem rgba(0, 212, 255, 0.25) !important;
-}
-
-/* Preview de foto */
-.preview {
-  width: 100%;
-  max-height: 200px;
-  object-fit: contain;
-  margin-top: 1rem;
-  border-radius: 6px;
-}
-
-/* Categorías */
 .categorias {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 0.5rem;
-}
-
-.categorias label {
-  color: #ffffff;
-  margin: 0;
-}
-
-/* Precios */
-.precios {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1rem;
-}
-
-/* Botones */
-.botones {
-  display: flex;
-  justify-content: flex-end;
-  gap: 1rem;
-  margin-top: 1.5rem;
-  padding-top: 1.5rem;
-  border-top: 1px solid #3a3a3a;
-}
-
-.btnGuardar {
-  background: linear-gradient(135deg, #00d4ff, #39ff14) !important;
-  border: none !important;
-  color: #1a1a1a !important;
-  font-weight: 700 !important;
-}
-
-.btnGuardar:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 15px rgba(0, 212, 255, 0.4);
-}
-
-/* Responsive */
-@media (max-width: 768px) {
-  .categorias {
-    grid-template-columns: 1fr 1fr;
-  }
-
-  .precios {
-    grid-template-columns: 1fr;
-  }
-
-  .botones {
-    flex-direction: column;
-  }
-
-  .botones button {
-    width: 100%;
-  }
+  background-color: #1a1a1a;
+  padding: 1rem;
+  border-radius: 8px;
+  border: 2px solid #3a3a3a;
 }

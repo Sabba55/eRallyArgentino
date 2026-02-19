@@ -4,6 +4,7 @@
   min-height: calc(100vh - 86px - 200px); /* Resta altura del navbar y footer */
   width: 100%;
   background-color: #1a1a1a;
+  height: 920px;
 }
 
 /* ========================================
@@ -24,20 +25,7 @@
   object-position: center;
 }
 
-/* Overlay con gradiente sutil */
-.overlayFoto {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(
-    135deg,
-    rgba(57, 255, 20, 0.1) 0%,
-    rgba(0, 0, 0, 0.3) 100%
-  );
-  pointer-events: none;
-}
+
 
 /* ========================================
    LADO DERECHO - FORMULARIO
@@ -123,9 +111,18 @@
   border: 2px solid #3a3a3a !important;
   color: #ffffff !important;
   border-radius: 10px;
-  font-size: 1.1rem;
   transition: all 0.3s ease;
+  padding: 0.9rem 1.1rem !important;
   width: 100%;
+  padding-left: 2.8rem !important;
+}
+
+.inputConIcono {
+  padding-left: 2.8rem !important;
+}
+
+.inputConOjo {
+  padding-right: 3rem !important;
 }
 
 .input:focus {
@@ -136,13 +133,49 @@
 }
 
 .input::placeholder {
-  color: #6a6a6a;
-  font-size: 1rem;
+  color: #868686 !important; 
+  opacity: 1;
 }
 
 .input:disabled {
   opacity: 0.6;
   cursor: not-allowed;
+}
+
+/* Estructura para íconos izquierdos */
+.grupoInputRelativo {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.iconoInput {
+  position: absolute;
+  left: 1rem;
+  color: #39ff14;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.botonOjoRegistro {
+  position: absolute;
+  right: 1rem;
+  background: none;
+  border: none;
+  color: #39ff14; /* Verde neón */
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 3;
+  padding: 0;
+  transition: transform 0.2s ease, color 0.2s ease;
+}
+
+.botonOjoRegistro:hover {
+  color: #00d4ff; /* Cambia a celeste en hover */
+  transform: scale(1.1);
 }
 
 /* Botón del ojo para mostrar/ocultar contraseña */
