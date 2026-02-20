@@ -25,32 +25,26 @@ function ModalDetalleVehiculo({ show, onHide, vehiculo, tipo, categoria, colorCa
         try {
           setCargandoRallies(true)
           
-          // TODO: Cuando tengas el endpoint de rallies, reemplazar por la llamada real
-          // const response = await api.get('/rallies', {
-          //   params: {
-          //     disponible: true,
-          //     categoriaId: vehiculo?.categorias?.[0]?.id
-          //   }
-          // })
-          // setRallies(response.data.rallies)
-
-          // Por ahora, datos MOCK (reemplazar cuando tengas el endpoint)
-          setRallies([
-            {
-              id: 1,
-              nombre: "Rally de Misiones",
-              fecha: "2026-03-15T10:00:00",
-              campeonato: "eRally"
-            },
-            {
-              id: 2,
-              nombre: "Rally de Córdoba",
-              fecha: "2026-04-20T10:00:00",
-              campeonato: "eRally"
-            }
-          ])
+          // ✅ CONECTADO AL BACKEND
+          const response = await api.get('/rallies/proximos')
+          
+          // Filtrar rallies que admitan la categoría del vehículo
+          const categoriaVehiculo = vehiculo?.categorias?.[0]?.nombre
+          
+          let ralliesFiltrados = response.data.rallies
+          
+          if (categoriaVehiculo) {
+            ralliesFiltrados = response.data.rallies.filter(rally => 
+              rally.categorias?.some(cat => cat.nombre === categoriaVehiculo)
+            )
+          }
+          
+          setRallies(ralliesFiltrados)
+          
         } catch (error) {
           console.error('Error al cargar rallies:', error)
+          setError('Error al cargar las fechas de rally disponibles')
+          setRallies([])
         } finally {
           setCargandoRallies(false)
         }
