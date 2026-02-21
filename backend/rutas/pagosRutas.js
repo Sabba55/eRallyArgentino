@@ -1,5 +1,5 @@
 import express from 'express';
-import { body, query } from 'express-validator';
+import { body, query, param } from 'express-validator'
 import {
   crearCompraMercadoPago,
   crearCompraPayPal,
@@ -13,6 +13,7 @@ import {
 import { verificarAutenticacion } from '../middlewares/autenticacion.js';
 import { verificarEmail } from '../middlewares/emailVerificado.js';
 import { manejarErroresValidacion } from '../middlewares/validaciones.js';
+import { obtenerPreciosVehiculo } from '../controladores/pagosControlador.js';
 
 const router = express.Router();
 
@@ -136,6 +137,17 @@ router.get(
     manejarErroresValidacion
   ],
   listarMisAlquileres
+);
+
+// Precio público, no requiere auth (el usuario lo ve antes de loguearse en la tienda)
+router.get(
+  '/precios/:vehiculoId',
+  [
+    param('vehiculoId')
+      .isInt({ min: 1 }).withMessage('ID de vehículo inválido'),
+    manejarErroresValidacion
+  ],
+  obtenerPreciosVehiculo
 );
 
 export default router;

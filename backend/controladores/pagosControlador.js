@@ -619,3 +619,58 @@ export const listarMisAlquileres = async (req, res) => {
     });
   }
 };
+
+// ========================================
+// OBTENER PRECIOS DE UN VEHÍCULO (ARS + USD)
+// GET /api/pagos/precios/:vehiculoId
+// ========================================
+export const obtenerPreciosVehiculo = async (req, res) => {
+  try {
+    const { vehiculoId } = req.params;
+
+    const vehiculo = await Vehiculo.findByPk(vehiculoId);
+    if (!vehiculo) {
+      return res.status(404).json({ error: 'Vehículo no encontrado' });
+    }
+
+    // ✅ Intentar obtener cotización real
+    let cotizacion = null;
+    let cotizacionDisponible = false;
+
+    try {
+      cotizacion = await obtenerDolarBlue();
+      // Rechazar el fallback hardcodeado — si viene 1200 sin haber conectado,
+      // no es confiable para mostrarle un precio al usuario
+      cotizacionDisponible = cotizacion !== null && cotizacion > 0;
+    } catch {
+      cotizacionDisponible = false;
+    }
+
+    const calcularUSD = (precioARS) => {
+      if (!cotizacionDisponible) return null; // ← null = no mostrar
+      const base = precioARS / cotizacion;
+      return parseFloat((base * 1.054 + 0.30).toFixed(2));
+    };
+
+    res.json({
+      vehiculoId: vehiculo.id,
+      cotizacionDolar: cotizacionDisponible ? cotizacion : null,
+      cotizacionDisponible,  // ← el frontend lo usa para habilitar/deshabilitar PayPal
+      compra: {
+        ars: parseFloat(vehiculo.precioCompra),
+        usd: calcularUSD(vehiculo.precioCompra)
+      },
+      alquiler: {
+        ars: parseFloat(vehiculo.precioAlquiler),
+        usd: calcularUSD(vehiculo.precioAlquiler)
+      }
+    });
+
+  } catch (error) {
+    console.error('Error al obtener precios:', error);
+    res.status(500).json({
+      error: 'Error al obtener precios',
+      detalle: error.message
+    });
+  }
+};

@@ -9,7 +9,12 @@ import {
   obtenerMiGarage,
   listarUsuarios,
   cambiarRol,
-  eliminarUsuario
+  eliminarUsuario,
+  obtenerComprasUsuario,
+  obtenerAlquileresUsuario,
+  eliminarCompra,
+  eliminarAlquiler,
+  cambiarRallyAlquiler
 } from '../controladores/usuariosControlador.js';
 import { verificarAutenticacion } from '../middlewares/autenticacion.js';
 import { esAdmin, esAdminODueño } from '../middlewares/esAdmin.js';
@@ -194,6 +199,103 @@ router.delete(
     manejarErroresValidacion
   ],
   eliminarUsuario
+);
+
+// ========================================
+// OBTENER COMPRAS DE UN USUARIO (ADMIN)
+// GET /api/usuarios/:id/compras
+// ========================================
+router.get(
+  '/:id/compras',
+  verificarAutenticacion,
+  esAdmin,
+  [
+    param('id')
+      .isInt({ min: 1 }).withMessage('ID de usuario inválido'),
+    
+    query('estado')
+      .optional()
+      .isIn(['pendiente', 'aprobado', 'rechazado', 'vencido']).withMessage('Estado inválido'),
+
+    manejarErroresValidacion
+  ],
+  obtenerComprasUsuario
+);
+
+// ========================================
+// OBTENER ALQUILERES DE UN USUARIO (ADMIN)
+// GET /api/usuarios/:id/alquileres
+// ========================================
+router.get(
+  '/:id/alquileres',
+  verificarAutenticacion,
+  esAdmin,
+  [
+    param('id')
+      .isInt({ min: 1 }).withMessage('ID de usuario inválido'),
+    
+    query('estado')
+      .optional()
+      .isIn(['pendiente', 'aprobado', 'rechazado', 'vencido', 'rally_cancelado']).withMessage('Estado inválido'),
+
+    manejarErroresValidacion
+  ],
+  obtenerAlquileresUsuario
+);
+
+// ========================================
+// ELIMINAR COMPRA (ADMIN)
+// DELETE /api/usuarios/compras/:id
+// ========================================
+router.delete(
+  '/compras/:id',
+  verificarAutenticacion,
+  esAdmin,
+  [
+    param('id')
+      .isInt({ min: 1 }).withMessage('ID de compra inválido'),
+
+    manejarErroresValidacion
+  ],
+  eliminarCompra
+);
+
+// ========================================
+// ELIMINAR ALQUILER (ADMIN)
+// DELETE /api/usuarios/alquileres/:id
+// ========================================
+router.delete(
+  '/alquileres/:id',
+  verificarAutenticacion,
+  esAdmin,
+  [
+    param('id')
+      .isInt({ min: 1 }).withMessage('ID de alquiler inválido'),
+
+    manejarErroresValidacion
+  ],
+  eliminarAlquiler
+);
+
+// ========================================
+// CAMBIAR RALLY DE ALQUILER (ADMIN)
+// PUT /api/usuarios/alquileres/:id/cambiar-rally
+// ========================================
+router.put(
+  '/alquileres/:id/cambiar-rally',
+  verificarAutenticacion,
+  esAdmin,
+  [
+    param('id')
+      .isInt({ min: 1 }).withMessage('ID de alquiler inválido'),
+
+    body('rallyId')
+      .notEmpty().withMessage('El ID del rally es obligatorio')
+      .isInt({ min: 1 }).withMessage('ID de rally inválido'),
+
+    manejarErroresValidacion
+  ],
+  cambiarRallyAlquiler
 );
 
 export default router;

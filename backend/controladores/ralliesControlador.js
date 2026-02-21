@@ -53,9 +53,36 @@ export const listarRallies = async (req, res) => {
 // ========================================
 // LISTAR PRÓXIMOS RALLIES (PÚBLICO)
 // ========================================
+// export const listarProximos = async (req, res) => {
+//   try {
+//     const rallies = await Rally.obtenerProximos();
+//     res.json({ rallies, total: rallies.length });
+//   } catch (error) {
+//     console.error('Error al listar próximos rallies:', error);
+//     res.status(500).json({
+//       error: 'Error al listar próximos rallies',
+//       detalle: error.message
+//     });
+//   }
+// };
+
 export const listarProximos = async (req, res) => {
   try {
-    const rallies = await Rally.obtenerProximos();
+    const { Categoria } = await import('../modelos/index.js');
+    const ahora = new Date();
+
+    const rallies = await Rally.findAll({
+      where: {
+        fecha: { [Op.gte]: ahora }
+      },
+      include: [{
+        model: Categoria,
+        as: 'categorias',
+        through: { attributes: [] }
+      }],
+      order: [['fecha', 'ASC']]
+    });
+
     res.json({ rallies, total: rallies.length });
   } catch (error) {
     console.error('Error al listar próximos rallies:', error);
