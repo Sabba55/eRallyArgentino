@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Trash2 } from 'lucide-react'
 import toast from 'react-hot-toast'
 import api from '../../../../config/api'
@@ -12,7 +12,7 @@ function TabCompras({ usuarioId, onActualizar }) {
   // ========================================
   // CARGAR COMPRAS
   // ========================================
-  useState(() => {
+  useEffect(() => {
     cargarCompras()
   }, [usuarioId])
 

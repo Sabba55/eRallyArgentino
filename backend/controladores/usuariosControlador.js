@@ -1,5 +1,6 @@
 import { Usuario, Compra, Alquiler, Historial, Rally } from '../modelos/index.js';
 import { subirImagen, eliminarImagen } from '../config/cloudinary.js';
+import bcrypt from 'bcrypt'
 
 // ========================================
 // OBTENER PERFIL DE USUARIO
@@ -118,6 +119,38 @@ export const actualizarFotoPerfil = async (req, res) => {
     });
   }
 };
+
+// ========================================
+// VERIFICAR CONTRASEÑA ACTUAL
+// POST /api/usuarios/verificar-password
+// ========================================
+export const verificarPassword = async (req, res) => {
+  try {
+    const { contraseña } = req.body
+    const usuarioId = req.usuario.id
+
+    // Query separada que SÍ incluye la contraseña hasheada
+    const usuarioConPassword = await Usuario.findByPk(usuarioId, {
+      attributes: ['id', 'contraseña']  // ← traer solo lo necesario
+    })
+
+    if (!usuarioConPassword) {
+      return res.status(404).json({ error: 'Usuario no encontrado' })
+    }
+
+    const esCorrecta = await bcrypt.compare(contraseña, usuarioConPassword.contraseña)
+
+    if (!esCorrecta) {
+      return res.status(401).json({ error: 'La contraseña actual es incorrecta' })
+    }
+
+    return res.json({ valida: true })
+
+  } catch (error) {
+    console.error('Error al verificar contraseña:', error)
+    return res.status(500).json({ error: 'Error al verificar contraseña' })
+  }
+}
 
 // ========================================
 // CAMBIAR CONTRASEÑA
@@ -447,7 +480,7 @@ export const obtenerAlquileresUsuario = async (req, res) => {
         },
         {
           association: 'Rally',
-          attributes: ['id', 'nombre', 'campeonato', 'fecha', 'fueReprogramado']
+          attributes: ['id', 'nombre', 'campeonato', 'fecha']
         }
       ],
       order: [['fechaAlquiler', 'DESC']]

@@ -6,6 +6,7 @@ import {
   actualizarPerfil,
   actualizarFotoPerfil,
   cambiarContraseña,
+  verificarPassword,       
   obtenerMiGarage,
   listarUsuarios,
   cambiarRol,
@@ -88,6 +89,21 @@ router.put(
   upload.single('foto'),
   actualizarFotoPerfil
 );
+
+// ========================================
+// Verificar CONTRASEÑA
+// POST /api/usuarios/verificar-password
+// ========================================
+router.post(
+  '/verificar-password',
+  verificarAutenticacion,
+  [
+    body('contraseña')
+      .notEmpty().withMessage('La contraseña es requerida'),
+    manejarErroresValidacion
+  ],
+  verificarPassword
+)
 
 // ========================================
 // CAMBIAR CONTRASEÑA

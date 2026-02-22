@@ -63,10 +63,16 @@ api.interceptors.response.use(
       console.error(`❌ Error ${status}:`, data.mensaje || data.error || 'Error desconocido')
 
       if (status === 401) {
-        console.warn('⚠️ Token inválido o expirado. Redirigiendo a login...')
-        localStorage.removeItem('token')
-        if (window.location.pathname !== '/login') {
-          window.location.href = '/login'
+        // Rutas que usan 401 para validación, NO para token vencido
+        const rutasExcluidas = ['/usuarios/verificar-password', '/usuarios/cambiar-password']
+        const esRutaExcluida = rutasExcluidas.some(ruta => error.response.config.url.includes(ruta))
+
+        if (!esRutaExcluida) {
+          console.warn('⚠️ Token inválido o expirado. Redirigiendo a login...')
+          localStorage.removeItem('token')
+          if (window.location.pathname !== '/login') {
+            window.location.href = '/login'
+          }
         }
       }
 

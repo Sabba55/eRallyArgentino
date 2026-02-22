@@ -1,4 +1,5 @@
-import { useMemo } from 'react'
+import { useState, useEffect} from 'react'
+import api from '../../config/api'
 import { Container } from 'react-bootstrap'
 import { Link } from 'react-router-dom'
 import { Edit, ShoppingCart, Calendar, Mail, Users, Clock, Shield } from 'lucide-react'
@@ -66,12 +67,31 @@ function Perfil() {
   // ========================================
   // CALCULAR ESTADÍSTICAS
   // ========================================
-  // TODO: Cuando tengamos el endpoint del backend para vehículos del usuario
-  const estadisticas = useMemo(() => ({
-    comprados: 0, // TODO: Obtener del backend
-    alquilados: 0, // TODO: Obtener del backend
+  const [estadisticas, setEstadisticas] = useState({
+    comprados: 0,
+    alquilados: 0,
     total: 0
-  }), [])
+  })
+
+  useEffect(() => {
+    if (!usuario) return
+
+    const cargarGarage = async () => {
+      try {
+        const res = await api.get('/usuarios/garage/mis-vehiculos')
+        const { compras, alquileres } = res.data.garage
+        setEstadisticas({
+          comprados: compras.length,
+          alquilados: alquileres.length,
+          total: compras.length + alquileres.length
+        })
+      } catch (error) {
+        console.error('Error al cargar garage:', error)
+      }
+    }
+
+    cargarGarage()
+  }, [usuario])
 
   // ========================================
   // LOADING STATE

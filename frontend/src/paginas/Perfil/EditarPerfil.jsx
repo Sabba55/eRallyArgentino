@@ -22,9 +22,7 @@ function EditarPerfil() {
 
   const [fotoData, setFotoData] = useState({
     archivo: null,
-    url: '',
-    preview: '',
-    modoSubida: 'archivo'
+    preview: ''
   })
 
   const [passwordData, setPasswordData] = useState({
@@ -85,20 +83,6 @@ function EditarPerfil() {
   }
 
   // ========================================
-  // VALIDAR URL DE IMAGEN
-  // ========================================
-  const esUrlValida = (url) => {
-    if (!url) return false
-    try {
-      const urlObj = new URL(url)
-      const extension = urlObj.pathname.split('.').pop().toLowerCase()
-      return ['jpg', 'jpeg', 'png', 'webp'].includes(extension)
-    } catch {
-      return false
-    }
-  }
-
-  // ========================================
   // MANEJO DE FOTO - ARCHIVO
   // ========================================
   const handleFotoChange = (e) => {
@@ -129,20 +113,6 @@ function EditarPerfil() {
       })
     }
     reader.readAsDataURL(archivo)
-  }
-
-  // ========================================
-  // MANEJO DE FOTO - URL
-  // ========================================
-  const handleUrlChange = (e) => {
-    const url = e.target.value
-    setFotoData(prev => ({
-      ...prev,
-      url,
-      archivo: null,
-      preview: url,
-      modoSubida: 'url'
-    }))
   }
 
   // ========================================
@@ -213,19 +183,6 @@ function EditarPerfil() {
   }
 
   // ========================================
-  // VALIDAR FOTO
-  // ========================================
-  const validarFoto = () => {
-    if (fotoData.modoSubida === 'url' && fotoData.url) {
-      if (!esUrlValida(fotoData.url)) {
-        toast.error('La URL de la imagen no es válida. Debe terminar en .jpg, .png o .webp')
-        return false
-      }
-    }
-    return true
-  }
-
-  // ========================================
   // VALIDAR CONTRASEÑA - CRÍTICO
   // ========================================
   const validarContraseña = () => {
@@ -239,40 +196,34 @@ function EditarPerfil() {
     // Si completó algún campo, todos son obligatorios
     if (!passwordData.contraseñaActual) {
       setErrorPassword('Ingresa tu contraseña actual')
-      toast.error('Ingresa tu contraseña actual')
       return false
     }
 
     if (!passwordData.nuevaContraseña) {
       setErrorPassword('Ingresa una nueva contraseña')
-      toast.error('Ingresa una nueva contraseña')
       return false
     }
 
     if (!passwordData.confirmarContraseña) {
       setErrorPassword('Confirma tu nueva contraseña')
-      toast.error('Confirma tu nueva contraseña')
       return false
     }
 
     // Validar longitud mínima
     if (passwordData.nuevaContraseña.length < 8) {
       setErrorPassword('La nueva contraseña debe tener al menos 8 caracteres')
-      toast.error('La nueva contraseña debe tener al menos 8 caracteres')
       return false
     }
 
     // Validar que sea diferente a la actual
     if (passwordData.nuevaContraseña === passwordData.contraseñaActual) {
       setErrorPassword('La nueva contraseña debe ser diferente a la actual')
-      toast.error('La nueva contraseña debe ser diferente a la actual')
       return false
     }
 
     // Validar que coincidan
     if (passwordData.nuevaContraseña !== passwordData.confirmarContraseña) {
       setErrorPassword('Las contraseñas no coinciden')
-      toast.error('Las contraseñas no coinciden')
       return false
     }
 
@@ -290,7 +241,7 @@ function EditarPerfil() {
 
       const response = await api.put('/usuarios/perfil', {
         nombre: formData.nombre.trim(),
-        equipo: formData.equipo.trim()
+        equipo: (formData.equipo || '').trim()
       })
 
       await actualizarPerfil(response.data.usuario)
@@ -308,44 +259,29 @@ function EditarPerfil() {
   // GUARDAR FOTO DE PERFIL
   // ========================================
   const guardarFotoPerfil = async () => {
-    if (!validarFoto()) return false
+    if (!fotoData.archivo) return false
 
     try {
-      setGuardando(true)
+      const data = new FormData()
+      data.append('foto', fotoData.archivo)
 
-      if (fotoData.modoSubida === 'archivo' && fotoData.archivo) {
-        const data = new FormData()
-        data.append('foto', fotoData.archivo)
+      const response = await api.put('/usuarios/foto-perfil', data)
 
-        const response = await api.put('/usuarios/foto-perfil', data)
-        
-        await actualizarPerfil({
-          ...usuario,
-          fotoPerfil: response.data.fotoPerfil
-        })
+      await actualizarPerfil({
+        ...usuario,
+        fotoPerfil: response.data.fotoPerfil
+      })
 
-        setFotoData(prev => ({
-          ...prev,
-          preview: response.data.fotoPerfil
-        }))
+      setFotoData(prev => ({
+        ...prev,
+        preview: response.data.fotoPerfil
+      }))
 
-        return true
-      } else if (fotoData.modoSubida === 'url' && fotoData.url) {
-        const response = await api.put('/usuarios/perfil', {
-          fotoPerfil: fotoData.url
-        })
-
-        await actualizarPerfil(response.data.usuario)
-        return true
-      }
-
-      return false
+      return true
     } catch (error) {
       console.error('Error:', error)
       toast.error(error.response?.data?.error || 'Error al actualizar foto')
       return false
-    } finally {
-      setGuardando(false)
     }
   }
 
@@ -395,41 +331,63 @@ function EditarPerfil() {
   // ========================================
   const handleGuardarTodo = async (e) => {
     e.preventDefault()
-    
-    let cambiosRealizados = []
 
-    // 1. Guardar información personal
-    const infoGuardada = await guardarInformacionPersonal()
-    if (infoGuardada) cambiosRealizados.push('información personal')
-    
-    // 2. Guardar foto si hay cambios
-    if (fotoData.archivo || (fotoData.url && fotoData.url !== usuario?.fotoPerfil)) {
-      const fotoGuardada = await guardarFotoPerfil()
-      if (fotoGuardada) cambiosRealizados.push('foto de perfil')
-    }
-
-    // 3. CAMBIAR CONTRASEÑA - VALIDAR PRIMERO
+    // Validar contraseña localmente ANTES de hacer cualquier request
     const validacionPassword = validarContraseña()
-    
-    if (validacionPassword === true) {
-      // Validación OK → intentar cambiar
-      const passwordCambiada = await cambiarContraseña()
-      if (passwordCambiada) cambiosRealizados.push('contraseña')
-    } else if (validacionPassword === 'skip') {
-      // No completó campos de contraseña → skip sin error
-      // No hacer nada
-    } else {
-      // Validación falló → ya se mostró el error en validarContraseña()
-      // No continuar con el cambio de contraseña
-    }
+    if (validacionPassword === false) return
 
-    // 4. Mostrar resultado final
-    if (cambiosRealizados.length > 0) {
-      toast.success(`✅ Actualizado: ${cambiosRealizados.join(', ')}`)
-    } else if (validacionPassword === false) {
-      // Ya se mostró el error específico de contraseña
-    } else {
-      toast.error('No hay cambios para guardar')
+    setGuardando(true)  // ← bloquear formulario desde el inicio
+
+    try {
+      // Si el usuario quiere cambiar contraseña, verificar la actual PRIMERO
+      if (validacionPassword === true) {
+        try {
+          await api.post('/usuarios/verificar-password', {
+            contraseña: passwordData.contraseñaActual
+          })
+        } catch (error) {
+          const mensaje = error.response?.status === 401
+            ? 'La contraseña actual es incorrecta'
+            : error.response?.data?.error || 'Error al verificar contraseña'
+          setErrorPassword(mensaje)
+          toast.error(mensaje)
+          return  // sale del try/finally → setGuardando(false) se ejecuta igual
+        }
+      }
+
+      let cambiosRealizados = []
+
+      // Guardar información personal
+      const infoGuardada = await guardarInformacionPersonal()
+      if (!infoGuardada) return
+      cambiosRealizados.push('información personal')
+
+      // Guardar foto si hay cambios
+      if (fotoData.archivo) {
+        const fotoGuardada = await guardarFotoPerfil()
+        if (fotoGuardada) cambiosRealizados.push('foto de perfil')
+      }
+
+      // Cambiar contraseña (ya verificada)
+      if (validacionPassword === true) {
+        const passwordCambiada = await cambiarContraseña()
+        if (passwordCambiada) cambiosRealizados.push('contraseña')
+      }
+
+      // Resultado final
+      if (cambiosRealizados.length > 0) {
+        toast.success(`Actualizado: ${cambiosRealizados.join(', ')}`)
+        
+        // Si cambió la contraseña, dar un momento y volver al perfil
+        if (cambiosRealizados.includes('contraseña')) {
+          setTimeout(() => navigate('/perfil'), 2000)
+        }
+      } else {
+        toast.error('No hay cambios para guardar')
+      }
+
+    } finally {
+      setGuardando(false)  
     }
   }
 
@@ -510,14 +468,6 @@ function EditarPerfil() {
                   <Upload size={20} />
                   Subir Foto
                 </button>
-
-                <Form.Control
-                  type="url"
-                  placeholder="O pega una URL de imagen..."
-                  value={fotoData.url}
-                  onChange={handleUrlChange}
-                  disabled={guardando}
-                />
 
                 {fotoData.preview && (
                   <button

@@ -25,6 +25,7 @@ function ModalUsuario({ show, onHide, usuario, onGuardado }) {
     if (show && usuario) {
       setRolSeleccionado(usuario.rol)
       setPestañaActiva('info')
+      cargarConteos()
     }
   }, [show, usuario])
 
@@ -92,6 +93,26 @@ function ModalUsuario({ show, onHide, usuario, onGuardado }) {
     if (onGuardado) onGuardado()
   }
 
+  // ========================================
+  // CONTEOS PARA LAS PESTAÑAS 
+  // ========================================
+  const [conteos, setConteos] = useState({ compras: 0, alquileres: 0, historial: 0 })
+
+  const cargarConteos = async () => {
+    try {
+      const [comprasRes, alquileresRes] = await Promise.all([
+        api.get(`/usuarios/${usuario.id}/compras`),
+        api.get(`/usuarios/${usuario.id}/alquileres`)
+      ])
+      const compras = comprasRes.data.compras.activas?.length || 0
+      const alquileres = alquileresRes.data.alquileres.activos?.length || 0
+      const historial = (comprasRes.data.compras.vencidas?.length || 0) + (alquileresRes.data.alquileres.vencidos?.length || 0)
+      setConteos({ compras, alquileres, historial })
+    } catch (error) {
+      console.error('Error al cargar conteos:', error)
+    }
+  }  
+
   return (
     <Modal
       show={show}
@@ -145,19 +166,19 @@ function ModalUsuario({ show, onHide, usuario, onGuardado }) {
           className={`${styles.pestañaBtn} ${pestañaActiva === 'compras' ? styles.pestañaActiva : ''}`}
           onClick={() => setPestañaActiva('compras')}
         >
-          Compras
+          Compras ({conteos.compras})
         </button>
         <button
           className={`${styles.pestañaBtn} ${pestañaActiva === 'alquileres' ? styles.pestañaActiva : ''}`}
           onClick={() => setPestañaActiva('alquileres')}
         >
-          Alquileres
+          Alquileres ({conteos.alquileres})
         </button>
         <button
           className={`${styles.pestañaBtn} ${pestañaActiva === 'historial' ? styles.pestañaActiva : ''}`}
           onClick={() => setPestañaActiva('historial')}
         >
-          Historial
+          Historial ({conteos.historial})
         </button>
       </div>
 
