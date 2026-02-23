@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { Form, Button, Alert } from 'react-bootstrap'
+import { Form, Button} from 'react-bootstrap'
 import { Mail, Lock, Eye, EyeOff } from 'lucide-react'
 import { useAuth } from '../../contexts/AuthContext'
 import styles from './Login.module.css'
@@ -10,7 +10,7 @@ function Login() {
   // ========================================
   // CONTEXTO DE AUTENTICACIÓN
   // ========================================
-  const { login, cargando } = useAuth()
+  const { login } = useAuth()
   
   // ========================================
   // ESTADOS DEL FORMULARIO
@@ -19,6 +19,7 @@ function Login() {
   const [contraseña, setContraseña] = useState('')
   const [error, setError] = useState('')
   const [mostrarPassword, setMostrarPassword] = useState(false)
+  const [cargando, setCargando] = useState(false)
 
   // ========================================
   // FUNCIÓN PARA MANEJAR EL SUBMIT
@@ -27,24 +28,29 @@ function Login() {
     e.preventDefault()
     setError('')
 
-    // Validaciones básicas
     if (!email || !contraseña) {
       setError('Por favor completá todos los campos')
       return
     }
 
-    if (!email.includes('@')) {
+    const regexEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    if (!regexEmail.test(email)) {
       setError('Por favor ingresá un email válido')
       return
     }
 
-    // Intentar hacer login con el backend
+    if (contraseña.length < 8) {
+      setError('La contraseña debe tener al menos 8 caracteres')
+      return
+    }
+
+    setCargando(true)
     const resultado = await login(email, contraseña)
+    setCargando(false)
 
     if (!resultado.exito) {
       setError(resultado.mensaje)
     }
-    // Si fue exitoso, el AuthContext redirige automáticamente a /garage
   }
 
   return (
@@ -73,9 +79,9 @@ function Login() {
 
             {/* Mensaje de error */}
             {error && (
-              <Alert variant="danger" className={styles.alerta}>
+              <div className={styles.alerta}>
                 {error}
-              </Alert>
+              </div>
             )}
 
             {/* Formulario */}

@@ -84,36 +84,22 @@ export const AuthProvider = ({ children }) => {
   // ========================================
   const login = async (email, contraseña) => {
     try {
-      setCargando(true);
-      
-      // El backend argentino espera 'contraseña' (no 'password')
-      const response = await api.post('/auth/login', { email, contraseña });
-
-      const { token, usuario: usuarioData } = response.data;
-
-      // Guardar token en localStorage
-      localStorage.setItem('token', token);
-
-      // Actualizar estado del usuario
-      setUsuario(usuarioData);
-
-      // Redirigir al garage
-      navigate('/garage');
-
-      return {
-        exito: true,
-        mensaje: '¡Bienvenido de vuelta!'
-      };
+      const response = await api.post('/auth/login', { email, contraseña })
+      const { token, usuario: usuarioData } = response.data
+      localStorage.setItem('token', token)
+      setUsuario(usuarioData)
+      navigate('/garage')
+      return { exito: true, mensaje: '¡Bienvenido de vuelta!' }
     } catch (error) {
-      console.error('Error al iniciar sesión:', error);
+      console.error('Error al iniciar sesión:', error)
       return {
         exito: false,
-        mensaje: error.response?.data?.error || 'Error al iniciar sesión'
-      };
-    } finally {
-      setCargando(false);
+        mensaje: error.response?.data?.error
+              || error.response?.data?.mensaje
+              || 'Email o contraseña incorrectos'
+      }
     }
-  };
+  }
 
   // ========================================
   // FUNCIÓN: LOGOUT

@@ -87,6 +87,7 @@
   border-radius: 10px;
   margin-bottom: 1.5rem;
   font-size: 1.1rem;
+  padding: 10px 0px 10px 10px;
 }
 
 /* Formulario */
@@ -124,8 +125,8 @@
 }
 
 .input::placeholder {
-  color: #6a6a6a;
-  font-size: 1rem;
+  color: #868686 !important; 
+  opacity: 1;
 }
 
 .input:disabled {

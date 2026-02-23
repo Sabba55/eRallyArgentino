@@ -64,7 +64,7 @@ api.interceptors.response.use(
 
       if (status === 401) {
         // Rutas que usan 401 para validación, NO para token vencido
-        const rutasExcluidas = ['/usuarios/verificar-password', '/usuarios/cambiar-password']
+        const rutasExcluidas = ['/usuarios/verificar-password', '/usuarios/cambiar-password', '/auth/login']
         const esRutaExcluida = rutasExcluidas.some(ruta => error.response.config.url.includes(ruta))
 
         if (!esRutaExcluida) {
