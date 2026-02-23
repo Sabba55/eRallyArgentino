@@ -47,8 +47,12 @@ export const registro = async (req, res) => {
     // Crear token de verificación
     const tokenVerificacion = await TokenVerificacion.crearTokenEmail(nuevoUsuario.id);
 
-    // Enviar email de verificación
-    await enviarEmailVerificacion(email, nombre, tokenVerificacion.token);
+    // Enviar email de verificación (no bloquea el registro si falla)
+    try {
+      await enviarEmailVerificacion(email, nombre, tokenVerificacion.token)
+    } catch (emailError) {
+      console.warn('⚠️ No se pudo enviar email de verificación:', emailError.message)
+    }
 
     // Generar JWT para login automático
     const token = jwt.sign(

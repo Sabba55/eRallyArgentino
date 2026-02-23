@@ -49,35 +49,27 @@ export const AuthProvider = ({ children }) => {
   // ========================================
   const registrarse = async (datos) => {
     try {
-      setCargando(true);
-      
-      // El backend argentino espera 'contraseña' y 'confirmarContraseña'
       const datosBackend = {
         nombre: datos.nombre,
         email: datos.email,
         contraseña: datos.contraseña,
-        confirmarContraseña: datos.contraseña, // ← AGREGAR ESTO
+        confirmarContraseña: datos.contraseña,
         ...(datos.equipo && { equipo: datos.equipo })
-      };
-      
-      const response = await api.post('/auth/registro', datosBackend);
-
-      // El backend devuelve un mensaje de verificación por email
+      }
+      const response = await api.post('/auth/registro', datosBackend)
       return {
         exito: true,
         mensaje: response.data.mensaje || response.data.aviso,
         requiereVerificacion: true
-      };
+      }
     } catch (error) {
-      console.error('Error al registrarse:', error);
+      console.error('Error al registrarse:', error)
       return {
         exito: false,
         mensaje: error.response?.data?.error || 'Error al registrarse'
-      };
-    } finally {
-      setCargando(false);
+      }
     }
-  };
+  }
 
   // ========================================
   // FUNCIÓN: LOGIN

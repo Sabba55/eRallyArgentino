@@ -1,16 +1,16 @@
-import { useState } from 'react'
-import { Link } from 'react-router-dom'
-import { Form, Button, Alert, InputGroup } from 'react-bootstrap'
+import { useState, useEffect } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
+import { Form, Button, Alert } from 'react-bootstrap'
 import { Eye, EyeOff, Mail, Lock, User, Users } from 'lucide-react'
 import { useAuth } from '../../contexts/AuthContext'
 import styles from './Registro.module.css'
-import fotoRegistro from '../../assets/imagenes/login-foto.png'
+import fotoRegistro from '../../assets/imagenes/registro-foto.png'
 
 function Registro() {
   // ========================================
   // CONTEXTO DE AUTENTICACIÓN
   // ========================================
-  const { registrarse, cargando } = useAuth()
+  const { registrarse } = useAuth()
   
   // ========================================
   // ESTADOS DEL FORMULARIO
@@ -22,14 +22,27 @@ function Registro() {
   const [equipo, setEquipo] = useState('')
   const [error, setError] = useState('')
   const [exito, setExito] = useState(false)
-  
+  const [cargando, setCargando] = useState(false)
+
   // Estados para mostrar/ocultar contraseñas
   const [mostrarContraseña, setMostrarContraseña] = useState(false)
   const [mostrarConfirmarContraseña, setMostrarConfirmarContraseña] = useState(false)
 
+  const navigate = useNavigate()
+
+  useEffect(() => {
+    if (exito) {
+      const timer = setTimeout(() => {
+        navigate('/login')
+      }, 5000)
+      return () => clearTimeout(timer)
+    }
+  }, [exito])
+
   // ========================================
   // FUNCIÓN PARA MANEJAR EL SUBMIT
   // ========================================
+  
   const manejarSubmit = async (e) => {
     e.preventDefault()
     setError('')
@@ -41,7 +54,8 @@ function Registro() {
       return
     }
 
-    if (!email.includes('@')) {
+    const regexEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    if (!regexEmail.test(email)) {
       setError('Por favor ingresá un email válido')
       return
     }
@@ -65,7 +79,9 @@ function Registro() {
     }
 
     // Intentar registrarse con el backend
+    setCargando(true)
     const resultado = await registrarse(datosRegistro)
+    setCargando(false)
 
     if (resultado.exito) {
       setExito(true)
@@ -106,18 +122,15 @@ function Registro() {
 
             {/* Mensaje de éxito */}
             {exito && (
-              <Alert variant="success" className={styles.alerta}>
+              <div className={styles.alertaExito}>
                 <strong>¡Registro exitoso!</strong><br />
                 Te enviamos un email a <strong>{email}</strong> para verificar tu cuenta.
                 Por favor revisá tu casilla (y la carpeta de spam) y hacé click en el enlace de verificación.
-                <div className="mt-3">
-                  <Link to="/login" className="btn btn-success btn-sm">
-                    Ir al Login
-                  </Link>
-                </div>
-              </Alert>
+                <br /><br />
+                <em>Redirigiendo al login en 5 segundos...</em>
+              </div>
             )}
-
+            
             {/* Mensaje de error */}
             {error && (
               <Alert variant="danger" className={styles.alerta}>

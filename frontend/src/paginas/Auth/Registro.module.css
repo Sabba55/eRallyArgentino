@@ -278,6 +278,40 @@
 }
 
 /* ========================================
+   MENSAJE DE FINALIZACION
+   ======================================== */
+
+.alertaExito {
+  background-color: rgba(57, 255, 20, 0.1);
+  border: 2px solid #39ff14;
+  color: #39ff14;
+  border-radius: 10px;
+  padding: 1rem 1.5rem;
+  margin-bottom: 1.5rem;
+  font-size: 1.05rem;
+}
+
+.btnIrLogin {
+  display: inline-block;
+  padding: 0.6rem 1.5rem;
+  background: linear-gradient(135deg, #39ff14, #00d4ff);
+  color: #1a1a1a;
+  border-radius: 8px;
+  font-weight: 700;
+  text-decoration: none;
+  font-size: 0.95rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  transition: all 0.3s ease;
+}
+
+.btnIrLogin:hover {
+  background: linear-gradient(135deg, #00d4ff, #39ff14);
+  color: #1a1a1a;
+  transform: translateY(-2px);
+}
+
+/* ========================================
    RESPONSIVE - MOBILE
    ======================================== */
 
