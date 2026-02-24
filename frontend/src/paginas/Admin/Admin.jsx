@@ -19,6 +19,7 @@ function Admin() {
     usuarios: 0
   })
   const [cargando, setCargando] = useState(true)
+  const [transaccionesPendientes, setTransaccionesPendientes] = useState(0)
 
   // ========================================
   // CARGAR ESTADÍSTICAS
@@ -38,8 +39,8 @@ function Admin() {
             api.get('/categorias').then(res => res.data.categorias?.length || 0),
             // TODO: Cuando tengas el endpoint de rallies
             api.get('/rallies').then(res => res.data.rallies?.length || 0),
-            api.get('/pagos/compras').then(res => res.data.compras?.length || 0),
-            api.get('/pagos/alquileres').then(res => res.data.alquileres?.length || 0),
+            api.get('/admin/transacciones/compras').then(res => res.data.compras?.filter(c => c.estado === 'pendiente').length || 0),
+            api.get('/admin/transacciones/alquileres').then(res => res.data.alquileres?.filter(a => a.estado === 'pendiente').length || 0),
             api.get('/usuarios').then(res => res.data.paginacion?.total || 0)
           )
         } else {
@@ -52,16 +53,10 @@ function Admin() {
           )
         }
 
-        const [vehiculos, categorias, rallies, compras, alquileres, usuarios] = await Promise.all(requests)
+        const [vehiculos, categorias, rallies, comprasPendientes, alquileresPendientes, usuarios] = await Promise.all(requests)
 
-        setEstadisticas({
-          vehiculos,
-          categorias,
-          rallies,
-          compras,
-          alquileres,
-          usuarios
-        })
+        setEstadisticas({ vehiculos, categorias, rallies, compras: comprasPendientes, alquileres: alquileresPendientes, usuarios })
+        setTransaccionesPendientes(comprasPendientes + alquileresPendientes)
 
       } catch (error) {
         console.error('Error al cargar estadísticas:', error)
@@ -129,6 +124,13 @@ function Admin() {
       titulo: 'Usuarios',
       cantidad: estadisticas.usuarios,
       ruta: '/admin/usuarios',
+      roles: ['admin']
+    },
+    {
+      emoji: '💳',
+      titulo: 'Transacciones',
+      cantidad: transaccionesPendientes,
+      ruta: '/admin/transacciones',
       roles: ['admin']
     }
   ]

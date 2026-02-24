@@ -38,7 +38,7 @@ import AdminVehiculos from './paginas/Admin/Vehiculos/AdminVehiculos.jsx'
 import AdminCategorias from './paginas/Admin/Categorias/AdminCategorias'
 import AdminRallies from './paginas/Admin/Rallies/AdminRallies'
 import AdminUsuarios from './paginas/Admin/Usuarios/AdminUsuarios'
-
+import AdminTransacciones from './paginas/Admin/Transacciones/AdminTransacciones.jsx'
 
 import './App.css'
 
@@ -162,7 +162,14 @@ function App() {
                 <RutaProtegida rolesPermitidos={['admin']}>
                   <AdminUsuarios />
                 </RutaProtegida>
-              } />
+                }
+              />
+              <Route path="/admin/transacciones" element={
+                <RutaProtegida rolesPermitidos={['admin']}>
+                  <AdminTransacciones />
+                </RutaProtegida>
+                }
+              />
               {/* ========================================
                   RUTAS DE DESCARGAS (Públicas)
                   ======================================== */}

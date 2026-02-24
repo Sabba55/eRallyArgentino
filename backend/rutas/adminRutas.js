@@ -309,4 +309,254 @@ router.patch(
   }
 );
 
+// ========================================
+// LISTAR TODAS LAS COMPRAS (ADMIN)
+// GET /api/admin/transacciones/compras
+// ========================================
+router.get(
+  '/transacciones/compras',
+  verificarAutenticacion,
+  esAdmin,
+  async (req, res) => {
+    try {
+      const { Compra, Usuario, Vehiculo } = await import('../modelos/index.js')
+      const { estado } = req.query
+
+      const whereClause = {}
+      if (estado && estado !== 'todos') whereClause.estado = estado
+
+      const compras = await Compra.findAll({
+        where: whereClause,
+        include: [
+          {
+            model: Usuario,
+            as: 'Usuario',
+            attributes: ['id', 'nombre', 'email', 'equipo']
+          },
+          {
+            model: Vehiculo,
+            as: 'Vehiculo',
+            attributes: ['id', 'marca', 'nombre', 'foto']
+          }
+        ],
+        order: [['createdAt', 'DESC']]
+      })
+
+      res.json({ compras, total: compras.length })
+    } catch (error) {
+      console.error('Error al listar compras:', error)
+      res.status(500).json({ error: 'Error al listar compras', detalle: error.message })
+    }
+  }
+)
+
+// ========================================
+// LISTAR TODOS LOS ALQUILERES (ADMIN)
+// GET /api/admin/transacciones/alquileres
+// ========================================
+router.get(
+  '/transacciones/alquileres',
+  verificarAutenticacion,
+  esAdmin,
+  async (req, res) => {
+    try {
+      const { Alquiler, Usuario, Vehiculo, Rally } = await import('../modelos/index.js')
+      const { estado } = req.query
+
+      const whereClause = {}
+      if (estado && estado !== 'todos') whereClause.estado = estado
+
+      const alquileres = await Alquiler.findAll({
+        where: whereClause,
+        include: [
+          {
+            model: Usuario,
+            as: 'Usuario',
+            attributes: ['id', 'nombre', 'email', 'equipo']
+          },
+          {
+            model: Vehiculo,
+            as: 'Vehiculo',
+            attributes: ['id', 'marca', 'nombre', 'foto']
+          },
+          {
+            model: Rally,
+            as: 'Rally',
+            attributes: ['id', 'nombre', 'campeonato', 'fecha']
+          }
+        ],
+        order: [['createdAt', 'DESC']]
+      })
+
+      res.json({ alquileres, total: alquileres.length })
+    } catch (error) {
+      console.error('Error al listar alquileres:', error)
+      res.status(500).json({ error: 'Error al listar alquileres', detalle: error.message })
+    }
+  }
+)
+
+// ========================================
+// APROBAR COMPRA (ADMIN)
+// PATCH /api/admin/transacciones/compras/:id/aprobar
+// ========================================
+router.patch(
+  '/transacciones/compras/:id/aprobar',
+  verificarAutenticacion,
+  esAdmin,
+  [
+    param('id').isInt({ min: 1 }).withMessage('ID de compra inválido'),
+    manejarErroresValidacion
+  ],
+  async (req, res) => {
+    try {
+      const { Compra, Vehiculo, Usuario, Historial } = await import('../modelos/index.js')
+      const { enviarEmailCompra } = await import('../utilidades/enviarEmail.js')
+
+      const compra = await Compra.findByPk(req.params.id)
+      if (!compra) return res.status(404).json({ error: 'Compra no encontrada' })
+      if (compra.estado !== 'pendiente') return res.status(400).json({ error: 'Solo se pueden aprobar compras pendientes' })
+
+      await compra.aprobar()
+
+      // Registrar en historial
+      const vehiculo = await Vehiculo.findByPk(compra.vehiculoId)
+      const categorias = await vehiculo.getCategorias()
+      await Historial.crearRegistro({
+        usuarioId: compra.usuarioId,
+        vehiculoId: compra.vehiculoId,
+        rallyId: null,
+        categoriaNombre: categorias[0]?.nombre || 'Sin categoría',
+        tipoTransaccion: 'compra',
+        fechaParticipacion: new Date()
+      })
+
+      // Enviar email
+      try {
+        const usuario = await Usuario.findByPk(compra.usuarioId)
+        await enviarEmailCompra(usuario.email, usuario.nombre, vehiculo.nombreCompleto())
+      } catch (emailError) {
+        console.warn('⚠️ No se pudo enviar email de compra:', emailError.message)
+      }
+
+      res.json({ mensaje: 'Compra aprobada exitosamente', compra })
+    } catch (error) {
+      console.error('Error al aprobar compra:', error)
+      res.status(500).json({ error: 'Error al aprobar compra', detalle: error.message })
+    }
+  }
+)
+
+// ========================================
+// RECHAZAR COMPRA (ADMIN)
+// PATCH /api/admin/transacciones/compras/:id/rechazar
+// ========================================
+router.patch(
+  '/transacciones/compras/:id/rechazar',
+  verificarAutenticacion,
+  esAdmin,
+  [
+    param('id').isInt({ min: 1 }).withMessage('ID de compra inválido'),
+    manejarErroresValidacion
+  ],
+  async (req, res) => {
+    try {
+      const { Compra } = await import('../modelos/index.js')
+
+      const compra = await Compra.findByPk(req.params.id)
+      if (!compra) return res.status(404).json({ error: 'Compra no encontrada' })
+      if (compra.estado !== 'pendiente') return res.status(400).json({ error: 'Solo se pueden rechazar compras pendientes' })
+
+      await compra.rechazar()
+
+      res.json({ mensaje: 'Compra rechazada', compra })
+    } catch (error) {
+      console.error('Error al rechazar compra:', error)
+      res.status(500).json({ error: 'Error al rechazar compra', detalle: error.message })
+    }
+  }
+)
+
+// ========================================
+// APROBAR ALQUILER (ADMIN)
+// PATCH /api/admin/transacciones/alquileres/:id/aprobar
+// ========================================
+router.patch(
+  '/transacciones/alquileres/:id/aprobar',
+  verificarAutenticacion,
+  esAdmin,
+  [
+    param('id').isInt({ min: 1 }).withMessage('ID de alquiler inválido'),
+    manejarErroresValidacion
+  ],
+  async (req, res) => {
+    try {
+      const { Alquiler, Vehiculo, Rally, Usuario, Historial } = await import('../modelos/index.js')
+      const { enviarEmailAlquiler } = await import('../utilidades/enviarEmail.js')
+
+      const alquiler = await Alquiler.findByPk(req.params.id)
+      if (!alquiler) return res.status(404).json({ error: 'Alquiler no encontrado' })
+      if (alquiler.estado !== 'pendiente') return res.status(400).json({ error: 'Solo se pueden aprobar alquileres pendientes' })
+
+      await alquiler.aprobar()
+
+      // Registrar en historial
+      const vehiculo = await Vehiculo.findByPk(alquiler.vehiculoId)
+      const rally = await Rally.findByPk(alquiler.rallyId)
+      const categorias = await vehiculo.getCategorias()
+      await Historial.crearRegistro({
+        usuarioId: alquiler.usuarioId,
+        vehiculoId: alquiler.vehiculoId,
+        rallyId: alquiler.rallyId,
+        categoriaNombre: categorias[0]?.nombre || 'Sin categoría',
+        tipoTransaccion: 'alquiler',
+        fechaParticipacion: rally.fecha
+      })
+
+      // Enviar email
+      try {
+        const usuario = await Usuario.findByPk(alquiler.usuarioId)
+        await enviarEmailAlquiler(usuario.email, usuario.nombre, vehiculo.nombreCompleto(), rally.nombre, rally.fecha)
+      } catch (emailError) {
+        console.warn('⚠️ No se pudo enviar email de alquiler:', emailError.message)
+      }
+
+      res.json({ mensaje: 'Alquiler aprobado exitosamente', alquiler })
+    } catch (error) {
+      console.error('Error al aprobar alquiler:', error)
+      res.status(500).json({ error: 'Error al aprobar alquiler', detalle: error.message })
+    }
+  }
+)
+
+// ========================================
+// RECHAZAR ALQUILER (ADMIN)
+// PATCH /api/admin/transacciones/alquileres/:id/rechazar
+// ========================================
+router.patch(
+  '/transacciones/alquileres/:id/rechazar',
+  verificarAutenticacion,
+  esAdmin,
+  [
+    param('id').isInt({ min: 1 }).withMessage('ID de alquiler inválido'),
+    manejarErroresValidacion
+  ],
+  async (req, res) => {
+    try {
+      const { Alquiler } = await import('../modelos/index.js')
+
+      const alquiler = await Alquiler.findByPk(req.params.id)
+      if (!alquiler) return res.status(404).json({ error: 'Alquiler no encontrado' })
+      if (alquiler.estado !== 'pendiente') return res.status(400).json({ error: 'Solo se pueden rechazar alquileres pendientes' })
+
+      await alquiler.rechazar()
+
+      res.json({ mensaje: 'Alquiler rechazado', alquiler })
+    } catch (error) {
+      console.error('Error al rechazar alquiler:', error)
+      res.status(500).json({ error: 'Error al rechazar alquiler', detalle: error.message })
+    }
+  }
+)
+
 export default router;

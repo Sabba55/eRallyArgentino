@@ -11,6 +11,7 @@ import ralliesRutas from './rutas/ralliesRutas.js';
 import categoriasRutas from './rutas/categoriasRutas.js';
 import pagosRutas from './rutas/pagosRutas.js';
 import historialesRutas from './rutas/historialesRutas.js';
+import adminRutas from './rutas/adminRutas.js';
 
 // Importar tareas programadas
 import { iniciarTareasProgramadas } from './tareas/limpiarVencimientos.js';
@@ -91,6 +92,7 @@ app.use('/api/rallies', ralliesRutas);
 app.use('/api/categorias', categoriasRutas);
 app.use('/api/pagos', pagosRutas);
 app.use('/api/historiales', historialesRutas);
+app.use('/api/admin', adminRutas);
 
 // ========================================
 // MANEJO DE ERRORES
