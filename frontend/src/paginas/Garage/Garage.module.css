@@ -156,7 +156,6 @@
 .tarjeta:hover {
   border-color: #00d4ff;
   box-shadow: 0 8px 30px rgba(0, 212, 255, 0.4);
-  transform: translateY(-5px);
 }
 
 /* Foto de la tarjeta */

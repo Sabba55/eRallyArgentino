@@ -138,72 +138,67 @@ export const AuthProvider = ({ children }) => {
   // ========================================
   const verificarEmail = async (token) => {
     try {
-      setCargando(true);
-      const response = await api.post('/auth/verificar-email', { token });
-
+      const response = await api.get(`/auth/verificar/${token}`)
+      
+      // Actualizar el usuario en el contexto
+      if (usuario) {
+        setUsuario(prev => ({ ...prev, emailVerificado: true }))
+      }
+      
       return {
         exito: true,
         mensaje: response.data.mensaje
-      };
+      }
     } catch (error) {
-      console.error('Error al verificar email:', error);
+      console.error('Error al verificar email:', error)
       return {
         exito: false,
         mensaje: error.response?.data?.error || 'Error al verificar email'
-      };
-    } finally {
-      setCargando(false);
+      }
     }
-  };
+  }
 
   // ========================================
   // FUNCIÓN: SOLICITAR RECUPERACIÓN DE CONTRASEÑA
   // ========================================
   const solicitarRecuperacion = async (email) => {
     try {
-      setCargando(true);
-      const response = await api.post('/auth/solicitar-recuperacion', { email });
-
+      const response = await api.post('/auth/recuperar-password', { email })  // ← cambiar acá
       return {
         exito: true,
         mensaje: response.data.mensaje
-      };
+      }
     } catch (error) {
-      console.error('Error al solicitar recuperación:', error);
+      console.error('Error al solicitar recuperación:', error)
       return {
         exito: false,
         mensaje: error.response?.data?.error || 'Error al solicitar recuperación'
-      };
-    } finally {
-      setCargando(false);
+      }
     }
-  };
+  }
 
   // ========================================
   // FUNCIÓN: RESETEAR CONTRASEÑA
   // ========================================
   const resetearContraseña = async (token, nuevaContraseña) => {
     try {
-      setCargando(true);
       const response = await api.post('/auth/resetear-password', {
         token,
-        nuevaContraseña // Backend argentino espera 'nuevaContraseña'
-      });
-
+        nuevaContraseña,
+        confirmarContraseña: nuevaContraseña  // ← agregar esto
+      })
       return {
         exito: true,
         mensaje: response.data.mensaje
-      };
+      }
     } catch (error) {
-      console.error('Error al resetear contraseña:', error);
+      console.error('Error al resetear contraseña:', error)
       return {
         exito: false,
         mensaje: error.response?.data?.error || 'Error al resetear contraseña'
-      };
-    } finally {
-      setCargando(false);
+      }
     }
-  };
+  }
 
   // ========================================
   // FUNCIÓN: REENVIAR VERIFICACIÓN

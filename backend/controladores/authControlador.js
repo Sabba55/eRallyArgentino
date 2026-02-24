@@ -71,7 +71,8 @@ export const registro = async (req, res) => {
         equipo: nuevoUsuario.equipo,
         fotoPerfil: nuevoUsuario.fotoPerfil,
         rol: nuevoUsuario.rol,
-        emailVerificado: nuevoUsuario.emailVerificado
+        emailVerificado: nuevoUsuario.emailVerificado,
+        createdAt: nuevoUsuario.createdAt
       },
       aviso: 'Revisá tu email para verificar tu cuenta'
     });
@@ -145,7 +146,8 @@ export const login = async (req, res) => {
         equipo: usuario.equipo,
         fotoPerfil: usuario.fotoPerfil,
         rol: usuario.rol,
-        emailVerificado: usuario.emailVerificado
+        emailVerificado: usuario.emailVerificado,
+        createdAt: usuario.createdAt
       }
     });
   } catch (error) {
@@ -254,22 +256,22 @@ export const reenviarVerificacion = async (req, res) => {
 export const solicitarRecuperacion = async (req, res) => {
   try {
     const { email } = req.body;
-
     const usuario = await Usuario.findOne({ where: { email } });
 
-    // Por seguridad, siempre devolvemos el mismo mensaje
-    // (no revelar si el email existe o no)
     if (!usuario) {
       return res.json({
         mensaje: 'Si el email existe, recibirás un link de recuperación'
       });
     }
 
-    // Crear token de recuperación
     const tokenRecuperacion = await TokenVerificacion.crearTokenRecuperacion(usuario.id);
 
-    // Enviar email
-    await enviarEmailRecuperacion(usuario.email, usuario.nombre, tokenRecuperacion.token);
+    // ← Protegido igual que en registro
+    try {
+      await enviarEmailRecuperacion(usuario.email, usuario.nombre, tokenRecuperacion.token);
+    } catch (emailError) {
+      console.warn('⚠️ No se pudo enviar email de recuperación:', emailError.message)
+    }
 
     res.json({
       mensaje: 'Si el email existe, recibirás un link de recuperación'
@@ -342,7 +344,8 @@ export const obtenerUsuarioActual = async (req, res) => {
         equipo: usuario.equipo,
         fotoPerfil: usuario.fotoPerfil,
         rol: usuario.rol,
-        emailVerificado: usuario.emailVerificado
+        emailVerificado: usuario.emailVerificado,
+        createdAt: usuario.createdAt
       }
     });
   } catch (error) {

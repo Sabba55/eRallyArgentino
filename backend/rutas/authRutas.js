@@ -12,6 +12,7 @@ import {
 import { verificarAutenticacion } from '../middlewares/autenticacion.js';
 import { emailNoVerificado } from '../middlewares/emailVerificado.js';
 import { manejarErroresValidacion } from '../middlewares/validaciones.js';
+import { limitarLogin, limitarRegistro, limitarRecuperacion } from '../middlewares/rateLimiting.js'
 
 const router = express.Router();
 
@@ -21,6 +22,7 @@ const router = express.Router();
 // ========================================
 router.post(
   '/registro',
+  limitarRegistro,
   [
     body('nombre')
       .trim()
@@ -67,6 +69,7 @@ router.post(
 // ========================================
 router.post(
   '/login',
+  limitarLogin,
   [
     body('email')
       .trim()
@@ -106,6 +109,7 @@ router.post(
 // ========================================
 router.post(
   '/recuperar-password',
+  limitarRecuperacion,
   [
     body('email')
       .trim()

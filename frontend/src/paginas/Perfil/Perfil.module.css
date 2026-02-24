@@ -353,6 +353,91 @@
 }
 
 /* ========================================
+   BANNER EMAIL NO VERIFICADO
+   ======================================== */
+.bannerNoVerificado {
+  background: rgba(255, 165, 0, 0.1);
+  border: 2px solid #ffa500;
+  border-radius: 15px;
+  padding: 1.5rem 2rem;
+  margin-bottom: 3rem;
+}
+
+.bannerContenido {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+}
+
+.bannerTexto {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.bannerIcono {
+  font-size: 1.8rem;
+  flex-shrink: 0;
+}
+
+.bannerTexto strong {
+  display: block;
+  color: #ffa500;
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin-bottom: 0.3rem;
+}
+
+.bannerTexto p {
+  color: #a0a0a0;
+  font-size: 0.95rem;
+  margin: 0;
+}
+
+.btnReenviar {
+  flex-shrink: 0;
+  padding: 0.8rem 1.8rem;
+  background: transparent;
+  border: 2px solid #ffa500;
+  color: #ffa500;
+  border-radius: 10px;
+  font-weight: 700;
+  font-size: 0.95rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+}
+
+.btnReenviar:hover:not(:disabled) {
+  background: #ffa500;
+  color: #1a1a1a;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(255, 165, 0, 0.4);
+}
+
+.btnReenviar:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  transform: none;
+  border-color: #39ff14;
+  color: #39ff14;
+}
+
+.bannerError {
+  color: #ff6b6b;
+  font-size: 0.9rem;
+  margin: 0.8rem 0 0 0;
+}
+
+.bannerIcono {
+  color: #ffa500;
+  flex-shrink: 0;
+}
+
+/* ========================================
    RESPONSIVE
    ======================================== */
 
@@ -536,6 +621,16 @@
   .btnCerrarSesion {
     padding: 0.85rem 2rem;
     font-size: 0.95rem;
+  }
+
+    .bannerContenido {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .btnReenviar {
+    width: 100%;
+    text-align: center;
   }
 }
 

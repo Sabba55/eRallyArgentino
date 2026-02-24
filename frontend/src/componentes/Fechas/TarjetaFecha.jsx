@@ -10,6 +10,13 @@ function TarjetaFecha({ rally, colores }) {
     return `${dia}/${mes}/${año}`
   }
 
+  const formatearHora = (fechaISO) => {
+    const fecha = new Date(fechaISO)
+    const horas = String(fecha.getHours()).padStart(2, '0')
+    const minutos = String(fecha.getMinutes()).padStart(2, '0')
+    return `${horas}:${minutos}`
+  }
+
   return (
     <div className={styles.tarjetaFecha}>
       
@@ -58,7 +65,9 @@ function TarjetaFecha({ rally, colores }) {
                 d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" 
               />
             </svg>
-            <span className={styles.textoFecha}>{formatearFecha(rally.fecha)}</span>
+            <span className={styles.textoFecha}>
+              {formatearHora(rally.fecha)} | {formatearFecha(rally.fecha)}
+            </span>
           </div>
 
           {/* 3er Div - Contactos */}

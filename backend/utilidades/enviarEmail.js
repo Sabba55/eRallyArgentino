@@ -5,7 +5,7 @@ const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
     user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASSWORD
+    pass: process.env.EMAIL_PASS
   }
 });
 
@@ -25,7 +25,7 @@ export const enviarEmailVerificacion = async (email, nombre, token) => {
           <h1 style="color: #2c3e50;">¡Hola ${nombre}! 👋</h1>
           
           <p style="font-size: 16px; color: #34495e;">
-            ¡Bienvenido a <strong>eRally Argentino</strong>! Estás a un paso de acceder a tu garage virtual.
+            ¡Bienvenido a <strong>eRally Argentino</strong>!
           </p>
 
           <p style="font-size: 16px; color: #34495e;">

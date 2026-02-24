@@ -1,5 +1,3 @@
-import './test.js'
-
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import { Container } from 'react-bootstrap'
 
@@ -21,6 +19,9 @@ import Footer from './componentes/layout/Footer'
 import Inicio from './paginas/Inicio/Inicio'
 import Login from './paginas/Auth/Login'
 import Registro from './paginas/Auth/Registro'
+import VerificarEmail from './paginas/Auth/VerificarEmail'
+import RecuperarPassword from './paginas/Auth/RecuperarPassword'
+import ResetearPassword from './paginas/Auth/ResetearPassword'
 import Tienda from './paginas/Tienda/Tienda'
 import Fechas from './paginas/Fechas/Fechas'
 import Garage from './paginas/Garage/Garage'
@@ -80,6 +81,13 @@ function App() {
                 } 
               />
               
+              <Route 
+                path="/verificar-email/:token" 
+                element={<VerificarEmail />
+                } 
+              />
+              <Route path="/recuperar-password" element={<RecuperarPassword />} />
+              <Route path="/resetear-password/:token" element={<ResetearPassword />} />
               {/* ========================================
                   RUTAS PROTEGIDAS (Requieren login)
                   ======================================== */}

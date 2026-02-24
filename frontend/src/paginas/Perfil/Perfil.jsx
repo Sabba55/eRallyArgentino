@@ -2,15 +2,23 @@ import { useState, useEffect} from 'react'
 import api from '../../config/api'
 import { Container } from 'react-bootstrap'
 import { Link } from 'react-router-dom'
-import { Edit, ShoppingCart, Calendar, Mail, Users, Clock, Shield } from 'lucide-react'
+import { Edit, ShoppingCart, Calendar, Mail, Users, Clock, Shield, AlertTriangle } from 'lucide-react'
 import { useAuth } from '../../contexts/AuthContext'
 import styles from './Perfil.module.css'
+
 
 function Perfil() {
   // ========================================
   // OBTENER USUARIO DEL CONTEXTO
   // ========================================
-  const { usuario, cargando } = useAuth()
+  const { usuario, cargando, reenviarVerificacion } = useAuth()
+
+  // ========================================
+  // ESTADOS
+  // ========================================
+  const [reenvioEnviando, setReenvioEnviando] = useState(false)
+  const [reenvioEnviado, setReenvioEnviado] = useState(false)
+  const [reenvioError, setReenvioError] = useState('')
 
   // ========================================
   // OBTENER INICIALES DEL NOMBRE
@@ -92,6 +100,22 @@ function Perfil() {
 
     cargarGarage()
   }, [usuario])
+
+  // ========================================
+  // VERIFICAR MI CUENTA
+  // ========================================
+  const handleReenviarVerificacion = async () => {
+    setReenvioEnviando(true)
+    setReenvioError('')
+    const resultado = await reenviarVerificacion()
+    setReenvioEnviando(false)
+
+    if (resultado.exito) {
+      setReenvioEnviado(true)
+    } else {
+      setReenvioError(resultado.mensaje)
+    }
+  }
 
   // ========================================
   // LOADING STATE
@@ -198,6 +222,31 @@ function Perfil() {
           </div>
 
         </div>
+
+        {/* BANNER - Email no verificado */}
+        {!usuario.emailVerificado && (
+          <div className={styles.bannerNoVerificado}>
+            <div className={styles.bannerContenido}>
+              <div className={styles.bannerTexto}>
+                <AlertTriangle className={styles.bannerIcono} size={50} />
+                <div>
+                  <strong>Tu email no está verificado</strong>
+                  <p>No podés realizar compras ni alquileres hasta verificar tu cuenta.</p>
+                </div>
+              </div>
+              <button
+                className={styles.btnReenviar}
+                onClick={handleReenviarVerificacion}
+                disabled={reenvioEnviado || reenvioEnviando}
+              >
+                {reenvioEnviando ? 'Enviando...' : reenvioEnviado ? '✓ Email enviado' : 'Reenviar verificación'}
+              </button>
+            </div>
+            {reenvioError && (
+              <p className={styles.bannerError}>{reenvioError}</p>
+            )}
+          </div>
+        )}
 
         {/* ESTADÍSTICAS */}
         <div className={styles.seccionEstadisticas}>

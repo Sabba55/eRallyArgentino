@@ -134,7 +134,7 @@ function Login() {
 
               {/* Link olvidaste contraseña */}
               <div className={styles.linkOlvido}>
-                <Link to="/recuperar-contraseña" className={styles.link}>
+                <Link to="/recuperar-password" className={styles.link}>
                   ¿Olvidaste tu contraseña?
                 </Link>
               </div>

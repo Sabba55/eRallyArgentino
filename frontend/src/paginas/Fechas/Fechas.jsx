@@ -133,7 +133,7 @@ function Fechas() {
   const countdown = useCuentaRegresiva(proximaFecha?.fecha)
 
   // ========================================
-  // FORMATEAR FECHA
+  // FORMATEAR FECHA Y HORA
   // ========================================
   const formatearFecha = (fechaISO) => {
     const fecha = new Date(fechaISO)
@@ -141,6 +141,13 @@ function Fechas() {
     const mes = String(fecha.getMonth() + 1).padStart(2, '0')
     const año = fecha.getFullYear()
     return `${dia}/${mes}/${año}`
+  }
+
+  const formatearHora = (fechaISO) => {
+    const fecha = new Date(fechaISO)
+    const horas = String(fecha.getHours()).padStart(2, '0')
+    const minutos = String(fecha.getMinutes()).padStart(2, '0')
+    return `${horas}:${minutos}`
   }
 
   // ========================================
@@ -256,8 +263,10 @@ function Fechas() {
               <div className={styles.ladoInfo}>
                 <p className={styles.labelProxima}>PRÓXIMA FECHA</p>
                 <h1 className={styles.nombreRally}>{proximaFecha.nombre}</h1>
-                <p className={styles.fechaRally}>{formatearFecha(proximaFecha.fecha)}</p>
-                
+                <p className={styles.fechaRally}>
+                  {formatearHora(proximaFecha.fecha)} | {formatearFecha(proximaFecha.fecha)}
+                </p>         
+                       
                 {/* Countdown */}
                 <div className={styles.countdown}>
                   <div className={styles.cuadradoTiempo}>
