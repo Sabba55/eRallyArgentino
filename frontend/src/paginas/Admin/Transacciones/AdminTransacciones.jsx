@@ -6,32 +6,26 @@ import toast from 'react-hot-toast'
 import styles from './AdminTransacciones.module.css'
 
 function AdminTransacciones() {
-  // ========================================
-  // ESTADOS
-  // ========================================
   const [pestañaActiva, setPestañaActiva] = useState('compras')
 
-  // Compras
   const [compras, setCompras] = useState([])
   const [cargandoCompras, setCargandoCompras] = useState(true)
-  const [filtroCompras, setFiltroCompras] = useState('todos')
+  const [filtroEstadoCompras, setFiltroEstadoCompras] = useState('todos')
+  const [filtroMetodoCompras, setFiltroMetodoCompras] = useState('todos')
+  const [busquedaCompras, setBusquedaCompras] = useState('')
 
-  // Alquileres
   const [alquileres, setAlquileres] = useState([])
   const [cargandoAlquileres, setCargandoAlquileres] = useState(true)
-  const [filtroAlquileres, setFiltroAlquileres] = useState('todos')
+  const [filtroEstadoAlquileres, setFiltroEstadoAlquileres] = useState('todos')
+  const [filtroMetodoAlquileres, setFiltroMetodoAlquileres] = useState('todos')
+  const [busquedaAlquileres, setBusquedaAlquileres] = useState('')
 
-  // Ordenamiento
   const [ordenarPor, setOrdenarPor] = useState(null)
+  const [ocultarViejos, setOcultarViejos] = useState(true)
   const [direccionOrden, setDireccionOrden] = useState('asc')
-
-  // Paginación
   const [paginaActual, setPaginaActual] = useState(1)
   const itemsPorPagina = 10
 
-  // ========================================
-  // CARGAR DATOS
-  // ========================================
   useEffect(() => {
     cargarCompras()
     cargarAlquileres()
@@ -43,7 +37,6 @@ function AdminTransacciones() {
       const res = await api.get('/admin/transacciones/compras')
       setCompras(res.data.compras || [])
     } catch (error) {
-      console.error('Error al cargar compras:', error)
       toast.error('Error al cargar compras')
     } finally {
       setCargandoCompras(false)
@@ -56,16 +49,12 @@ function AdminTransacciones() {
       const res = await api.get('/admin/transacciones/alquileres')
       setAlquileres(res.data.alquileres || [])
     } catch (error) {
-      console.error('Error al cargar alquileres:', error)
       toast.error('Error al cargar alquileres')
     } finally {
       setCargandoAlquileres(false)
     }
   }
 
-  // ========================================
-  // APROBAR / RECHAZAR
-  // ========================================
   const aprobarCompra = async (id) => {
     if (!window.confirm('¿Aprobar esta compra?')) return
     try {
@@ -73,7 +62,7 @@ function AdminTransacciones() {
       toast.success('Compra aprobada')
       cargarCompras()
     } catch (error) {
-      toast.error(error.response?.data?.error || 'Error al aprobar compra')
+      toast.error(error.response?.data?.error || 'Error al aprobar')
     }
   }
 
@@ -84,7 +73,7 @@ function AdminTransacciones() {
       toast.success('Compra rechazada')
       cargarCompras()
     } catch (error) {
-      toast.error(error.response?.data?.error || 'Error al rechazar compra')
+      toast.error(error.response?.data?.error || 'Error al rechazar')
     }
   }
 
@@ -95,7 +84,7 @@ function AdminTransacciones() {
       toast.success('Alquiler aprobado')
       cargarAlquileres()
     } catch (error) {
-      toast.error(error.response?.data?.error || 'Error al aprobar alquiler')
+      toast.error(error.response?.data?.error || 'Error al aprobar')
     }
   }
 
@@ -106,16 +95,13 @@ function AdminTransacciones() {
       toast.success('Alquiler rechazado')
       cargarAlquileres()
     } catch (error) {
-      toast.error(error.response?.data?.error || 'Error al rechazar alquiler')
+      toast.error(error.response?.data?.error || 'Error al rechazar')
     }
   }
 
-  // ========================================
-  // FILTRADO Y ORDENAMIENTO
-  // ========================================
   const manejarOrden = (columna) => {
     if (ordenarPor === columna) {
-      setDireccionOrden(direccionOrden === 'asc' ? 'desc' : 'asc')
+      setDireccionOrden(d => d === 'asc' ? 'desc' : 'asc')
     } else {
       setOrdenarPor(columna)
       setDireccionOrden('asc')
@@ -130,10 +116,25 @@ function AdminTransacciones() {
       : <ChevronDown size={16} style={{ color: '#39ff14', marginLeft: '6px' }} />
   }
 
-  const comprasFiltradas = useMemo(() => {
-    let resultado = compras.filter(c =>
-      filtroCompras === 'todos' || c.estado === filtroCompras
-    )
+  const aplicarFiltrosYOrden = (datos, filtroBusqueda, filtroEstado, filtroMetodo) => {
+    const hace30dias = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)
+
+    let resultado = datos.filter(item => {
+      const usuario = item.Usuario
+      const cumpleBusqueda = filtroBusqueda === '' ||
+        usuario?.nombre?.toLowerCase().includes(filtroBusqueda.toLowerCase()) ||
+        usuario?.email?.toLowerCase().includes(filtroBusqueda.toLowerCase())
+      const cumpleEstado = filtroEstado === 'todos' || item.estado === filtroEstado
+      const cumpleMetodo = filtroMetodo === 'todos' || item.metodoPago === filtroMetodo
+
+      // ← NUEVO
+      const esViejoYCerrado = ['rechazado', 'vencido', 'rally_cancelado'].includes(item.estado) &&
+        new Date(item.updatedAt) < hace30dias
+      if (ocultarViejos && esViejoYCerrado) return false
+
+      return cumpleBusqueda && cumpleEstado && cumpleMetodo
+    })
+
     if (ordenarPor) {
       resultado = [...resultado].sort((a, b) => {
         let valA, valB
@@ -148,72 +149,60 @@ function AdminTransacciones() {
       })
     }
     return resultado
-  }, [compras, filtroCompras, ordenarPor, direccionOrden])
+  }
 
-  const alquileresFiltrados = useMemo(() => {
-    let resultado = alquileres.filter(a =>
-      filtroAlquileres === 'todos' || a.estado === filtroAlquileres
-    )
-    if (ordenarPor) {
-      resultado = [...resultado].sort((a, b) => {
-        let valA, valB
-        if (ordenarPor === 'usuario') { valA = a.Usuario?.nombre?.toLowerCase() || ''; valB = b.Usuario?.nombre?.toLowerCase() || '' }
-        else if (ordenarPor === 'vehiculo') { valA = `${a.Vehiculo?.marca} ${a.Vehiculo?.nombre}`.toLowerCase(); valB = `${b.Vehiculo?.marca} ${b.Vehiculo?.nombre}`.toLowerCase() }
-        else if (ordenarPor === 'monto') { valA = parseFloat(a.monto); valB = parseFloat(b.monto) }
-        else if (ordenarPor === 'fecha') { valA = new Date(a.createdAt); valB = new Date(b.createdAt) }
-        else { valA = a[ordenarPor]; valB = b[ordenarPor] }
-        if (valA < valB) return direccionOrden === 'asc' ? -1 : 1
-        if (valA > valB) return direccionOrden === 'asc' ? 1 : -1
-        return 0
-      })
-    }
-    return resultado
-  }, [alquileres, filtroAlquileres, ordenarPor, direccionOrden])
+  const comprasFiltradas = useMemo(() =>
+    aplicarFiltrosYOrden(compras, busquedaCompras, filtroEstadoCompras, filtroMetodoCompras),
+    [compras, busquedaCompras, filtroEstadoCompras, filtroMetodoCompras, ordenarPor, direccionOrden, ocultarViejos]
+  )
 
-  // ========================================
-  // PAGINACIÓN
-  // ========================================
+  const alquileresFiltrados = useMemo(() =>
+    aplicarFiltrosYOrden(alquileres, busquedaAlquileres, filtroEstadoAlquileres, filtroMetodoAlquileres),
+    [alquileres, busquedaAlquileres, filtroEstadoAlquileres, filtroMetodoAlquileres, ordenarPor, direccionOrden, ocultarViejos]
+  )
+
   const datosPaginados = (datos) => {
     const ultimo = paginaActual * itemsPorPagina
-    const primero = ultimo - itemsPorPagina
-    return datos.slice(primero, ultimo)
+    return datos.slice(ultimo - itemsPorPagina, ultimo)
   }
 
   const totalPaginas = (datos) => Math.ceil(datos.length / itemsPorPagina)
 
-  // ========================================
-  // HELPERS
-  // ========================================
   const formatearPrecio = (precio, moneda) => {
     const num = Math.floor(parseFloat(precio)).toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.')
     return moneda === 'USD' ? `USD ${num}` : `$${num}`
   }
 
-  const formatearFecha = (fecha) => {
-    return new Date(fecha).toLocaleDateString('es-AR', {
-      day: '2-digit', month: '2-digit', year: '2-digit',
-      hour: '2-digit', minute: '2-digit'
-    })
-  }
+  const formatearFecha = (fecha) => new Date(fecha).toLocaleDateString('es-AR', {
+    day: '2-digit', month: '2-digit', year: '2-digit',
+    hour: '2-digit', minute: '2-digit',
+    hour12: false   
+  })
 
   const BadgeEstado = ({ estado }) => {
     const config = {
-      pendiente:  { label: 'Pendiente',  clase: styles.badgePendiente },
-      aprobado:   { label: 'Aprobado',   clase: styles.badgeAprobado },
-      rechazado:  { label: 'Rechazado',  clase: styles.badgeRechazado },
-      vencido:    { label: 'Vencido',    clase: styles.badgeVencido },
+      pendiente: { label: 'Pendiente', clase: styles.badgePendiente },
+      aprobado: { label: 'Aprobado', clase: styles.badgeAprobado },
+      rechazado: { label: 'Rechazado', clase: styles.badgeRechazado },
+      vencido: { label: 'Vencido', clase: styles.badgeVencido },
       rally_cancelado: { label: 'Rally cancelado', clase: styles.badgeVencido }
     }
     const c = config[estado] || config.pendiente
     return <span className={c.clase}>{c.label}</span>
   }
 
+  const LogoMetodo = ({ metodo }) => (
+    <img
+      src={`/logos/${metodo === 'PayPal' ? 'paypal.png' : 'mercadopago.png'}`}
+      alt={metodo}
+      className={styles.logoMetodo}
+      title={metodo}
+    />
+  )
+
   const pendientesCompras = compras.filter(c => c.estado === 'pendiente').length
   const pendientesAlquileres = alquileres.filter(a => a.estado === 'pendiente').length
 
-  // ========================================
-  // RENDER
-  // ========================================
   return (
     <div className={styles.contenedor}>
       <Container>
@@ -256,12 +245,24 @@ function AdminTransacciones() {
         {/* ===== TAB COMPRAS ===== */}
         {pestañaActiva === 'compras' && (
           <>
+            {/* FILTROS COMPRAS */}
             <div className={styles.filtros}>
+              <div className={styles.grupoFiltroAncho}>
+                <label className={styles.labelFiltro}>Buscar usuario</label>
+                <input
+                  type="text"
+                  placeholder="Nombre o email..."
+                  value={busquedaCompras}
+                  onChange={(e) => { setBusquedaCompras(e.target.value); setPaginaActual(1) }}
+                  className={styles.inputBusqueda}
+                />
+              </div>
+
               <div className={styles.grupoFiltro}>
                 <label className={styles.labelFiltro}>Estado</label>
                 <Form.Select
-                  value={filtroCompras}
-                  onChange={(e) => { setFiltroCompras(e.target.value); setPaginaActual(1) }}
+                  value={filtroEstadoCompras}
+                  onChange={(e) => { setFiltroEstadoCompras(e.target.value); setPaginaActual(1) }}
                   className={styles.select}
                 >
                   <option value="todos">Todos</option>
@@ -270,6 +271,31 @@ function AdminTransacciones() {
                   <option value="rechazado">Rechazados</option>
                   <option value="vencido">Vencidos</option>
                 </Form.Select>
+              </div>
+
+              <div className={styles.grupoFiltro}>
+                <label className={styles.labelFiltro}>Método de pago</label>
+                <Form.Select
+                  value={filtroMetodoCompras}
+                  onChange={(e) => { setFiltroMetodoCompras(e.target.value); setPaginaActual(1) }}
+                  className={styles.select}
+                >
+                  <option value="todos">Todos</option>
+                  <option value="MercadoPago">MercadoPago</option>
+                  <option value="PayPal">PayPal</option>
+                </Form.Select>
+              </div>
+
+              <div className={styles.grupoFiltro}>
+                <label className={styles.labelFiltro}>Visibilidad</label>
+                <label className={styles.checkboxFiltro}>
+                  <input
+                    type="checkbox"
+                    checked={ocultarViejos}
+                    onChange={(e) => { setOcultarViejos(e.target.checked); setPaginaActual(1) }}
+                  />
+                  Ocultar rechazados/vencidos
+                </label>
               </div>
             </div>
 
@@ -280,19 +306,11 @@ function AdminTransacciones() {
                 <table className={styles.tabla}>
                   <thead>
                     <tr>
-                      <th onClick={() => manejarOrden('usuario')} style={{ cursor: 'pointer' }}>
-                        Usuario <IconoOrden columna="usuario" />
-                      </th>
-                      <th onClick={() => manejarOrden('vehiculo')} style={{ cursor: 'pointer' }}>
-                        Vehículo <IconoOrden columna="vehiculo" />
-                      </th>
-                      <th onClick={() => manejarOrden('monto')} style={{ cursor: 'pointer' }}>
-                        Monto <IconoOrden columna="monto" />
-                      </th>
+                      <th onClick={() => manejarOrden('usuario')} style={{ cursor: 'pointer' }}>Usuario <IconoOrden columna="usuario" /></th>
+                      <th onClick={() => manejarOrden('vehiculo')} style={{ cursor: 'pointer' }}>Vehículo <IconoOrden columna="vehiculo" /></th>
+                      <th onClick={() => manejarOrden('monto')} style={{ cursor: 'pointer' }}>Monto <IconoOrden columna="monto" /></th>
                       <th>Método</th>
-                      <th onClick={() => manejarOrden('fecha')} style={{ cursor: 'pointer' }}>
-                        Fecha <IconoOrden columna="fecha" />
-                      </th>
+                      <th onClick={() => manejarOrden('fecha')} style={{ cursor: 'pointer' }}>Fecha <IconoOrden columna="fecha" /></th>
                       <th>Estado</th>
                       <th>Acciones</th>
                     </tr>
@@ -300,40 +318,30 @@ function AdminTransacciones() {
                   <tbody>
                     {datosPaginados(comprasFiltradas).length === 0 ? (
                       <tr><td colSpan="7" className={styles.vacio}>No hay compras con ese filtro</td></tr>
-                    ) : (
-                      datosPaginados(comprasFiltradas).map(compra => (
-                        <tr key={compra.id}>
-                          <td>
-                            <div className={styles.nombreUsuario}>{compra.Usuario?.nombre}</div>
-                            <div className={styles.emailUsuario}>{compra.Usuario?.email}</div>
-                          </td>
-                          <td>
-                            <div className={styles.nombreVehiculo}>{compra.Vehiculo?.marca}</div>
-                            <div className={styles.modeloVehiculo}>{compra.Vehiculo?.nombre}</div>
-                          </td>
-                          <td className={styles.monto}>{formatearPrecio(compra.monto, compra.moneda)}</td>
-                          <td>
-                            <span className={compra.metodoPago === 'PayPal' ? styles.badgePaypal : styles.badgeMp}>
-                              {compra.metodoPago}
-                            </span>
-                          </td>
-                          <td className={styles.fecha}>{formatearFecha(compra.createdAt)}</td>
-                          <td><BadgeEstado estado={compra.estado} /></td>
-                          <td>
-                            {compra.estado === 'pendiente' && (
-                              <div className={styles.acciones}>
-                                <button className={styles.btnAprobar} onClick={() => aprobarCompra(compra.id)} title="Aprobar">
-                                  <CheckCircle size={20} />
-                                </button>
-                                <button className={styles.btnRechazar} onClick={() => rechazarCompra(compra.id)} title="Rechazar">
-                                  <XCircle size={20} />
-                                </button>
-                              </div>
-                            )}
-                          </td>
-                        </tr>
-                      ))
-                    )}
+                    ) : datosPaginados(comprasFiltradas).map(compra => (
+                      <tr key={compra.id}>
+                        <td>
+                          <div className={styles.nombreUsuario}>{compra.Usuario?.nombre}</div>
+                          <div className={styles.emailUsuario}>{compra.Usuario?.email}</div>
+                        </td>
+                        <td>
+                          <div className={styles.nombreVehiculo}>{compra.Vehiculo?.marca}</div>
+                          <div className={styles.modeloVehiculo}>{compra.Vehiculo?.nombre}</div>
+                        </td>
+                        <td className={styles.monto}>{formatearPrecio(compra.monto, compra.moneda)}</td>
+                        <td><LogoMetodo metodo={compra.metodoPago} /></td>
+                        <td className={styles.fecha}>{formatearFecha(compra.createdAt)}</td>
+                        <td><BadgeEstado estado={compra.estado} /></td>
+                        <td>
+                          {compra.estado === 'pendiente' && (
+                            <div className={styles.acciones}>
+                              <button className={styles.btnAprobar} onClick={() => aprobarCompra(compra.id)} title="Aprobar"><CheckCircle size={20} /></button>
+                              <button className={styles.btnRechazar} onClick={() => rechazarCompra(compra.id)} title="Rechazar"><XCircle size={20} /></button>
+                            </div>
+                          )}
+                        </td>
+                      </tr>
+                    ))}
                   </tbody>
                 </table>
               </div>
@@ -354,12 +362,24 @@ function AdminTransacciones() {
         {/* ===== TAB ALQUILERES ===== */}
         {pestañaActiva === 'alquileres' && (
           <>
+            {/* FILTROS ALQUILERES */}
             <div className={styles.filtros}>
+              <div className={styles.grupoFiltroAncho}>
+                <label className={styles.labelFiltro}>Buscar usuario</label>
+                <input
+                  type="text"
+                  placeholder="Nombre o email..."
+                  value={busquedaAlquileres}
+                  onChange={(e) => { setBusquedaAlquileres(e.target.value); setPaginaActual(1) }}
+                  className={styles.inputBusqueda}
+                />
+              </div>
+
               <div className={styles.grupoFiltro}>
                 <label className={styles.labelFiltro}>Estado</label>
                 <Form.Select
-                  value={filtroAlquileres}
-                  onChange={(e) => { setFiltroAlquileres(e.target.value); setPaginaActual(1) }}
+                  value={filtroEstadoAlquileres}
+                  onChange={(e) => { setFiltroEstadoAlquileres(e.target.value); setPaginaActual(1) }}
                   className={styles.select}
                 >
                   <option value="todos">Todos</option>
@@ -370,6 +390,31 @@ function AdminTransacciones() {
                   <option value="rally_cancelado">Rally cancelado</option>
                 </Form.Select>
               </div>
+
+              <div className={styles.grupoFiltro}>
+                <label className={styles.labelFiltro}>Método de pago</label>
+                <Form.Select
+                  value={filtroMetodoAlquileres}
+                  onChange={(e) => { setFiltroMetodoAlquileres(e.target.value); setPaginaActual(1) }}
+                  className={styles.select}
+                >
+                  <option value="todos">Todos</option>
+                  <option value="MercadoPago">MercadoPago</option>
+                  <option value="PayPal">PayPal</option>
+                </Form.Select>
+              </div>
+
+              <div className={styles.grupoFiltro}>
+                <label className={styles.labelFiltro}>Visibilidad</label>
+                <label className={styles.checkboxFiltro}>
+                  <input
+                    type="checkbox"
+                    checked={ocultarViejos}
+                    onChange={(e) => { setOcultarViejos(e.target.checked); setPaginaActual(1) }}
+                  />
+                  Ocultar rechazados/vencidos
+                </label>
+              </div>
             </div>
 
             {cargandoAlquileres ? (
@@ -379,20 +424,12 @@ function AdminTransacciones() {
                 <table className={styles.tabla}>
                   <thead>
                     <tr>
-                      <th onClick={() => manejarOrden('usuario')} style={{ cursor: 'pointer' }}>
-                        Usuario <IconoOrden columna="usuario" />
-                      </th>
-                      <th onClick={() => manejarOrden('vehiculo')} style={{ cursor: 'pointer' }}>
-                        Vehículo <IconoOrden columna="vehiculo" />
-                      </th>
+                      <th onClick={() => manejarOrden('usuario')} style={{ cursor: 'pointer' }}>Usuario <IconoOrden columna="usuario" /></th>
+                      <th onClick={() => manejarOrden('vehiculo')} style={{ cursor: 'pointer' }}>Vehículo <IconoOrden columna="vehiculo" /></th>
                       <th>Rally</th>
-                      <th onClick={() => manejarOrden('monto')} style={{ cursor: 'pointer' }}>
-                        Monto <IconoOrden columna="monto" />
-                      </th>
+                      <th onClick={() => manejarOrden('monto')} style={{ cursor: 'pointer' }}>Monto <IconoOrden columna="monto" /></th>
                       <th>Método</th>
-                      <th onClick={() => manejarOrden('fecha')} style={{ cursor: 'pointer' }}>
-                        Fecha <IconoOrden columna="fecha" />
-                      </th>
+                      <th onClick={() => manejarOrden('fecha')} style={{ cursor: 'pointer' }}>Fecha <IconoOrden columna="fecha" /></th>
                       <th>Estado</th>
                       <th>Acciones</th>
                     </tr>
@@ -400,44 +437,34 @@ function AdminTransacciones() {
                   <tbody>
                     {datosPaginados(alquileresFiltrados).length === 0 ? (
                       <tr><td colSpan="8" className={styles.vacio}>No hay alquileres con ese filtro</td></tr>
-                    ) : (
-                      datosPaginados(alquileresFiltrados).map(alquiler => (
-                        <tr key={alquiler.id}>
-                          <td>
-                            <div className={styles.nombreUsuario}>{alquiler.Usuario?.nombre}</div>
-                            <div className={styles.emailUsuario}>{alquiler.Usuario?.email}</div>
-                          </td>
-                          <td>
-                            <div className={styles.nombreVehiculo}>{alquiler.Vehiculo?.marca}</div>
-                            <div className={styles.modeloVehiculo}>{alquiler.Vehiculo?.nombre}</div>
-                          </td>
-                          <td>
-                            <div className={styles.nombreRally}>{alquiler.Rally?.nombre}</div>
-                            <div className={styles.campeonato}>{alquiler.Rally?.campeonato}</div>
-                          </td>
-                          <td className={styles.monto}>{formatearPrecio(alquiler.monto, alquiler.moneda)}</td>
-                          <td>
-                            <span className={alquiler.metodoPago === 'PayPal' ? styles.badgePaypal : styles.badgeMp}>
-                              {alquiler.metodoPago}
-                            </span>
-                          </td>
-                          <td className={styles.fecha}>{formatearFecha(alquiler.createdAt)}</td>
-                          <td><BadgeEstado estado={alquiler.estado} /></td>
-                          <td>
-                            {alquiler.estado === 'pendiente' && (
-                              <div className={styles.acciones}>
-                                <button className={styles.btnAprobar} onClick={() => aprobarAlquiler(alquiler.id)} title="Aprobar">
-                                  <CheckCircle size={20} />
-                                </button>
-                                <button className={styles.btnRechazar} onClick={() => rechazarAlquiler(alquiler.id)} title="Rechazar">
-                                  <XCircle size={20} />
-                                </button>
-                              </div>
-                            )}
-                          </td>
-                        </tr>
-                      ))
-                    )}
+                    ) : datosPaginados(alquileresFiltrados).map(alquiler => (
+                      <tr key={alquiler.id}>
+                        <td>
+                          <div className={styles.nombreUsuario}>{alquiler.Usuario?.nombre}</div>
+                          <div className={styles.emailUsuario}>{alquiler.Usuario?.email}</div>
+                        </td>
+                        <td>
+                          <div className={styles.nombreVehiculo}>{alquiler.Vehiculo?.marca}</div>
+                          <div className={styles.modeloVehiculo}>{alquiler.Vehiculo?.nombre}</div>
+                        </td>
+                        <td>
+                          <div className={styles.nombreRally}>{alquiler.Rally?.nombre}</div>
+                          <div className={styles.campeonato}>{alquiler.Rally?.campeonato}</div>
+                        </td>
+                        <td className={styles.monto}>{formatearPrecio(alquiler.monto, alquiler.moneda)}</td>
+                        <td><LogoMetodo metodo={alquiler.metodoPago} /></td>
+                        <td className={styles.fecha}>{formatearFecha(alquiler.createdAt)}</td>
+                        <td><BadgeEstado estado={alquiler.estado} /></td>
+                        <td>
+                          {alquiler.estado === 'pendiente' && (
+                            <div className={styles.acciones}>
+                              <button className={styles.btnAprobar} onClick={() => aprobarAlquiler(alquiler.id)} title="Aprobar"><CheckCircle size={20} /></button>
+                              <button className={styles.btnRechazar} onClick={() => rechazarAlquiler(alquiler.id)} title="Rechazar"><XCircle size={20} /></button>
+                            </div>
+                          )}
+                        </td>
+                      </tr>
+                    ))}
                   </tbody>
                 </table>
               </div>

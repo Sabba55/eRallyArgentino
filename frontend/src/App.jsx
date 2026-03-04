@@ -39,6 +39,7 @@ import AdminCategorias from './paginas/Admin/Categorias/AdminCategorias'
 import AdminRallies from './paginas/Admin/Rallies/AdminRallies'
 import AdminUsuarios from './paginas/Admin/Usuarios/AdminUsuarios'
 import AdminTransacciones from './paginas/Admin/Transacciones/AdminTransacciones.jsx'
+import InscriptosRally from './paginas/Admin/Rallies/InscriptosRally'
 
 import './App.css'
 
@@ -168,6 +169,14 @@ function App() {
                 <RutaProtegida rolesPermitidos={['admin']}>
                   <AdminTransacciones />
                 </RutaProtegida>
+                }
+              />
+              <Route
+                path="/admin/rallies/:id/inscriptos"
+                element={
+                  <RutaProtegida rolesPermitidos={['admin', 'creador_fechas']}>
+                    <InscriptosRally />
+                  </RutaProtegida>
                 }
               />
               {/* ========================================

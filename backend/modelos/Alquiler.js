@@ -83,6 +83,12 @@ const Alquiler = sequelize.define(
       type: DataTypes.STRING(100),
       allowNull: true,
       comment: 'ID de transacción de Mercado Pago o PayPal'
+    },
+    ocultoEnLista: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: false,
+      comment: 'Ocultar visualmente en la lista de inscriptos (admin)'
     }
   },
   {

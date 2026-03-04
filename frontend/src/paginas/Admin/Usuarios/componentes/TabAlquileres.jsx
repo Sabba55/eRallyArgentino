@@ -71,7 +71,17 @@ function TabAlquileres({ usuarioId, onActualizar }) {
       
       // Cargar rallies disponibles
       const response = await api.get('/rallies/proximos')
-      setRalliesDisponibles(response.data.rallies || [])
+      const todosLosRallies = response.data.rallies || []
+
+      // Obtener los ids de categorías del vehículo alquilado
+      const categoriasVehiculo = alquiler.Vehiculo?.categorias?.map(c => c.id) || []
+
+      // Filtrar solo rallies que acepten al menos una categoría del vehículo
+      const ralliesFiltrados = todosLosRallies.filter(rally =>
+        rally.categorias?.some(cat => categoriasVehiculo.includes(cat.id))
+      )
+
+      setRalliesDisponibles(ralliesFiltrados)
       
       setNuevoRallyId(alquiler.Rally.id)
       setMiniModalAbierto(true)
@@ -228,18 +238,18 @@ function TabAlquileres({ usuarioId, onActualizar }) {
                   <div className={styles.accionesTabla}>
                     <button
                       className={styles.btnAccionTabla}
+                      onClick={() => abrirMiniModal(alquiler)}
+                      title="Cambiar rally"
+                    >
+                      <Calendar size={16} />
+                    </button>
+                    <button
+                      className={styles.btnAccionTabla}
                       onClick={() => eliminarAlquiler(alquiler.id, `${vehiculo.marca} ${vehiculo.nombre}`)}
                       disabled={eliminando === alquiler.id}
                       title="Eliminar alquiler"
                     >
                       <Trash2 size={16} />
-                    </button>
-                    <button
-                      className={styles.btnAccionTabla}
-                      onClick={() => abrirMiniModal(alquiler)}
-                      title="Cambiar rally"
-                    >
-                      <Calendar size={16} />
                     </button>
                   </div>
                 </td>

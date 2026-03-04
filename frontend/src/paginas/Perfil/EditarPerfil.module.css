@@ -213,6 +213,16 @@
   gap: 1.5rem;
 }
 
+.gridPasswords {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.5rem;
+}
+
+.filaCompleta {
+  grid-column: span 2;
+}
+
 .grupoInput {
   margin-bottom: 0;
 }

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Container, Form, Button } from 'react-bootstrap'
-import { Trash2, Edit, Calendar } from 'lucide-react'
+import { Trash2, Edit, Calendar, Users } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
 import api from '../../../config/api'
 import ModalRally from './ModalRally'
 import styles from './AdminRallies.module.css'
@@ -24,6 +25,8 @@ function AdminRallies() {
   const [modalAbierto, setModalAbierto] = useState(false)
   const [rallyEditando, setRallyEditando] = useState(null)
   const [modoModal, setModoModal] = useState('crear')
+
+  const navigate = useNavigate()
 
   useEffect(() => {
     cargarDatos()
@@ -98,6 +101,13 @@ function AdminRallies() {
 
   const puedeEliminar = (rally) => {
     return puedeEditar(rally)
+  }
+
+  const puedeVerInscriptos = (rally) => {
+    if (!usuarioActual) return false
+    if (usuarioActual.rol === 'admin') return true
+    if (usuarioActual.rol === 'creador_fechas' && rally.creadoPorId === usuarioActual.id) return true
+    return false
   }
 
   // ✅ ELIMINAR CON CONFIRMACIÓN MEJORADA
@@ -316,6 +326,16 @@ function AdminRallies() {
 
                         {!puedeEditar(rally) && (
                           <span className={styles.sinPermisos}>Sin permisos</span>
+                        )}
+
+                        {puedeVerInscriptos(rally) && (
+                          <button
+                            className={styles.btnAccion}
+                            onClick={() => navigate(`/admin/rallies/${rally.id}/inscriptos`)}
+                            title="Ver inscriptos"
+                          >
+                            <Users size={18} />
+                          </button>
                         )}
                       </div>
                     </td>

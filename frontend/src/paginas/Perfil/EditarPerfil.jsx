@@ -556,8 +556,8 @@ function EditarPerfil() {
               </Alert>
             )}
 
-            <div className={styles.gridInputs}>
-              <Form.Group className={styles.grupoInput}>
+            <div className={styles.gridPasswords}>
+              <Form.Group className={`${styles.grupoInput} ${styles.filaCompleta}`}>
                 <Form.Label className={styles.label}>Contraseña Actual</Form.Label>
                 <div className={styles.inputConIcono}>
                   <Lock size={18} className={styles.iconoInput} />

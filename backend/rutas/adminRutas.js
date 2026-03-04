@@ -559,4 +559,258 @@ router.patch(
   }
 )
 
+// ========================================
+// INSCRIPTOS A UN RALLY
+// GET /api/admin/rallies/:id/inscriptos
+// ========================================
+router.get(
+  '/rallies/:id/inscriptos',
+  verificarAutenticacion,
+  (req, res, next) => {
+    if (req.usuario.rol === 'admin' || req.usuario.rol === 'creador_fechas') return next()
+    return res.status(403).json({ error: 'No tenés permisos' })
+  },
+  [
+    param('id').isInt({ min: 1 }).withMessage('ID de rally inválido'),
+    manejarErroresValidacion
+  ],
+  async (req, res) => {
+    try {
+      const { Rally, Alquiler, Compra, Usuario, Vehiculo, Categoria } = await import('../modelos/index.js')
+      const { Op } = await import('sequelize')
+
+      const rallyId = req.params.id
+
+      // Verificar que el rally existe y traer sus categorías habilitadas
+      const rally = await Rally.findByPk(rallyId, {
+        include: [
+          {
+            model: Categoria,
+            as: 'categorias',
+            attributes: ['id', 'nombre', 'color'],
+            through: { attributes: [] }
+          }
+        ]
+      })
+
+      if (!rally) return res.status(404).json({ error: 'Rally no encontrado' })
+
+      // Verificar permisos: admin ve todos, creador_fechas solo ve los suyos
+      if (req.usuario.rol === 'creador_fechas' && rally.creadoPorId !== req.usuario.id) {
+        return res.status(403).json({ error: 'No tenés permisos para ver este rally' })
+      }
+
+      const categoriasHabilitadasIds = rally.categorias.map(c => c.id)
+
+      // ── 1. ALQUILADOS ──────────────────────────────────────────
+      const alquileres = await Alquiler.findAll({
+        where: { rallyId, estado: 'aprobado' },
+        include: [
+          {
+            model: Usuario,
+            as: 'Usuario',
+            attributes: ['id', 'nombre', 'email', 'equipo']
+          },
+          {
+            model: Vehiculo,
+            as: 'Vehiculo',
+            attributes: ['id', 'marca', 'nombre', 'foto'],
+            include: [
+              {
+                model: Categoria,
+                as: 'categorias',
+                attributes: ['id', 'nombre', 'color'],
+                through: { attributes: [] }
+              }
+            ]
+          }
+        ]
+      })
+
+      const filaAlquileres = alquileres.map(a => ({
+        usuarioId: a.Usuario.id,
+        nombre: a.Usuario.nombre,
+        email: a.Usuario.email,
+        equipo: a.Usuario.equipo,
+        vehiculo: {
+          id: a.Vehiculo.id,
+          marca: a.Vehiculo.marca,
+          nombre: a.Vehiculo.nombre,
+          foto: a.Vehiculo.foto,
+          categoria: a.Vehiculo.categorias?.[0] || null
+        },
+        tipo: 'alquilado',
+        transaccionId: a.id,
+        tipoTransaccion: 'alquiler',
+        ocultoEnLista: a.ocultoEnLista
+      }))
+
+      // ── 2. COMPRADOS HABILITADOS ───────────────────────────────
+      // Solo si el rally tiene categorías habilitadas
+      let filaCompras = []
+
+      if (categoriasHabilitadasIds.length > 0) {
+        const compras = await Compra.findAll({
+          where: { estado: 'aprobado' },
+          include: [
+            {
+              model: Usuario,
+              as: 'Usuario',
+              attributes: ['id', 'nombre', 'email', 'equipo']
+            },
+            {
+              model: Vehiculo,
+              as: 'Vehiculo',
+              attributes: ['id', 'marca', 'nombre', 'foto'],
+              include: [
+                {
+                  model: Categoria,
+                  as: 'categorias',
+                  attributes: ['id', 'nombre', 'color'],
+                  through: { attributes: [] },
+                  where: {
+                    id: { [Op.in]: categoriasHabilitadasIds }
+                  }
+                }
+              ]
+            }
+          ]
+        })
+
+        filaCompras = compras
+          .filter(c => c.Vehiculo !== null && c.Usuario !== null) // ← filtrar nulos
+          .map(c => ({
+            usuarioId: c.Usuario.id,
+            nombre: c.Usuario.nombre,
+            email: c.Usuario.email,
+            equipo: c.Usuario.equipo,
+            vehiculo: {
+              id: c.Vehiculo.id,
+              marca: c.Vehiculo.marca,
+              nombre: c.Vehiculo.nombre,
+              foto: c.Vehiculo.foto,
+              categoria: c.Vehiculo.categorias?.[0] || null
+            },
+            tipo: 'comprado',
+            transaccionId: c.id,
+            tipoTransaccion: 'compra',
+            ocultoEnLista: c.ocultoEnLista
+          }))
+      }
+
+      // ── 3. FUSIONAR Y AGRUPAR POR USUARIO ─────────────────────
+      const todasLasFilas = [...filaAlquileres, ...filaCompras]
+
+      // Agrupar por usuarioId para armar la estructura de doble fila
+      const mapaUsuarios = new Map()
+      for (const fila of todasLasFilas) {
+        if (!mapaUsuarios.has(fila.usuarioId)) {
+          mapaUsuarios.set(fila.usuarioId, {
+            usuarioId: fila.usuarioId,
+            nombre: fila.nombre,
+            email: fila.email,
+            equipo: fila.equipo,
+            entradas: []
+          })
+        }
+        mapaUsuarios.get(fila.usuarioId).entradas.push({
+          vehiculo: fila.vehiculo,
+          tipo: fila.tipo,
+          transaccionId: fila.transaccionId,
+          tipoTransaccion: fila.tipoTransaccion,
+          ocultoEnLista: fila.ocultoEnLista
+        })
+      }
+
+      const inscriptos = Array.from(mapaUsuarios.values())
+        .sort((a, b) => a.nombre.localeCompare(b.nombre))
+
+      res.json({
+        rally: {
+          id: rally.id,
+          nombre: rally.nombre,
+          campeonato: rally.campeonato,
+          fecha: rally.fecha,
+          categorias: rally.categorias
+        },
+        inscriptos,
+        totales: {
+          pilotos: inscriptos.length,
+          alquilados: filaAlquileres.length,
+          comprados: filaCompras.length,
+          total: filaAlquileres.length + filaCompras.length
+        }
+      })
+
+    } catch (error) {
+      console.error('Error al obtener inscriptos:', error)
+      res.status(500).json({ error: 'Error al obtener inscriptos', detalle: error.message })
+    }
+  }
+)
+
+// ========================================
+// TOGGLE OCULTAR COMPRA EN LISTA
+// PATCH /api/admin/compras/:id/ocultar
+// ========================================
+router.patch(
+  '/compras/:id/ocultar',
+  verificarAutenticacion,
+  esAdmin,
+  [
+    param('id').isInt({ min: 1 }).withMessage('ID inválido'),
+    manejarErroresValidacion
+  ],
+  async (req, res) => {
+    try {
+      const { Compra } = await import('../modelos/index.js')
+      const compra = await Compra.findByPk(req.params.id)
+      if (!compra) return res.status(404).json({ error: 'Compra no encontrada' })
+
+      compra.ocultoEnLista = !compra.ocultoEnLista
+      await compra.save()
+
+      res.json({
+        mensaje: compra.ocultoEnLista ? 'Vehículo ocultado' : 'Vehículo visible',
+        ocultoEnLista: compra.ocultoEnLista
+      })
+    } catch (error) {
+      console.error('Error al ocultar compra:', error)
+      res.status(500).json({ error: 'Error al ocultar', detalle: error.message })
+    }
+  }
+)
+
+// ========================================
+// TOGGLE OCULTAR ALQUILER EN LISTA
+// PATCH /api/admin/alquileres/:id/ocultar
+// ========================================
+router.patch(
+  '/alquileres/:id/ocultar',
+  verificarAutenticacion,
+  esAdmin,
+  [
+    param('id').isInt({ min: 1 }).withMessage('ID inválido'),
+    manejarErroresValidacion
+  ],
+  async (req, res) => {
+    try {
+      const { Alquiler } = await import('../modelos/index.js')
+      const alquiler = await Alquiler.findByPk(req.params.id)
+      if (!alquiler) return res.status(404).json({ error: 'Alquiler no encontrado' })
+
+      alquiler.ocultoEnLista = !alquiler.ocultoEnLista
+      await alquiler.save()
+
+      res.json({
+        mensaje: alquiler.ocultoEnLista ? 'Vehículo ocultado' : 'Vehículo visible',
+        ocultoEnLista: alquiler.ocultoEnLista
+      })
+    } catch (error) {
+      console.error('Error al ocultar alquiler:', error)
+      res.status(500).json({ error: 'Error al ocultar', detalle: error.message })
+    }
+  }
+)
+
 export default router;
