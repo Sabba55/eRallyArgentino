@@ -31,12 +31,12 @@ const Alquiler = sequelize.define(
     },
     rallyId: {
       type: DataTypes.INTEGER,
-      allowNull: false,
+      allowNull: true,          
       references: {
         model: 'rallies',
         key: 'id'
       },
-      onDelete: 'RESTRICT', // No permitir borrar rally con alquileres activos
+      onDelete: 'SET NULL',     // ← era RESTRICT
       onUpdate: 'CASCADE'
     },
     fechaAlquiler: {

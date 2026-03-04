@@ -26,8 +26,14 @@ function TabAlquileres({ usuarioId, onActualizar }) {
   const cargarAlquileres = async () => {
     try {
       setCargando(true)
-      const response = await api.get(`/usuarios/${usuarioId}/alquileres`)
-      setAlquileres(response.data.alquileres.activos || [])
+      const [activosRes, canceladosRes] = await Promise.all([
+        api.get(`/usuarios/${usuarioId}/alquileres`),
+        api.get(`/usuarios/${usuarioId}/alquileres?estado=rally_cancelado`)
+      ])
+      // Mezclamos ambas listas para mostrarlas juntas
+      const activos = activosRes.data.alquileres.activos || []
+      const cancelados = canceladosRes.data.alquileres.activos || []
+      setAlquileres([...activos, ...cancelados])
     } catch (error) {
       console.error('Error al cargar alquileres:', error)
       toast.error('Error al cargar alquileres')
@@ -68,22 +74,22 @@ function TabAlquileres({ usuarioId, onActualizar }) {
   const abrirMiniModal = async (alquiler) => {
     try {
       setAlquilerEditando(alquiler)
-      
-      // Cargar rallies disponibles
+
       const response = await api.get('/rallies/proximos')
       const todosLosRallies = response.data.rallies || []
 
-      // Obtener los ids de categorías del vehículo alquilado
       const categoriasVehiculo = alquiler.Vehiculo?.categorias?.map(c => c.id) || []
-
-      // Filtrar solo rallies que acepten al menos una categoría del vehículo
       const ralliesFiltrados = todosLosRallies.filter(rally =>
         rally.categorias?.some(cat => categoriasVehiculo.includes(cat.id))
       )
 
       setRalliesDisponibles(ralliesFiltrados)
-      
-      setNuevoRallyId(alquiler.Rally.id)
+
+      // Si el alquiler está cancelado → dropdown vacío para forzar selección
+      // Si no → preseleccionar el rally actual (comportamiento original)
+      const esCancelado = alquiler.estado === 'rally_cancelado'
+      setNuevoRallyId(esCancelado ? '' : alquiler.Rally.id)
+
       setMiniModalAbierto(true)
     } catch (error) {
       console.error('Error al cargar rallies:', error)
@@ -215,12 +221,16 @@ function TabAlquileres({ usuarioId, onActualizar }) {
                 {/* Rally */}
                 <td>
                   <div className={styles.rallyCell}>
-                    <div className={styles.rallyNombre}>{rally.nombre}</div>
-                    <div className={styles.rallyFecha}>
-                      {formatearFecha(rally.fecha)}
-                    </div>
-                    {rally.fueReprogramado && (
-                      <span className={styles.badgeReprogramado}>Reprogramado</span>
+                    {rally ? (
+                      <>
+                        <div className={styles.rallyNombre}>{rally.nombre}</div>
+                        <div className={styles.rallyFecha}>{formatearFecha(rally.fecha)}</div>
+                      </>
+                    ) : (
+                      <div className={styles.rallyNombre} style={{ color: '#666' }}>Rally eliminado</div>
+                    )}
+                    {alquiler.estado === 'rally_cancelado' && (
+                      <span className={styles.badgeCancelado}>Fecha cancelada</span>
                     )}
                   </div>
                 </td>

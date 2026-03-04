@@ -21,12 +21,12 @@ const Historial = sequelize.define(
     },
     rallyId: {
       type: DataTypes.INTEGER,
-      allowNull: false,
+      allowNull: true,        // ← era false
       references: {
         model: 'rallies',
         key: 'id'
       },
-      onDelete: 'RESTRICT', // No permitir borrar rally con historial
+      onDelete: 'SET NULL',   // ← era RESTRICT
       onUpdate: 'CASCADE'
     },
     vehiculoId: {

@@ -491,6 +491,20 @@
 
 .btnGuardarMini:disabled { opacity: 0.4; cursor: not-allowed; }
 
+.badgeCancelado {
+  display: inline-block;
+  padding: 0.2rem 0.5rem;
+  border-radius: 5px;
+  font-size: 0.65rem;
+  font-weight: 700;
+  background-color: rgba(255, 107, 107, 0.15);
+  color: #ff6b6b;
+  border: 1px solid rgba(255, 107, 107, 0.4);
+  text-transform: uppercase;
+  margin-top: 0.3rem;
+  letter-spacing: 0.3px;
+}
+
 /* RESPONSIVE */
 @media (max-width: 768px) {
   .modal :global(.modal-dialog) {

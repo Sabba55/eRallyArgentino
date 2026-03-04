@@ -599,8 +599,10 @@ export const cambiarRallyAlquiler = async (req, res) => {
     }
 
     // Actualizar el rallyId y fechas
-    alquiler.rallyId = rallyId;
-    alquiler.fechaFinalizacion = nuevoRally.fecha;
+    alquiler.rallyId = rallyId
+    alquiler.fechaFinalizacion = nuevoRally.fecha
+    alquiler.fechaReprogramada = null
+    alquiler.estado = 'aprobado'
     
     // Si ya tenía fecha reprogramada, actualizarla
     if (alquiler.fechaReprogramada) {

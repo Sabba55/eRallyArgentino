@@ -382,6 +382,7 @@ export const eliminarRally = async (req, res) => {
       return res.status(404).json({ error: 'Rally no encontrado' });
     }
 
+    // 1. Buscar alquileres aprobados, notificar y marcar como cancelados
     const alquileres = await Alquiler.obtenerPorRally(id);
 
     for (const alquiler of alquileres) {
@@ -398,10 +399,12 @@ export const eliminarRally = async (req, res) => {
       );
     }
 
+    // 2. Eliminar logo de Cloudinary
     if (rally.logo) {
       await eliminarImagen(rally.logo);
     }
 
+    // 3. Eliminar el rally — PostgreSQL nullea rallyId en alquileres automáticamente (ON DELETE SET NULL)
     await rally.destroy();
 
     res.json({
@@ -410,13 +413,6 @@ export const eliminarRally = async (req, res) => {
     });
   } catch (error) {
     console.error('Error al eliminar rally:', error);
-
-    if (error.name === 'SequelizeForeignKeyConstraintError') {
-      return res.status(400).json({
-        error: 'No se puede eliminar este rally porque tiene registros en el historial'
-      });
-    }
-
     res.status(500).json({
       error: 'Error al eliminar rally',
       detalle: error.message
