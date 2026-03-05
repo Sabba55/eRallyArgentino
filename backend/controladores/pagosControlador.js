@@ -1,12 +1,15 @@
 import { Compra, Alquiler, Usuario, Vehiculo, Rally, Historial } from '../modelos/index.js';
 import { 
-  crearPreferenciaPago,        // ← CORREGIDO
+  crearPreferenciaPago,        
+  validarFirmaWebhook,
+  validarWebhookPayPal,
   verificarPago,
   crearOrdenPayPal, 
   capturarPagoPayPal 
 } from '../config/pagos.js';
 import { obtenerDolarBlue } from '../utilidades/obtenerDolar.js';
 import { enviarEmailCompra, enviarEmailAlquiler } from '../utilidades/enviarEmail.js';
+
 
 // ========================================
 // CREAR COMPRA (MERCADO PAGO - ARS)
@@ -395,6 +398,11 @@ export const crearAlquilerPayPal = async (req, res) => {
 // ========================================
 export const webhookMercadoPago = async (req, res) => {
   try {
+    if (!validarFirmaWebhook(req)) {
+      console.warn('⚠️ Webhook MP rechazado: firma inválida');
+      return res.sendStatus(401);
+    }
+
     const { type, data } = req.body;
 
     // Solo procesar pagos aprobados
@@ -479,6 +487,12 @@ export const webhookMercadoPago = async (req, res) => {
 // ========================================
 export const webhookPayPal = async (req, res) => {
   try {
+    const esValido = await validarWebhookPayPal(req);
+    if (!esValido) {
+      console.warn('⚠️ Webhook PayPal rechazado: firma inválida');
+      return res.sendStatus(401);
+    }
+
     const { event_type, resource } = req.body;
 
     // Solo procesar capturas completadas

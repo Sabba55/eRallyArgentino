@@ -10,7 +10,7 @@ const transporter = nodemailer.createTransport({
 });
 
 // ========================================
-// EMAIL DE VERIFICACIÓN DE CUENTA
+// EMAIL DE VERIFICACIÓN DE CUENTA (✅)
 // ========================================
 export const enviarEmailVerificacion = async (email, nombre, token) => {
   try {
@@ -19,43 +19,59 @@ export const enviarEmailVerificacion = async (email, nombre, token) => {
     const mailOptions = {
       from: `"eRally Argentino" <${process.env.EMAIL_USER}>`,
       to: email,
-      subject: '¡Bienvenido a eRally Argentino! Verificá tu cuenta',
+      subject: 'Verificá tu cuenta - eRally Argentino',
       html: `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-          <h1 style="color: #2c3e50;">¡Hola ${nombre}! 👋</h1>
-          
-          <p style="font-size: 16px; color: #34495e;">
-            ¡Bienvenido a <strong>eRally Argentino</strong>!
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background-color: #1a1a1a; padding: 30px; border-radius: 12px;">
+
+          <!-- Header -->
+          <div style="text-align: center; margin-bottom: 30px; border-bottom: 2px solid #00d4ff; padding-bottom: 20px;">
+            <h1 style="font-family: Arial, sans-serif; font-weight: 900; color: #00d4ff; font-size: 1.8rem; letter-spacing: 3px; margin: 0;">
+              eRally Argentino
+            </h1>
+          </div>
+
+          <!-- Título -->
+          <h2 style="color: #00d4ff; font-size: 1.5rem; letter-spacing: 2px; margin-bottom: 20px;">
+            👋 ¡Hola ${nombre}!
+          </h2>
+
+          <p style="font-size: 15px; color: #cccccc; margin-bottom: 20px;">
+            ¡Bienvenido a <strong style="color: #ffffff;">eRally Argentino</strong>!
           </p>
 
-          <p style="font-size: 16px; color: #34495e;">
+          <p style="font-size: 15px; color: #cccccc; margin-bottom: 25px;">
             Para activar tu cuenta, hacé click en el siguiente botón:
           </p>
 
+          <!-- Botón -->
           <div style="text-align: center; margin: 30px 0;">
-            <a href="${urlVerificacion}" 
-               style="background-color: #3498db; color: white; padding: 15px 30px; text-decoration: none; border-radius: 5px; font-size: 16px; display: inline-block;">
+            <a href="${urlVerificacion}"
+               style="background: linear-gradient(135deg, #00d4ff, #39ff14); color: #1a1a1a; padding: 14px 32px; text-decoration: none; border-radius: 50px; font-size: 15px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; display: inline-block;">
               Verificar mi cuenta
             </a>
           </div>
 
-          <p style="font-size: 14px; color: #7f8c8d;">
-            Si el botón no funciona, copiá y pegá este link en tu navegador:
-          </p>
-          <p style="font-size: 14px; color: #3498db; word-break: break-all;">
-            ${urlVerificacion}
+          <!-- Link de respaldo -->
+          <div style="background-color: #2a2a2a; border-left: 4px solid #00d4ff; border-radius: 8px; padding: 16px; margin-bottom: 25px;">
+            <p style="font-size: 13px; color: #a0a0a0; margin: 0 0 8px 0;">
+              Si el botón no funciona, copiá y pegá este link en tu navegador:
+            </p>
+            <p style="font-size: 13px; color: #00d4ff; word-break: break-all; margin: 0;">
+              ${urlVerificacion}
+            </p>
+          </div>
+
+          <p style="font-size: 13px; color: #666666; margin-bottom: 0;">
+            Este link expira en <strong style="color: #a0a0a0;">24 horas</strong>. Si no creaste esta cuenta, podés ignorar este email.
           </p>
 
-          <hr style="border: none; border-top: 1px solid #ecf0f1; margin: 30px 0;">
+          <!-- Footer -->
+          <hr style="border: none; border-top: 1px solid #3a3a3a; margin: 30px 0;">
 
-          <p style="font-size: 12px; color: #95a5a6;">
-            Este link expira en 24 horas. Si no creaste esta cuenta, podés ignorar este email.
+          <p style="font-size: 12px; color: #666666; text-align: center; margin: 0;">
+            <strong style="color: #a0a0a0;">eRally Argentino</strong>
           </p>
 
-          <p style="font-size: 12px; color: #95a5a6;">
-            Saludos,<br>
-            <strong>Equipo eRally Argentino</strong>
-          </p>
         </div>
       `
     };
@@ -69,7 +85,7 @@ export const enviarEmailVerificacion = async (email, nombre, token) => {
 };
 
 // ========================================
-// EMAIL DE RECUPERACIÓN DE CONTRASEÑA
+// EMAIL DE RECUPERACIÓN DE CONTRASEÑA (✅)
 // ========================================
 export const enviarEmailRecuperacion = async (email, nombre, token) => {
   try {
@@ -80,41 +96,57 @@ export const enviarEmailRecuperacion = async (email, nombre, token) => {
       to: email,
       subject: 'Recuperación de contraseña - eRally Argentino',
       html: `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-          <h1 style="color: #2c3e50;">Hola ${nombre} 👋</h1>
-          
-          <p style="font-size: 16px; color: #34495e;">
-            Recibimos una solicitud para restablecer tu contraseña de <strong>eRally Argentino</strong>.
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background-color: #1a1a1a; padding: 30px; border-radius: 12px;">
+
+          <!-- Header -->
+          <div style="text-align: center; margin-bottom: 30px; border-bottom: 2px solid #00d4ff; padding-bottom: 20px;">
+            <h1 style="font-family: Arial, sans-serif; font-weight: 900; color: #00d4ff; font-size: 1.8rem; letter-spacing: 3px; margin: 0;">
+              eRally Argentino
+            </h1>
+          </div>
+
+          <!-- Título -->
+          <h2 style="color: #ff4444; font-size: 1.5rem; letter-spacing: 2px; margin-bottom: 20px;">
+            Recuperación de contraseña
+          </h2>
+
+          <p style="font-size: 15px; color: #cccccc; margin-bottom: 20px;">
+            Hola <strong style="color: #ffffff;">${nombre}</strong>,
           </p>
 
-          <p style="font-size: 16px; color: #34495e;">
-            Hacé click en el siguiente botón para crear una nueva contraseña:
+          <p style="font-size: 15px; color: #cccccc; margin-bottom: 25px;">
+            Recibimos una solicitud para restablecer tu contraseña. Hacé click en el siguiente botón para crear una nueva:
           </p>
 
+          <!-- Botón -->
           <div style="text-align: center; margin: 30px 0;">
-            <a href="${urlRecuperacion}" 
-               style="background-color: #e74c3c; color: white; padding: 15px 30px; text-decoration: none; border-radius: 5px; font-size: 16px; display: inline-block;">
+            <a href="${urlRecuperacion}"
+               style="background: linear-gradient(135deg, #00d4ff, #39ff14); color: #1a1a1a; padding: 14px 32px; text-decoration: none; border-radius: 50px; font-size: 15px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; display: inline-block;">
               Restablecer contraseña
             </a>
           </div>
 
-          <p style="font-size: 14px; color: #7f8c8d;">
-            Si el botón no funciona, copiá y pegá este link en tu navegador:
-          </p>
-          <p style="font-size: 14px; color: #e74c3c; word-break: break-all;">
-            ${urlRecuperacion}
+          <!-- Link de respaldo -->
+          <div style="background-color: #2a2a2a; border-left: 4px solid #00d4ff; border-radius: 8px; padding: 16px; margin-bottom: 25px;">
+            <p style="font-size: 13px; color: #a0a0a0; margin: 0 0 8px 0;">
+              Si el botón no funciona, copiá y pegá este link en tu navegador:
+            </p>
+            <p style="font-size: 13px; color: #00d4ff; word-break: break-all; margin: 0;">
+              ${urlRecuperacion}
+            </p>
+          </div>
+
+          <p style="font-size: 13px; color: #666666; margin-bottom: 0;">
+            Este link expira en <strong style="color: #a0a0a0;">1 hora</strong>. Si no solicitaste este cambio, ignorá este email y tu contraseña no será modificada.
           </p>
 
-          <hr style="border: none; border-top: 1px solid #ecf0f1; margin: 30px 0;">
+          <!-- Footer -->
+          <hr style="border: none; border-top: 1px solid #3a3a3a; margin: 30px 0;">
 
-          <p style="font-size: 12px; color: #95a5a6;">
-            Este link expira en 1 hora. Si no solicitaste este cambio, ignorá este email y tu contraseña permanecerá sin cambios.
+          <p style="font-size: 12px; color: #666666; text-align: center; margin: 0;">
+            <strong style="color: #a0a0a0;">eRally Argentino</strong>
           </p>
 
-          <p style="font-size: 12px; color: #95a5a6;">
-            Saludos,<br>
-            <strong>Equipo eRally Argentino</strong>
-          </p>
         </div>
       `
     };
@@ -128,53 +160,71 @@ export const enviarEmailRecuperacion = async (email, nombre, token) => {
 };
 
 // ========================================
-// EMAIL DE CONFIRMACIÓN DE COMPRA
+// EMAIL DE CONFIRMACIÓN DE COMPRA (✅)
 // ========================================
 export const enviarEmailCompra = async (email, nombre, vehiculo) => {
   try {
     const mailOptions = {
       from: `"eRally Argentino" <${process.env.EMAIL_USER}>`,
       to: email,
-      subject: '¡Compra confirmada! 🎉 - eRally Argentino',
+      subject: `Compra confirmada: ${vehiculo} - eRally Argentino`,
       html: `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-          <h1 style="color: #27ae60;">¡Compra confirmada! 🎉</h1>
-          
-          <p style="font-size: 16px; color: #34495e;">
-            Hola <strong>${nombre}</strong>,
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background-color: #1a1a1a; padding: 30px; border-radius: 12px;">
+
+          <!-- Header -->
+          <div style="text-align: center; margin-bottom: 30px; border-bottom: 2px solid #00d4ff; padding-bottom: 20px;">
+            <h1 style="font-family: Arial, sans-serif; font-weight: 900; color: #00d4ff; font-size: 1.8rem; letter-spacing: 3px; margin: 0;">
+              eRally Argentino
+            </h1>
+          </div>
+
+          <!-- Título -->
+          <h2 style="color: #39ff14; font-size: 1.5rem; letter-spacing: 2px; margin-bottom: 20px;">
+            ¡Compra confirmada!
+          </h2>
+
+          <p style="font-size: 15px; color: #cccccc; margin-bottom: 20px;">
+            Hola <strong style="color: #ffffff;">${nombre}</strong>,
           </p>
 
-          <p style="font-size: 16px; color: #34495e;">
-            ¡Felicitaciones! Tu compra se procesó exitosamente.
+          <p style="font-size: 15px; color: #cccccc; margin-bottom: 25px;">
+            Tu compra se procesó exitosamente.
           </p>
 
-          <div style="background-color: #ecf0f1; padding: 20px; border-radius: 5px; margin: 20px 0;">
-            <h3 style="color: #2c3e50; margin-top: 0;">Vehículo adquirido:</h3>
-            <p style="font-size: 18px; color: #34495e; margin: 10px 0;">
-              <strong>${vehiculo}</strong>
+          <!-- Detalles -->
+          <div style="background-color: #2a2a2a; border-left: 4px solid #39ff14; border-radius: 8px; padding: 20px; margin-bottom: 25px;">
+            <h3 style="color: #00d4ff; text-transform: uppercase; letter-spacing: 1px; margin-top: 0; margin-bottom: 16px;">
+              Vehículo comprado
+            </h3>
+
+            <p style="font-size: 16px; color: #ffffff; font-weight: bold; margin: 0 0 12px 0;">
+              ${vehiculo}
             </p>
-            <p style="font-size: 14px; color: #7f8c8d; margin: 0;">
-              Vigencia: 1 año desde hoy
+
+            <p style="font-size: 14px; color: #a0a0a0; margin: 0;">
+              Duracion: 1 año desde hoy
             </p>
           </div>
 
-          <p style="font-size: 16px; color: #34495e;">
-            Ya podés ver tu vehículo en tu garage y usarlo en todos los rallies que quieras.
+          <p style="font-size: 15px; color: #cccccc; margin-bottom: 25px;">
+            Ya podés ver tu vehículo en tu garage y usarlo en todos las fechas permitidas que quieras.
           </p>
 
+          <!-- Botón -->
           <div style="text-align: center; margin: 30px 0;">
-            <a href="${process.env.FRONTEND_URL}/garage" 
-               style="background-color: #27ae60; color: white; padding: 15px 30px; text-decoration: none; border-radius: 5px; font-size: 16px; display: inline-block;">
+            <a href="${process.env.FRONTEND_URL}/garage"
+               style="background: linear-gradient(135deg, #00d4ff, #39ff14); color: #1a1a1a; padding: 14px 32px; text-decoration: none; border-radius: 50px; font-size: 15px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; display: inline-block;">
               Ver mi garage
             </a>
           </div>
 
-          <hr style="border: none; border-top: 1px solid #ecf0f1; margin: 30px 0;">
+          <!-- Footer -->
+          <hr style="border: none; border-top: 1px solid #3a3a3a; margin: 30px 0;">
 
-          <p style="font-size: 12px; color: #95a5a6;">
-            ¡Nos vemos en la pista! 🏁<br>
-            <strong>Equipo eRally Argentino</strong>
+          <p style="font-size: 12px; color: #666666; text-align: center; margin: 0;">
+            <strong style="color: #a0a0a0;">eRally Argentino</strong>
           </p>
+
         </div>
       `
     };
@@ -188,7 +238,7 @@ export const enviarEmailCompra = async (email, nombre, vehiculo) => {
 };
 
 // ========================================
-// EMAIL DE CONFIRMACIÓN DE ALQUILER
+// EMAIL DE CONFIRMACIÓN DE ALQUILER (✅)
 // ========================================
 export const enviarEmailAlquiler = async (email, nombre, vehiculo, rally, fecha) => {
   try {
@@ -202,49 +252,71 @@ export const enviarEmailAlquiler = async (email, nombre, vehiculo, rally, fecha)
     const mailOptions = {
       from: `"eRally Argentino" <${process.env.EMAIL_USER}>`,
       to: email,
-      subject: '¡Alquiler confirmado! 🏁 - eRally Argentino',
+      subject: `Alquiler confirmado: ${rally} - eRally Argentino`,
       html: `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-          <h1 style="color: #f39c12;">¡Alquiler confirmado! 🏁</h1>
-          
-          <p style="font-size: 16px; color: #34495e;">
-            Hola <strong>${nombre}</strong>,
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background-color: #1a1a1a; padding: 30px; border-radius: 12px;">
+
+          <!-- Header -->
+          <div style="text-align: center; margin-bottom: 30px; border-bottom: 2px solid #00d4ff; padding-bottom: 20px;">
+            <h1 style="font-family: Arial, sans-serif; font-weight: 900; color: #00d4ff; font-size: 1.8rem; letter-spacing: 3px; margin: 0;">
+              eRally Argentino
+            </h1>
+          </div>
+
+          <!-- Título -->
+          <h2 style="color: #39ff14; font-size: 1.5rem; letter-spacing: 2px; margin-bottom: 20px;">
+            ¡Alquiler confirmado!
+          </h2>
+
+          <p style="font-size: 15px; color: #cccccc; margin-bottom: 20px;">
+            Hola <strong style="color: #ffffff;">${nombre}</strong>,
           </p>
 
-          <p style="font-size: 16px; color: #34495e;">
-            ¡Tu alquiler se procesó exitosamente! Estás listo para correr.
+          <p style="font-size: 15px; color: #cccccc; margin-bottom: 25px;">
+            ¡Tu alquiler se procesó exitosamente!
           </p>
 
-          <div style="background-color: #ecf0f1; padding: 20px; border-radius: 5px; margin: 20px 0;">
-            <h3 style="color: #2c3e50; margin-top: 0;">Detalles del alquiler:</h3>
-            <p style="font-size: 18px; color: #34495e; margin: 10px 0;">
-              <strong>Vehículo:</strong> ${vehiculo}
+          <!-- Detalles -->
+          <div style="background-color: #2a2a2a; border-left: 4px solid #39ff14; border-radius: 8px; padding: 20px; margin-bottom: 25px;">
+            <h3 style="color: #00d4ff; text-transform: uppercase; letter-spacing: 1px; margin-top: 0; margin-bottom: 16px;">
+              Detalles del alquiler
+            </h3>
+
+            <p style="font-size: 14px; color: #a0a0a0; margin: 0 0 4px 0; text-transform: uppercase; letter-spacing: 1px;">Vehículo</p>
+            <p style="font-size: 16px; color: #ffffff; font-weight: bold; margin: 0 0 16px 0;">
+              ${vehiculo}
             </p>
-            <p style="font-size: 18px; color: #34495e; margin: 10px 0;">
-              <strong>Rally:</strong> ${rally}
+
+            <p style="font-size: 14px; color: #a0a0a0; margin: 0 0 4px 0; text-transform: uppercase; letter-spacing: 1px;">Rally</p>
+            <p style="font-size: 16px; color: #ffffff; font-weight: bold; margin: 0 0 16px 0;">
+              ${rally}
             </p>
-            <p style="font-size: 16px; color: #7f8c8d; margin: 10px 0;">
-              <strong>Fecha:</strong> ${fechaFormateada}
+
+            <p style="font-size: 14px; color: #a0a0a0; margin: 0 0 4px 0; text-transform: uppercase; letter-spacing: 1px;">Fecha</p>
+            <p style="font-size: 16px; color: #ffffff; font-weight: bold; margin: 0; text-transform: capitalize;">
+              ${fechaFormateada}
             </p>
           </div>
 
-          <p style="font-size: 16px; color: #34495e;">
+          <p style="font-size: 15px; color: #cccccc; margin-bottom: 25px;">
             El vehículo ya está disponible en tu garage y estará activo hasta la fecha del rally.
           </p>
 
+          <!-- Botón -->
           <div style="text-align: center; margin: 30px 0;">
-            <a href="${process.env.FRONTEND_URL}/garage" 
-               style="background-color: #f39c12; color: white; padding: 15px 30px; text-decoration: none; border-radius: 5px; font-size: 16px; display: inline-block;">
+            <a href="${process.env.FRONTEND_URL}/garage"
+               style="background: linear-gradient(135deg, #00d4ff, #39ff14); color: #1a1a1a; padding: 14px 32px; text-decoration: none; border-radius: 50px; font-size: 15px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; display: inline-block;">
               Ver mi garage
             </a>
           </div>
 
-          <hr style="border: none; border-top: 1px solid #ecf0f1; margin: 30px 0;">
+          <!-- Footer -->
+          <hr style="border: none; border-top: 1px solid #3a3a3a; margin: 30px 0;">
 
-          <p style="font-size: 12px; color: #95a5a6;">
-            ¡Mucha suerte en el rally! 🏆<br>
-            <strong>Equipo eRally Argentino</strong>
+          <p style="font-size: 12px; color: #666666; text-align: center; margin: 0;">
+            <strong style="color: #a0a0a0;">eRally Argentino</strong>
           </p>
+
         </div>
       `
     };
@@ -258,7 +330,7 @@ export const enviarEmailAlquiler = async (email, nombre, vehiculo, rally, fecha)
 };
 
 // ========================================
-// EMAIL DE REPROGRAMACIÓN DE RALLY
+// EMAIL DE REPROGRAMACIÓN DE RALLY (✅)
 // ========================================
 export const enviarEmailReprogramacion = async (email, nombre, rally, vehiculo, fechaAnterior, fechaNueva) => {
   try {
@@ -279,43 +351,75 @@ export const enviarEmailReprogramacion = async (email, nombre, rally, vehiculo, 
     const mailOptions = {
       from: `"eRally Argentino" <${process.env.EMAIL_USER}>`,
       to: email,
-      subject: `Rally reprogramado: ${rally} - eRally Argentino`,
+      subject: `${rally} fue reprogramado - eRally Argentino`,
       html: `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-          <h1 style="color: #e67e22;">Rally reprogramado 📅</h1>
-          
-          <p style="font-size: 16px; color: #34495e;">
-            Hola <strong>${nombre}</strong>,
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background-color: #1a1a1a; padding: 30px; border-radius: 12px;">
+
+          <!-- Header -->
+          <div style="text-align: center; margin-bottom: 30px; border-bottom: 2px solid #00d4ff; padding-bottom: 20px;">
+            <h1 style="font-family: Arial, sans-serif; font-weight: 900; color: #00d4ff; font-size: 1.8rem; letter-spacing: 3px; margin: 0;">
+              eRally Argentino
+            </h1>
+          </div>
+
+          <!-- Título -->
+          <h2 style="color: #ffd60a; font-size: 1.5rem; letter-spacing: 2px; margin-bottom: 20px;">
+            ${rally} fue reprogramado
+          </h2>
+
+          <p style="font-size: 15px; color: #cccccc; margin-bottom: 20px;">
+            Hola <strong style="color: #ffffff;">${nombre}</strong>,
           </p>
 
-          <p style="font-size: 16px; color: #34495e;">
-            Te informamos que el rally <strong>${rally}</strong> ha sido reprogramado.
+          <p style="font-size: 15px; color: #cccccc; margin-bottom: 25px;">
+            Te informamos que el rally <strong style="color: #ffffff;">${rally}</strong> ha sido reprogramado.
           </p>
 
-          <div style="background-color: #fff3cd; padding: 20px; border-left: 4px solid #ffc107; border-radius: 5px; margin: 20px 0;">
-            <h3 style="color: #856404; margin-top: 0;">Nueva fecha:</h3>
-            <p style="font-size: 18px; color: #856404; margin: 10px 0;">
-              <strong>Fecha anterior:</strong> ${fechaAnteriorFormateada}
+          <!-- Fechas -->
+          <div style="background-color: #2a2a2a; border-left: 4px solid #ffd60a; border-radius: 8px; padding: 20px; margin-bottom: 25px;">
+            <h3 style="color: #00d4ff; text-transform: uppercase; letter-spacing: 1px; margin-top: 0; margin-bottom: 16px;">
+              Cambio de fecha
+            </h3>
+
+            <p style="font-size: 14px; color: #a0a0a0; margin: 0 0 4px 0; text-transform: uppercase; letter-spacing: 1px;">Fecha anterior</p>
+            <p style="font-size: 16px; color: #ff4444; font-weight: bold; margin: 0 0 16px 0; text-decoration: line-through; text-transform: capitalize;">
+              ${fechaAnteriorFormateada}
             </p>
-            <p style="font-size: 20px; color: #d39e00; margin: 10px 0;">
-              <strong>Nueva fecha:</strong> ${fechaNuevaFormateada}
+
+            <p style="font-size: 14px; color: #a0a0a0; margin: 0 0 4px 0; text-transform: uppercase; letter-spacing: 1px;">Nueva fecha</p>
+            <p style="font-size: 16px; color: #39ff14; font-weight: bold; margin: 0; text-transform: capitalize;">
+              ${fechaNuevaFormateada}
             </p>
           </div>
 
-          <p style="font-size: 16px; color: #34495e;">
-            Tu vehículo alquilado (<strong>${vehiculo}</strong>) sigue activo y estará disponible hasta la nueva fecha del rally.
+          <!-- Vehículo -->
+          <div style="background-color: #2a2a2a; border-left: 4px solid #00d4ff; border-radius: 8px; padding: 20px; margin-bottom: 25px;">
+            <h3 style="color: #00d4ff; text-transform: uppercase; letter-spacing: 1px; margin-top: 0; margin-bottom: 12px;">
+              Tu vehículo alquilado
+            </h3>
+            <p style="font-size: 16px; color: #ffffff; font-weight: bold; margin: 0 0 10px 0;">
+              ${vehiculo}
+            </p>
+            <p style="font-size: 14px; color: #a0a0a0; margin: 0;">
+              Tu alquiler se actualizó automáticamente a la nueva fecha. No necesitás hacer nada.
+            </p>
+          </div>
+
+          <!-- Botón -->
+          <div style="text-align: center; margin: 30px 0;">
+            <a href="${process.env.FRONTEND_URL}/fechas"
+               style="background: linear-gradient(135deg, #00d4ff, #39ff14); color: #1a1a1a; padding: 14px 32px; text-decoration: none; border-radius: 50px; font-size: 15px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; display: inline-block;">
+              Ver próximas fechas
+            </a>
+          </div>
+
+          <!-- Footer -->
+          <hr style="border: none; border-top: 1px solid #3a3a3a; margin: 30px 0;">
+
+          <p style="font-size: 12px; color: #666666; text-align: center; margin: 0;">
+            <strong style="color: #a0a0a0;">eRally Argentino</strong>
           </p>
 
-          <p style="font-size: 14px; color: #7f8c8d;">
-            No necesitás hacer nada. Tu alquiler se actualizó automáticamente.
-          </p>
-
-          <hr style="border: none; border-top: 1px solid #ecf0f1; margin: 30px 0;">
-
-          <p style="font-size: 12px; color: #95a5a6;">
-            ¡Nos vemos en la nueva fecha! 🏁<br>
-            <strong>Equipo eRally Argentino</strong>
-          </p>
         </div>
       `
     };
@@ -329,53 +433,75 @@ export const enviarEmailReprogramacion = async (email, nombre, rally, vehiculo, 
 };
 
 // ========================================
-// EMAIL DE CANCELACIÓN DE RALLY
+// EMAIL DE CANCELACIÓN DE RALLY (✅)
 // ========================================
 export const enviarEmailCancelacion = async (email, nombre, rally, vehiculo) => {
   try {
     const mailOptions = {
       from: `"eRally Argentino" <${process.env.EMAIL_USER}>`,
       to: email,
-      subject: `Rally cancelado: ${rally} - eRally Argentino`,
+      subject: `${rally} fue cancelado - eRally Argentino`,
       html: `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-          <h1 style="color: #e74c3c;">Rally cancelado ❌</h1>
-          
-          <p style="font-size: 16px; color: #34495e;">
-            Hola <strong>${nombre}</strong>,
+        <div style="font-family: 'Arial', sans-serif; max-width: 600px; margin: 0 auto; background-color: #1a1a1a; padding: 30px; border-radius: 12px;">
+
+          <!-- Header -->
+          <div style="text-align: center; margin-bottom: 30px; border-bottom: 2px solid #00d4ff; padding-bottom: 20px;">
+            <h1 style="font-family: Arial, sans-serif; font-weight: 900; color: #00d4ff; font-size: 1.8rem; letter-spacing: 3px; margin: 0;">
+              eRally Argentino
+            </h1>
+          </div>
+
+          <!-- Título -->
+          <h2 style="color: #ff4444; font-size: 1.5rem; letter-spacing: 2px; margin-bottom: 20px;">
+            ❌ ${rally} fue cancelado
+          </h2>
+
+          <p style="font-size: 15px; color: #cccccc; margin-bottom: 20px;">
+            Hola <strong style="color: #ffffff;">${nombre}</strong>,
           </p>
 
-          <p style="font-size: 16px; color: #34495e;">
-            Lamentamos informarte que el rally <strong>${rally}</strong> ha sido cancelado.
+          <p style="font-size: 15px; color: #cccccc; margin-bottom: 25px;">
+            Lamentamos informarte que el rally <strong style="color: #ffffff;">${rally}</strong> ha sido cancelado.
           </p>
 
-          <div style="background-color: #f8d7da; padding: 20px; border-left: 4px solid #dc3545; border-radius: 5px; margin: 20px 0;">
-            <h3 style="color: #721c24; margin-top: 0;">Tu vehículo alquilado:</h3>
-            <p style="font-size: 16px; color: #721c24; margin: 10px 0;">
-              <strong>${vehiculo}</strong>
+          <!-- Vehículo -->
+          <div style="background-color: #2a2a2a; border-left: 4px solid #ff4444; border-radius: 8px; padding: 20px; margin-bottom: 25px;">
+            <h3 style="color: #00d4ff; text-transform: uppercase; letter-spacing: 1px; margin-top: 0; margin-bottom: 12px;">
+              Tu vehículo alquilado
+            </h3>
+            <p style="font-size: 16px; color: #ffffff; font-weight: bold; margin: 0 0 10px 0;">
+              ${vehiculo}
             </p>
-            <p style="font-size: 14px; color: #721c24; margin: 10px 0;">
-              El vehículo permanece en tu garage y podés usarlo para otro rally cuando quieras.
+            <p style="font-size: 14px; color: #a0a0a0; margin: 0;">
+              El vehículo quedara en tu garage y podés usarlo para otro rally cuando quieras.
             </p>
           </div>
 
-          <p style="font-size: 16px; color: #34495e;">
-            No perdés tu alquiler. Podés elegir otra fecha para correr con este vehículo.
-          </p>
+          <!-- Aviso soporte -->
+          <div style="background-color: #2a2a2a; border-left: 4px solid #ffd60a; border-radius: 8px; padding: 20px; margin-bottom: 25px;">
+            <p style="font-size: 14px; color: #ffd60a; font-weight: bold; margin: 0 0 6px 0;">
+                ¿Querés participar en otra fecha?
+            </p>
+            <p style="font-size: 14px; color: #a0a0a0; margin: 0;">
+              Comunicate con los administradores o soporte para que te asignen una nueva fecha.
+            </p>
+          </div>
 
+          <!-- Botón -->
           <div style="text-align: center; margin: 30px 0;">
-            <a href="${process.env.FRONTEND_URL}/rallies" 
-               style="background-color: #3498db; color: white; padding: 15px 30px; text-decoration: none; border-radius: 5px; font-size: 16px; display: inline-block;">
-              Ver próximos rallies
+            <a href="${process.env.FRONTEND_URL}/fechas"
+               style="background: linear-gradient(135deg, #00d4ff, #39ff14); color: #1a1a1a; padding: 14px 32px; text-decoration: none; border-radius: 50px; font-size: 15px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; display: inline-block;">
+              Ver próximas fechas
             </a>
           </div>
 
-          <hr style="border: none; border-top: 1px solid #ecf0f1; margin: 30px 0;">
+          <!-- Footer -->
+          <hr style="border: none; border-top: 1px solid #3a3a3a; margin: 30px 0;">
 
-          <p style="font-size: 12px; color: #95a5a6;">
-            Disculpá las molestias.<br>
-            <strong>Equipo eRally Argentino</strong>
+          <p style="font-size: 12px; color: #666666; text-align: center; margin: 0;">
+            <strong style="color: #a0a0a0;">eRally Argentino</strong>
           </p>
+
         </div>
       `
     };

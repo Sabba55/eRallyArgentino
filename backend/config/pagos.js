@@ -1,4 +1,5 @@
 import { MercadoPagoConfig, Payment, Preference } from 'mercadopago';
+import crypto from 'crypto';
 
 // ========================================
 // CONFIGURACIÓN DE MERCADOPAGO
@@ -203,6 +204,92 @@ export const capturarPagoPayPal = async (orderId) => {
   } catch (error) {
     console.error('❌ Error al capturar pago PayPal:', error);
     throw new Error(`Error al capturar pago PayPal: ${error.message}`);
+  }
+};
+
+// ========================================
+// VALIDAR FIRMA DEL WEBHOOK DE MERCADOPAGO
+// ========================================
+export const validarFirmaWebhook = (req) => {
+  try {
+    const signatureHeader = req.headers['x-signature'];
+    const requestId = req.headers['x-request-id'];
+
+    if (!signatureHeader || !requestId) return false;
+
+    // Extraer ts y hash del header
+    // Formato: "ts=123456789,v1=hashaquí"
+    const parts = signatureHeader.split(',');
+    const ts = parts.find(p => p.startsWith('ts='))?.split('=')[1];
+    const hash = parts.find(p => p.startsWith('v1='))?.split('=')[1];
+
+    if (!ts || !hash) return false;
+
+    // Construir el mensaje a firmar
+    const dataId = req.body?.data?.id;
+    const mensaje = `id:${dataId};request-id:${requestId};ts:${ts};`;
+
+    // Calcular HMAC
+    const calculado = crypto
+      .createHmac('sha256', process.env.MP_WEBHOOK_SECRET)
+      .update(mensaje)
+      .digest('hex');
+
+    return calculado === hash;
+  } catch (error) {
+    console.error('Error al validar firma webhook MP:', error);
+    return false;
+  }
+};
+
+// ========================================
+// VALIDAR WEBHOOK DE PAYPAL
+// ========================================
+export const validarWebhookPayPal = async (req) => {
+  try {
+    // PayPal requiere reenviarle los headers y el body
+    // para que confirme que la notificación es suya
+    const verificacion = {
+      auth_algo: req.headers['paypal-auth-algo'],
+      cert_url: req.headers['paypal-cert-url'],
+      transmission_id: req.headers['paypal-transmission-id'],
+      transmission_sig: req.headers['paypal-transmission-sig'],
+      transmission_time: req.headers['paypal-transmission-time'],
+      webhook_id: process.env.PAYPAL_WEBHOOK_ID,
+      webhook_event: req.body
+    };
+
+    // Obtener token de acceso de PayPal
+    const authResponse = await axios.post(
+      `https://api${process.env.PAYPAL_MODE === 'live' ? '' : '.sandbox'}.paypal.com/v1/oauth2/token`,
+      'grant_type=client_credentials',
+      {
+        auth: {
+          username: process.env.PAYPAL_CLIENT_ID,
+          password: process.env.PAYPAL_CLIENT_SECRET
+        },
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+      }
+    );
+
+    const accessToken = authResponse.data.access_token;
+
+    // Verificar la firma con la API de PayPal
+    const response = await axios.post(
+      `https://api${process.env.PAYPAL_MODE === 'live' ? '' : '.sandbox'}.paypal.com/v1/notifications/verify-webhook-signature`,
+      verificacion,
+      {
+        headers: {
+          'Authorization': `Bearer ${accessToken}`,
+          'Content-Type': 'application/json'
+        }
+      }
+    );
+
+    return response.data.verification_status === 'SUCCESS';
+  } catch (error) {
+    console.error('Error al validar firma webhook PayPal:', error);
+    return false;
   }
 };
 

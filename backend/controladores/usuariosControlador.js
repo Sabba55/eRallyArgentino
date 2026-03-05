@@ -221,17 +221,18 @@ export const obtenerMiGarage = async (req, res) => {
 
     const vehiculosAlquilados = alquileres.map(alquiler => ({
       id: alquiler.id,
+      estado: alquiler.estado,
       vehiculo: {
         id: alquiler.Vehiculo.id,
         marca: alquiler.Vehiculo.marca,
         nombre: alquiler.Vehiculo.nombre,
         foto: alquiler.Vehiculo.foto
       },
-      rally: {
+      rally: alquiler.Rally ? { 
         id: alquiler.Rally.id,
         nombre: alquiler.Rally.nombre,
         fecha: alquiler.Rally.fecha
-      },
+      }: null,
       tipo: 'alquiler',
       fechaAlquiler: alquiler.fechaAlquiler,
       fechaFinalizacion: alquiler.fechaReprogramada || alquiler.fechaFinalizacion,

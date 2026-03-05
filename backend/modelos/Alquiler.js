@@ -132,7 +132,7 @@ Alquiler.obtenerActivosUsuario = async function (usuarioId) {
   return await Alquiler.findAll({
     where: {
       usuarioId,
-      estado: 'aprobado',
+      estado: { [sequelize.Sequelize.Op.in]: ['aprobado', 'rally_cancelado'] },
       [sequelize.Sequelize.Op.or]: [
         {
           fechaFinalizacion: {

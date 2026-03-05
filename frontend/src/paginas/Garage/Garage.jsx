@@ -323,44 +323,80 @@ function Garage() {
                         <div className={styles.infoTarjeta}>
                           <p className={styles.lineaInfo}>
                             <span className={styles.labelInfo}>Rally:</span>
-                            <span className={styles.valorInfo}>{alquiler.rally.nombre}</span>
+                            <span className={styles.valorInfo}>
+                              {alquiler.rally ? alquiler.rally.nombre : '—'}
+                            </span>
                           </p>
                           <p className={styles.lineaInfo}>
                             <span className={styles.labelInfo}>Fecha rally:</span>
-                            <span className={styles.valorInfo}>{formatearFecha(alquiler.rally.fecha)}</span>
+                            <span className={styles.valorInfo}>
+                              {alquiler.rally ? formatearFecha(alquiler.rally.fecha) : '—'}
+                            </span>
                           </p>
                           
                           {/* Contador de días */}
                           <div className={styles.contenedorContador}>
-                            <div 
-                              className={styles.contadorDias}
-                              style={{ 
-                                borderColor: obtenerColorUrgencia(alquiler.diasRestantes),
-                                backgroundColor: `${obtenerColorUrgencia(alquiler.diasRestantes)}15`
-                              }}
-                            >
-                              <svg 
-                                className={styles.iconoReloj} 
-                                fill="none" 
-                                stroke="currentColor" 
-                                viewBox="0 0 24 24"
-                                style={{ color: obtenerColorUrgencia(alquiler.diasRestantes) }}
+                            {alquiler.estado === 'rally_cancelado' ? (
+                              <div
+                                className={styles.contadorDias}
+                                style={{
+                                  borderColor: '#ff4444',
+                                  backgroundColor: 'rgba(255, 68, 68, 0.1)'
+                                }}
                               >
-                                <path 
-                                  strokeLinecap="round" 
-                                  strokeLinejoin="round" 
-                                  strokeWidth={2} 
-                                  d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" 
-                                />
-                              </svg>
-                              <span 
-                                className={styles.textoContador}
-                                style={{ color: obtenerColorUrgencia(alquiler.diasRestantes) }}
+                                <svg
+                                  className={styles.iconoReloj}
+                                  fill="none"
+                                  stroke="currentColor"
+                                  viewBox="0 0 24 24"
+                                  style={{ color: '#ff4444' }}
+                                >
+                                  <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth={2}
+                                    d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"
+                                  />
+                                </svg>
+                                <span
+                                  className={styles.textoContador}
+                                  style={{ color: '#ff4444' }}
+                                >
+                                  Rally cancelado
+                                </span>
+                              </div>
+                            ) : (
+                              <div
+                                className={styles.contadorDias}
+                                style={{
+                                  borderColor: obtenerColorUrgencia(alquiler.diasRestantes),
+                                  backgroundColor: `${obtenerColorUrgencia(alquiler.diasRestantes)}15`
+                                }}
                               >
-                                {formatearDiasRestantes(alquiler.diasRestantes)}
-                              </span>
-                            </div>
+                                <svg
+                                  className={styles.iconoReloj}
+                                  fill="none"
+                                  stroke="currentColor"
+                                  viewBox="0 0 24 24"
+                                  style={{ color: obtenerColorUrgencia(alquiler.diasRestantes) }}
+                                >
+                                  <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth={2}
+                                    d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                                  />
+                                </svg>
+                                <span
+                                  className={styles.textoContador}
+                                  style={{ color: obtenerColorUrgencia(alquiler.diasRestantes) }}
+                                >
+                                  {formatearDiasRestantes(alquiler.diasRestantes)}
+                                </span>
+                              </div>
+                            )}
                           </div>
+
                         </div>
                       </div>
 
