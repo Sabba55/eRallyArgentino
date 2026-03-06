@@ -1,5 +1,6 @@
 import { MercadoPagoConfig, Payment, Preference } from 'mercadopago';
 import crypto from 'crypto';
+import axios from 'axios';
 
 // ========================================
 // CONFIGURACIÓN DE MERCADOPAGO
@@ -53,14 +54,18 @@ export const crearPreferenciaPago = async (datosCompra) => {
         failure: `${process.env.FRONTEND_URL}/pago/fallido`,
         pending: `${process.env.FRONTEND_URL}/pago/pendiente`
       },
-      auto_return: 'approved',
+      ...(process.env.NODE_ENV === 'production' && { auto_return: 'approved' }),
+
       notification_url: `${process.env.BACKEND_URL}/api/pagos/webhook/mercadopago`,
-      external_reference: `${usuarioId}-${Date.now()}`,
+      external_reference: metadata.external_reference || `${usuarioId}-${Date.now()}`,
       metadata: {
         usuario_id: usuarioId,
         ...metadata
       }
     };
+
+    console.log('FRONTEND_URL:', process.env.FRONTEND_URL)
+    console.log('back_urls:', preferenciaData.back_urls)
 
     const respuesta = await preference.create({ body: preferenciaData });
 

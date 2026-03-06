@@ -1,0 +1,276 @@
+.contenedor {
+  min-height: calc(100vh - 86px - 200px);
+  background-color: #1a1a1a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 1rem;
+  position: relative;
+  overflow: hidden;
+}
+
+/* ========================================
+   PARTÍCULAS DE FONDO
+   ======================================== */
+
+.particulas {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.particula {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: #39ff14;
+  opacity: 0;
+  top: calc(10% + var(--i) * 7%);
+  left: calc(5% + var(--i) * 8%);
+  animation: flotar 4s ease-in-out infinite;
+  animation-delay: calc(var(--i) * 0.3s);
+}
+
+@keyframes flotar {
+  0%, 100% { opacity: 0; transform: translateY(0) scale(0.5); }
+  50% { opacity: 0.4; transform: translateY(-30px) scale(1); }
+}
+
+/* ========================================
+   TARJETA
+   ======================================== */
+
+.tarjeta {
+  background: linear-gradient(135deg, #2a2a2a, #1f2f1f);
+  border: 2px solid rgba(57, 255, 20, 0.4);
+  border-radius: 24px;
+  padding: 3rem 2.5rem;
+  max-width: 500px;
+  width: 100%;
+  text-align: center;
+  box-shadow: 0 0 60px rgba(57, 255, 20, 0.1), 0 20px 60px rgba(0, 0, 0, 0.5);
+  animation: aparecer 0.6s ease-out;
+  position: relative;
+  z-index: 1;
+}
+
+@keyframes aparecer {
+  from { opacity: 0; transform: translateY(30px) scale(0.95); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* ========================================
+   ÍCONO
+   ======================================== */
+
+.iconoContenedor {
+  position: relative;
+  width: 100px;
+  height: 100px;
+  margin: 0 auto 2rem;
+}
+
+.icono {
+  width: 100px;
+  height: 100px;
+}
+
+.circulo {
+  stroke-dasharray: 283;
+  stroke-dashoffset: 283;
+  animation: dibujarCirculo 0.8s ease-out 0.2s forwards;
+}
+
+@keyframes dibujarCirculo {
+  to { stroke-dashoffset: 0; }
+}
+
+.check {
+  stroke-dasharray: 80;
+  stroke-dashoffset: 80;
+  animation: dibujarCheck 0.5s ease-out 0.9s forwards;
+}
+
+@keyframes dibujarCheck {
+  to { stroke-dashoffset: 0; }
+}
+
+.resplandor {
+  position: absolute;
+  inset: -10px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(57, 255, 20, 0.15) 0%, transparent 70%);
+  animation: pulsar 2s ease-in-out infinite 1.5s;
+}
+
+@keyframes pulsar {
+  0%, 100% { transform: scale(1); opacity: 0.5; }
+  50% { transform: scale(1.2); opacity: 1; }
+}
+
+/* ========================================
+   TEXTOS
+   ======================================== */
+
+.titulo {
+  font-family: 'Orbitron', 'Impact', sans-serif;
+  font-size: 2.2rem;
+  font-weight: 900;
+  color: #39ff14;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 0.5rem;
+  text-shadow: 0 0 20px rgba(57, 255, 20, 0.4);
+}
+
+.subtitulo {
+  color: #a0a0a0;
+  font-size: 1.05rem;
+  margin-bottom: 1.5rem;
+}
+
+.infoTransaccion {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  background: rgba(57, 255, 20, 0.08);
+  border: 1px solid rgba(57, 255, 20, 0.25);
+  border-radius: 10px;
+  padding: 0.6rem 1.2rem;
+  margin-bottom: 1.5rem;
+}
+
+.labelInfo {
+  color: #a0a0a0;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.valorInfo {
+  color: #39ff14;
+  font-weight: 700;
+  font-size: 0.95rem;
+  font-family: monospace;
+}
+
+.textoEmail {
+  color: #707070;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  margin-bottom: 1.5rem;
+}
+
+.separador {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(57, 255, 20, 0.3), transparent);
+  margin-bottom: 1.5rem;
+}
+
+.textoRedireccion {
+  color: #a0a0a0;
+  font-size: 0.9rem;
+  margin-bottom: 0.75rem;
+}
+
+.contador {
+  color: #39ff14;
+  font-weight: 700;
+  font-size: 1rem;
+}
+
+/* ========================================
+   BARRA DE PROGRESO
+   ======================================== */
+
+.barraProgreso {
+  width: 100%;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 2px;
+  overflow: hidden;
+  margin-bottom: 2rem;
+}
+
+.barraRelleno {
+  height: 100%;
+  background: linear-gradient(90deg, #39ff14, #00d4ff);
+  border-radius: 2px;
+  width: 100%;
+  animation: vaciar linear forwards;
+  animation-duration: inherit;
+  transform-origin: left;
+}
+
+@keyframes vaciar {
+  from { transform: scaleX(1); }
+  to { transform: scaleX(0); }
+}
+
+/* ========================================
+   BOTONES
+   ======================================== */
+
+.botones {
+  display: flex;
+  gap: 1rem;
+}
+
+.botonGarage {
+  flex: 1;
+  padding: 0.9rem 1rem;
+  background: linear-gradient(135deg, #39ff14, #00d4ff);
+  color: #1a1a1a;
+  border: none;
+  border-radius: 10px;
+  font-weight: 800;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.botonGarage:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 20px rgba(57, 255, 20, 0.4);
+}
+
+.botonTienda {
+  flex: 1;
+  padding: 0.9rem 1rem;
+  background: transparent;
+  color: #a0a0a0;
+  border: 2px solid #3a3a3a;
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.botonTienda:hover {
+  border-color: #00d4ff;
+  color: #00d4ff;
+}
+
+/* ========================================
+   RESPONSIVE
+   ======================================== */
+
+@media (max-width: 576px) {
+  .tarjeta {
+    padding: 2rem 1.5rem;
+  }
+
+  .titulo {
+    font-size: 1.8rem;
+  }
+
+  .botones {
+    flex-direction: column;
+  }
+}

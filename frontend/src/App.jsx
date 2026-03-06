@@ -29,6 +29,9 @@ import Navegantes from './paginas/Descargas/Navegantes'
 import LinksTramos from './paginas/Descargas/LinksTramos'
 import Perfil from './paginas/Perfil/Perfil'
 import EditarPerfil from './paginas/Perfil/EditarPerfil'
+import PagoExitoso from './paginas/Pago/PagoExitoso'
+import PagoFallido from './paginas/Pago/PagoFallido'
+import PagoPendiente from './paginas/Pago/PagoPendiente'
 
 // ========================================
 // ADMIN
@@ -187,6 +190,10 @@ function App() {
               <Route path="/descargas/links-tramos" element={<LinksTramos />} />
               <Route path="/descargas/pack-tramos" element={<LinksTramos />} />
               <Route path="/descargas/navegantes" element={<Navegantes />} />
+
+              <Route path="/pago/exitoso" element={<PagoExitoso />} />
+              <Route path="/pago/fallido" element={<PagoFallido />} />
+              <Route path="/pago/pendiente" element={<PagoPendiente />} />
             </Routes>
           </main>
 

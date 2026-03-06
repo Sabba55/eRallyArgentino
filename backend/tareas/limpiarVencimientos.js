@@ -146,7 +146,7 @@ export const ejecutarLimpiezaManual = async () => {
   await limpiarVencimientos();
   return {
     mensaje: 'Limpieza ejecutada manualmente',
-    timestamp: new Date(ejecutarLimpiezaManual)
+    timestamp: new Date()
   };
 };
 

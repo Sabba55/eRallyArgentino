@@ -50,7 +50,7 @@ const Historial = sequelize.define(
     },
     fechaParticipacion: {
       type: DataTypes.DATE,
-      allowNull: false,
+      allowNull: true,
       comment: 'Fecha en la que participó en el rally'
     }
   },

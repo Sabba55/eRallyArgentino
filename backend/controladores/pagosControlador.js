@@ -50,6 +50,9 @@ export const crearCompraMercadoPago = async (req, res) => {
       });
     }
 
+    const fechaVencimiento = new Date()
+    fechaVencimiento.setFullYear(fechaVencimiento.getFullYear() + 1)
+
     // Crear la compra en estado "pendiente"
     const compra = await Compra.create({
       usuarioId: usuario.id,
@@ -57,7 +60,8 @@ export const crearCompraMercadoPago = async (req, res) => {
       monto: vehiculo.precioCompra,
       moneda: 'ARS',
       metodoPago: 'MercadoPago',
-      estado: 'pendiente'
+      estado: 'pendiente',
+      fechaVencimiento
     });
 
     // Crear preferencia de Mercado Pago (CORREGIDO)
@@ -70,7 +74,8 @@ export const crearCompraMercadoPago = async (req, res) => {
         tipo: 'compra',
         compraId: compra.id,
         vehiculoId,
-        email: usuario.email
+        email: usuario.email,
+        external_reference: `compra-${compra.id}`
       }
     });
 
@@ -94,7 +99,7 @@ export const crearCompraMercadoPago = async (req, res) => {
       },
       preferencia: {
         id: preferencia.id,
-        init_point: preferencia.init_point // URL para redirigir al usuario
+        init_point: preferencia.sandbox_init_point || preferencia.init_point
       }
     });
   } catch (error) {
@@ -140,6 +145,9 @@ export const crearCompraPayPal = async (req, res) => {
     const dolarBlue = await obtenerDolarBlue();
     const montoUSD = (vehiculo.precioCompra / dolarBlue).toFixed(2);
 
+    const fechaVencimiento = new Date()
+    fechaVencimiento.setFullYear(fechaVencimiento.getFullYear() + 1)
+
     // Crear compra en estado pendiente
     const compra = await Compra.create({
       usuarioId: usuario.id,
@@ -147,7 +155,8 @@ export const crearCompraPayPal = async (req, res) => {
       monto: parseFloat(montoUSD),
       moneda: 'USD',
       metodoPago: 'PayPal',
-      estado: 'pendiente'
+      estado: 'pendiente',
+      fechaVencimiento
     });
 
     // Crear orden de PayPal (CORREGIDO)
@@ -255,7 +264,8 @@ export const crearAlquilerMercadoPago = async (req, res) => {
         alquilerId: alquiler.id,
         vehiculoId,
         rallyId,
-        email: usuario.email
+        email: usuario.email,
+        external_reference: `alquiler-${alquiler.id}`
       }
     });
 
@@ -283,7 +293,7 @@ export const crearAlquilerMercadoPago = async (req, res) => {
       },
       preferencia: {
         id: preferencia.id,
-        init_point: preferencia.init_point
+        init_point: preferencia.sandbox_init_point || preferencia.init_point
       }
     });
   } catch (error) {
@@ -398,7 +408,7 @@ export const crearAlquilerPayPal = async (req, res) => {
 // ========================================
 export const webhookMercadoPago = async (req, res) => {
   try {
-    if (!validarFirmaWebhook(req)) {
+    if (process.env.NODE_ENV === 'production' && !validarFirmaWebhook(req)) {
       console.warn('⚠️ Webhook MP rechazado: firma inválida');
       return res.sendStatus(401);
     }
@@ -413,14 +423,16 @@ export const webhookMercadoPago = async (req, res) => {
       const infoPago = await verificarPago(paymentId);
 
       if (infoPago.status === 'approved') {
-        // Buscar la transacción (puede ser compra o alquiler)
-        const compra = await Compra.findOne({
-          where: { transaccionId: paymentId, estado: 'pendiente' }
-        });
+        const ref = infoPago.external_reference 
+        const [tipo, id] = ref.split('-')
 
-        const alquiler = await Alquiler.findOne({
-          where: { transaccionId: paymentId, estado: 'pendiente' }
-        });
+        const compra = tipo === 'compra'
+          ? await Compra.findByPk(id)
+          : null
+
+        const alquiler = tipo === 'alquiler'
+          ? await Alquiler.findByPk(id)
+          : null
 
         if (compra) {
           await compra.aprobar();
@@ -468,6 +480,23 @@ export const webhookMercadoPago = async (req, res) => {
             rally.nombre,
             rally.fecha
           );
+        }
+      } else if (infoPago.status === 'cancelled') {
+        const ref = infoPago.external_reference;
+        const [tipo, id] = ref.split('-');
+
+        if (tipo === 'compra') {
+          const compra = await Compra.findByPk(id);
+          if (compra && compra.estado === 'pendiente') {
+            await compra.rechazar();
+            console.log(`❌ Compra #${compra.id} cancelada por MercadoPago`);
+          }
+        } else if (tipo === 'alquiler') {
+          const alquiler = await Alquiler.findByPk(id);
+          if (alquiler && alquiler.estado === 'pendiente') {
+            await alquiler.rechazar();
+            console.log(`❌ Alquiler #${alquiler.id} cancelado por MercadoPago`);
+          }
         }
       }
     }

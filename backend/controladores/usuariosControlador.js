@@ -200,11 +200,21 @@ export const obtenerMiGarage = async (req, res) => {
 
     // Obtener compras activas (vehículos comprados)
     const compras = await Compra.obtenerActivasUsuario(usuario.id);
+    const comprasPendientes = await Compra.findAll({
+      where: { usuarioId: usuario.id, estado: 'pendiente' },
+      include: ['Vehiculo'],
+      order: [['createdAt', 'DESC']]
+    });
 
     // Obtener alquileres activos (vehículos alquilados)
     const alquileres = await Alquiler.obtenerActivosUsuario(usuario.id);
+    const alquileresPendientes = await Alquiler.findAll({
+      where: { usuarioId: usuario.id, estado: 'pendiente' },
+      include: ['Vehiculo', 'Rally'],
+      order: [['createdAt', 'DESC']]
+    });
 
-    // Formatear respuesta
+    // Formatear activos
     const vehiculosComprados = compras.map(compra => ({
       id: compra.id,
       vehiculo: {
@@ -219,31 +229,71 @@ export const obtenerMiGarage = async (req, res) => {
       diasRestantes: compra.diasRestantes()
     }));
 
-    const vehiculosAlquilados = alquileres.map(alquiler => ({
+    const vehiculosAlquilados = alquileres.map(alquiler => {
+      const fechaFinal = alquiler.fechaReprogramada 
+        || alquiler.Rally?.fecha 
+        || alquiler.fechaFinalizacion;
+      const ahora = new Date();
+      const diasRestantes = Math.max(0, Math.ceil((new Date(fechaFinal) - ahora) / (1000 * 60 * 60 * 24)));
+
+      return {
+        id: alquiler.id,
+        estado: alquiler.estado,
+        vehiculo: {
+          id: alquiler.Vehiculo.id,
+          marca: alquiler.Vehiculo.marca,
+          nombre: alquiler.Vehiculo.nombre,
+          foto: alquiler.Vehiculo.foto
+        },
+        rally: alquiler.Rally ? {
+          id: alquiler.Rally.id,
+          nombre: alquiler.Rally.nombre,
+          fecha: alquiler.Rally.fecha
+        } : null,
+        tipo: 'alquiler',
+        fechaAlquiler: alquiler.fechaAlquiler,
+        fechaFinalizacion: fechaFinal,
+        diasRestantes,
+        reprogramado: alquiler.fueReprogramado()
+      };
+    });
+
+    // Formatear pendientes
+    const comprasPendientesFormateadas = comprasPendientes.map(compra => ({
+      id: compra.id,
+      vehiculo: {
+        id: compra.Vehiculo.id,
+        marca: compra.Vehiculo.marca,
+        nombre: compra.Vehiculo.nombre,
+        foto: compra.Vehiculo.foto
+      },
+      tipo: 'compra',
+      estado: 'pendiente',
+      fechaCompra: compra.createdAt
+    }));
+
+    const alquileresPendientesFormateados = alquileresPendientes.map(alquiler => ({
       id: alquiler.id,
-      estado: alquiler.estado,
       vehiculo: {
         id: alquiler.Vehiculo.id,
         marca: alquiler.Vehiculo.marca,
         nombre: alquiler.Vehiculo.nombre,
         foto: alquiler.Vehiculo.foto
       },
-      rally: alquiler.Rally ? { 
+      rally: alquiler.Rally ? {
         id: alquiler.Rally.id,
         nombre: alquiler.Rally.nombre,
         fecha: alquiler.Rally.fecha
-      }: null,
+      } : null,
       tipo: 'alquiler',
-      fechaAlquiler: alquiler.fechaAlquiler,
-      fechaFinalizacion: alquiler.fechaReprogramada || alquiler.fechaFinalizacion,
-      diasRestantes: alquiler.diasRestantes(),
-      reprogramado: alquiler.fueReprogramado()
+      estado: 'pendiente',
+      fechaAlquiler: alquiler.createdAt
     }));
 
     res.json({
       garage: {
-        compras: vehiculosComprados,
-        alquileres: vehiculosAlquilados,
+        compras: [...vehiculosComprados, ...comprasPendientesFormateadas],
+        alquileres: [...vehiculosAlquilados, ...alquileresPendientesFormateados],
         total: vehiculosComprados.length + vehiculosAlquilados.length
       }
     });

@@ -198,11 +198,7 @@ function Garage() {
                   className={styles.botonColapsar}
                   aria-label={compradosExpandido ? "Ocultar vehículos comprados" : "Mostrar vehículos comprados"}
                 >
-                  {compradosExpandido ? (
-                    <ChevronUp size={28} />
-                  ) : (
-                    <ChevronDown size={28} />
-                  )}
+                  {compradosExpandido ? <ChevronUp size={28} /> : <ChevronDown size={28} />}
                 </button>
               </div>
               
@@ -211,7 +207,6 @@ function Garage() {
                   {garage.compras.map((compra) => (
                     <div key={compra.id} className={styles.tarjeta}>
                       
-                      {/* Foto */}
                       <div className={styles.contenedorFotoTarjeta}>
                         <img
                           src={compra.vehiculo.foto}
@@ -220,54 +215,66 @@ function Garage() {
                         />
                       </div>
 
-                      {/* Info */}
                       <div className={styles.cuerpoTarjeta}>
                         <h3 className={styles.nombreTarjeta}>
                           {compra.vehiculo.marca} {compra.vehiculo.nombre}
                         </h3>
                         
                         <div className={styles.infoTarjeta}>
-                          <p className={styles.lineaInfo}>
-                            <span className={styles.labelInfo}>Comprado:</span>
-                            <span className={styles.valorInfo}>{formatearFecha(compra.fechaCompra)}</span>
-                          </p>
-                          <p className={styles.lineaInfo}>
-                            <span className={styles.labelInfo}>Vence:</span>
-                            <span className={styles.valorInfo}>{formatearFecha(compra.fechaVencimiento)}</span>
-                          </p>
+                          {compra.estado === 'pendiente' ? (
+                            <p className={styles.lineaInfo}>
+                              <span className={styles.labelInfo}>Iniciado:</span>
+                              <span className={styles.valorInfo}>{formatearFecha(compra.fechaCompra)}</span>
+                            </p>
+                          ) : (
+                            <>
+                              <p className={styles.lineaInfo}>
+                                <span className={styles.labelInfo}>Comprado:</span>
+                                <span className={styles.valorInfo}>{formatearFecha(compra.fechaCompra)}</span>
+                              </p>
+                              <p className={styles.lineaInfo}>
+                                <span className={styles.labelInfo}>Vence:</span>
+                                <span className={styles.valorInfo}>{formatearFecha(compra.fechaVencimiento)}</span>
+                              </p>
+                            </>
+                          )}
                           
-                          {/* Contador de días */}
                           <div className={styles.contenedorContador}>
-                            <div 
-                              className={styles.contadorDias}
-                              style={{ 
-                                borderColor: obtenerColorUrgencia(compra.diasRestantes),
-                                backgroundColor: `${obtenerColorUrgencia(compra.diasRestantes)}15`
-                              }}
-                            >
-                              <svg 
-                                className={styles.iconoReloj} 
-                                fill="none" 
-                                stroke="currentColor" 
-                                viewBox="0 0 24 24"
-                                style={{ color: obtenerColorUrgencia(compra.diasRestantes) }}
+                            {compra.estado === 'pendiente' ? (
+                              <div
+                                className={styles.contadorDias}
+                                style={{ borderColor: '#ff8c00', backgroundColor: 'rgba(255, 140, 0, 0.08)' }}
                               >
-                                <path 
-                                  strokeLinecap="round" 
-                                  strokeLinejoin="round" 
-                                  strokeWidth={2} 
-                                  d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" 
-                                />
-                              </svg>
-                              <span 
-                                className={styles.textoContador}
-                                style={{ color: obtenerColorUrgencia(compra.diasRestantes) }}
+                                <svg className={styles.iconoReloj} fill="none" stroke="currentColor"
+                                  viewBox="0 0 24 24" style={{ color: '#ff8c00' }}>
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                                    d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                <span className={styles.textoContador} style={{ color: '#ff8c00' }}>
+                                  Pago pendiente
+                                </span>
+                              </div>
+                            ) : (
+                              <div 
+                                className={styles.contadorDias}
+                                style={{ 
+                                  borderColor: obtenerColorUrgencia(compra.diasRestantes),
+                                  backgroundColor: `${obtenerColorUrgencia(compra.diasRestantes)}15`
+                                }}
                               >
-                                {formatearDiasRestantes(compra.diasRestantes)}
-                              </span>
-                            </div>
+                                <svg className={styles.iconoReloj} fill="none" stroke="currentColor"
+                                  viewBox="0 0 24 24"
+                                  style={{ color: obtenerColorUrgencia(compra.diasRestantes) }}>
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                                    d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                <span className={styles.textoContador}
+                                  style={{ color: obtenerColorUrgencia(compra.diasRestantes) }}>
+                                  {formatearDiasRestantes(compra.diasRestantes)}
+                                </span>
+                              </div>
+                            )}
                           </div>
-                          
                         </div>
                       </div>
 
@@ -292,11 +299,7 @@ function Garage() {
                   className={styles.botonColapsar}
                   aria-label={alquiladosExpandido ? "Ocultar vehículos alquilados" : "Mostrar vehículos alquilados"}
                 >
-                  {alquiladosExpandido ? (
-                    <ChevronUp size={28} />
-                  ) : (
-                    <ChevronDown size={28} />
-                  )}
+                  {alquiladosExpandido ? <ChevronUp size={28} /> : <ChevronDown size={28} />}
                 </button>
               </div>
               
@@ -305,7 +308,6 @@ function Garage() {
                   {garage.alquileres.map((alquiler) => (
                     <div key={alquiler.id} className={styles.tarjeta}>
                       
-                      {/* Foto */}
                       <div className={styles.contenedorFotoTarjeta}>
                         <img
                           src={alquiler.vehiculo.foto}
@@ -314,7 +316,6 @@ function Garage() {
                         />
                       </div>
 
-                      {/* Info */}
                       <div className={styles.cuerpoTarjeta}>
                         <h3 className={styles.nombreTarjeta}>
                           {alquiler.vehiculo.marca} {alquiler.vehiculo.nombre}
@@ -334,34 +335,32 @@ function Garage() {
                             </span>
                           </p>
                           
-                          {/* Contador de días */}
                           <div className={styles.contenedorContador}>
-                            {alquiler.estado === 'rally_cancelado' ? (
+                            {alquiler.estado === 'pendiente' ? (
                               <div
                                 className={styles.contadorDias}
-                                style={{
-                                  borderColor: '#ff4444',
-                                  backgroundColor: 'rgba(255, 68, 68, 0.1)'
-                                }}
+                                style={{ borderColor: '#ff8c00', backgroundColor: 'rgba(255, 140, 0, 0.08)' }}
                               >
-                                <svg
-                                  className={styles.iconoReloj}
-                                  fill="none"
-                                  stroke="currentColor"
-                                  viewBox="0 0 24 24"
-                                  style={{ color: '#ff4444' }}
-                                >
-                                  <path
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    strokeWidth={2}
-                                    d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"
-                                  />
+                                <svg className={styles.iconoReloj} fill="none" stroke="currentColor"
+                                  viewBox="0 0 24 24" style={{ color: '#ff8c00' }}>
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                                    d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                                 </svg>
-                                <span
-                                  className={styles.textoContador}
-                                  style={{ color: '#ff4444' }}
-                                >
+                                <span className={styles.textoContador} style={{ color: '#ff8c00' }}>
+                                  Pago pendiente
+                                </span>
+                              </div>
+                            ) : alquiler.estado === 'rally_cancelado' ? (
+                              <div
+                                className={styles.contadorDias}
+                                style={{ borderColor: '#ff4444', backgroundColor: 'rgba(255, 68, 68, 0.1)' }}
+                              >
+                                <svg className={styles.iconoReloj} fill="none" stroke="currentColor"
+                                  viewBox="0 0 24 24" style={{ color: '#ff4444' }}>
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                                    d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                <span className={styles.textoContador} style={{ color: '#ff4444' }}>
                                   Rally cancelado
                                 </span>
                               </div>
@@ -373,30 +372,19 @@ function Garage() {
                                   backgroundColor: `${obtenerColorUrgencia(alquiler.diasRestantes)}15`
                                 }}
                               >
-                                <svg
-                                  className={styles.iconoReloj}
-                                  fill="none"
-                                  stroke="currentColor"
+                                <svg className={styles.iconoReloj} fill="none" stroke="currentColor"
                                   viewBox="0 0 24 24"
-                                  style={{ color: obtenerColorUrgencia(alquiler.diasRestantes) }}
-                                >
-                                  <path
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    strokeWidth={2}
-                                    d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
-                                  />
+                                  style={{ color: obtenerColorUrgencia(alquiler.diasRestantes) }}>
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                                    d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                                 </svg>
-                                <span
-                                  className={styles.textoContador}
-                                  style={{ color: obtenerColorUrgencia(alquiler.diasRestantes) }}
-                                >
+                                <span className={styles.textoContador}
+                                  style={{ color: obtenerColorUrgencia(alquiler.diasRestantes) }}>
                                   {formatearDiasRestantes(alquiler.diasRestantes)}
                                 </span>
                               </div>
                             )}
                           </div>
-
                         </div>
                       </div>
 

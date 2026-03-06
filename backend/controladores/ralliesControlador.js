@@ -232,26 +232,25 @@ export const actualizarRally = async (req, res) => {
 
     // Manejar logo
     if (req.file) {
-      // Eliminar logo anterior si existe
       if (rally.logo) await eliminarImagen(rally.logo);
-      
-      // Subir nuevo logo
       const palabras = (campeonato || rally.campeonato).trim().toLowerCase().split(/\s+/);
       const nombreArchivo = palabras.slice(0, 2).join('-').replace(/[^a-z0-9-]/g, '');
       rally.logo = await subirImagen(req.file.buffer, 'campeonato', nombreArchivo);
     } else if (req.body.logoExistente) {
-      // Seleccionó un logo existente
       if (rally.logo && rally.logo !== req.body.logoExistente) {
         await eliminarImagen(rally.logo);
       }
       rally.logo = req.body.logoExistente;
     } else if (req.body.logo !== undefined) {
-      // Si se envió logo como string (vacío = eliminar)
       if (rally.logo && req.body.logo !== rally.logo) {
         await eliminarImagen(rally.logo);
       }
       rally.logo = req.body.logo || null;
     }
+
+    // Detectar si la fecha cambió antes de modificar
+    const fechaAnterior = rally.fecha;
+    const fechaCambio = fecha && new Date(fecha).getTime() !== new Date(rally.fecha).getTime();
 
     // Actualizar campos
     if (campeonato) rally.campeonato = campeonato;
@@ -267,6 +266,28 @@ export const actualizarRally = async (req, res) => {
       await CategoriaRally.deshabilitarTodasCategoriasRally(rally.id);
       if (categoriasIds.length > 0) {
         await CategoriaRally.habilitarCategorias(rally.id, categoriasIds);
+      }
+    }
+
+    // Si la fecha cambió, actualizar alquileres y notificar usuarios
+    if (fechaCambio) {
+      const alquileres = await Alquiler.obtenerPorRally(id);
+      console.log(`[ACTUALIZAR RALLY] Fecha cambió, notificando ${alquileres.length} alquileres`);
+
+      for (const alquiler of alquileres) {
+        await alquiler.reprogramar(new Date(fecha));
+
+        const usuario = await alquiler.getUsuario();
+        const vehiculo = await alquiler.getVehiculo();
+
+        await enviarEmailReprogramacion(
+          usuario.email,
+          usuario.nombre,
+          rally.nombre,
+          vehiculo.nombreCompleto(),
+          fechaAnterior,
+          fecha
+        );
       }
     }
 
@@ -301,6 +322,7 @@ export const reprogramarRally = async (req, res) => {
     await rally.reprogramar(new Date(nuevaFecha));
 
     const alquileres = await Alquiler.obtenerPorRally(id);
+    console.log(`[REPROGRAMAR] Rally ID: ${id}, Alquileres encontrados: ${alquileres.length}`);
 
     for (const alquiler of alquileres) {
       await alquiler.reprogramar(new Date(nuevaFecha));
