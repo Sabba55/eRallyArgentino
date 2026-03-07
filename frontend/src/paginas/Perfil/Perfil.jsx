@@ -383,6 +383,45 @@ function Perfil() {
               </div>
             </div>
 
+            {/* Skin del Vehículo - fila completa */}
+            {usuario.skinUrl && (
+              <div className={`${styles.itemInfo} ${styles.filaCompleta}`}>
+                <div className={styles.labelInfo}>
+                  <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="20" height="20">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                      d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+                  </svg>
+                  Skin del Vehículo
+                </div>
+                <div className={styles.valorInfo} style={{ justifyContent: 'space-between' }}>
+                  <a href={usuario.skinUrl} target="_blank" rel="noopener noreferrer" className={styles.linkSkin}>
+                    Descargar Skin
+                  </a>
+                  {usuario.skinActualizadoEl && (
+                    <span className={styles.textoSinDatos}>
+                      Actualizado {new Date(usuario.skinActualizadoEl).toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit', hour12: false })}hs {new Date(usuario.skinActualizadoEl).toLocaleDateString('es-AR', { day: '2-digit', month: '2-digit', year: 'numeric' })}
+                    </span>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* Si no tiene skin, mostrar item vacío */}
+            {!usuario.skinUrl && (
+              <div className={styles.itemInfo}>
+                <div className={styles.labelInfo}>
+                  <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="20" height="20">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                      d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+                  </svg>
+                  Skin del Vehículo
+                </div>
+                <div className={styles.valorInfo}>
+                  <span className={styles.textoSinDatos}>No especificado</span>
+                </div>
+              </div>
+            )}
+            
           </div>
         </div>
       </Container>

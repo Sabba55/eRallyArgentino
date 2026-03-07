@@ -27,7 +27,9 @@ export const obtenerPerfil = async (req, res) => {
         equipo: usuario.equipo,
         fotoPerfil: usuario.fotoPerfil,
         rol: usuario.rol,
-        emailVerificado: usuario.emailVerificado
+        emailVerificado: usuario.emailVerificado,
+        skinUrl: usuario.skinUrl,
+        skinActualizadoEl: usuario.skinActualizadoEl
       }
     });
   } catch (error) {
@@ -45,12 +47,18 @@ export const obtenerPerfil = async (req, res) => {
 export const actualizarPerfil = async (req, res) => {
   try {
     const usuario = req.usuario; // Viene del middleware
-    const { nombre, equipo, fotoPerfil } = req.body;
+    const { nombre, equipo, fotoPerfil, skinUrl } = req.body;
 
     // Actualizar solo los campos permitidos
     if (nombre) usuario.nombre = nombre;
     if (equipo !== undefined) usuario.equipo = equipo;
     if (fotoPerfil !== undefined) usuario.fotoPerfil = fotoPerfil;
+    if (skinUrl !== undefined) {
+      if (skinUrl !== usuario.skinUrl) {
+        usuario.skinUrl = skinUrl || null;
+        usuario.skinActualizadoEl = skinUrl ? new Date() : null;
+      }
+    }    
 
     await usuario.save();
 
@@ -63,7 +71,9 @@ export const actualizarPerfil = async (req, res) => {
         equipo: usuario.equipo,
         fotoPerfil: usuario.fotoPerfil,
         rol: usuario.rol,
-        emailVerificado: usuario.emailVerificado
+        emailVerificado: usuario.emailVerificado,
+        skinUrl: usuario.skinUrl,
+        skinActualizadoEl: usuario.skinActualizadoEl,
       }
     });
   } catch (error) {

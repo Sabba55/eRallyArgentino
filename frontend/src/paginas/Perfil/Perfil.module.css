@@ -308,6 +308,23 @@
   font-weight: 700;
 }
 
+.linkSkin {
+  color: #00d4ff;
+  text-decoration: none;
+  font-weight: 700;
+  border-bottom: 1px solid rgba(0, 212, 255, 0.4);
+  transition: all 0.2s ease;
+}
+
+.linkSkin:hover {
+  color: #39ff14;
+  border-bottom-color: #39ff14;
+}
+
+.filaCompleta {
+  grid-column: span 2;
+}
+
 /* ========================================
    CERRAR SESIÓN
    ======================================== */

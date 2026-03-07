@@ -17,7 +17,8 @@ function EditarPerfil() {
   // ========================================
   const [formData, setFormData] = useState({
     nombre: '',
-    equipo: ''
+    equipo: '',
+    skinUrl: ''
   })
 
   const [fotoData, setFotoData] = useState({
@@ -47,7 +48,8 @@ function EditarPerfil() {
     if (usuario) {
       setFormData({
         nombre: usuario.nombre || '',
-        equipo: usuario.equipo || ''
+        equipo: usuario.equipo || '',
+        skinUrl: usuario.skinUrl || ''
       })
       setFotoData(prev => ({
         ...prev,
@@ -241,7 +243,8 @@ function EditarPerfil() {
 
       const response = await api.put('/usuarios/perfil', {
         nombre: formData.nombre.trim(),
-        equipo: (formData.equipo || '').trim()
+        equipo: (formData.equipo || '').trim(),
+        skinUrl: formData.skinUrl.trim() || null
       })
 
       await actualizarPerfil(response.data.usuario)
@@ -541,6 +544,30 @@ function EditarPerfil() {
                   />
                 </div>
               </Form.Group>
+
+              <Form.Group className={`${styles.grupoInput}`}>
+                <Form.Label className={styles.label}>Link de Skin (Opcional)</Form.Label>
+                <div className={styles.inputConIcono}>
+                  <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                    width="18" height="18" className={styles.iconoInput}>
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                      d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+                  </svg>
+                  <Form.Control
+                    type="url"
+                    name="skinUrl"
+                    value={formData.skinUrl}
+                    onChange={handleChange}
+                    className={styles.input}
+                    placeholder="https://drive.google.com/..."
+                    disabled={guardando}
+                  />
+                </div>
+                <small style={{ color: '#666', fontSize: '0.85rem', marginTop: '0.4rem', display: 'block' }}>
+                  Podés poner cualquier link de descarga
+                </small>
+              </Form.Group>
+
             </div>
           </section>
 

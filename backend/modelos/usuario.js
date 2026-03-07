@@ -72,6 +72,16 @@ const Usuario = sequelize.define(
         }
       }
     },
+    skinUrl: {
+      type: DataTypes.STRING(500),
+      allowNull: true,
+      defaultValue: null
+    },
+    skinActualizadoEl: {
+      type: DataTypes.DATE,
+      allowNull: true,
+      defaultValue: null
+    },
     rol: {
       type: DataTypes.ENUM('usuario', 'creador_fechas', 'admin'),
       allowNull: false,

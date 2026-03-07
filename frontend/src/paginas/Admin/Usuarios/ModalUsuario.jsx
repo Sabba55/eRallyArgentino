@@ -205,6 +205,25 @@ function ModalUsuario({ show, onHide, usuario, onGuardado }) {
             </div>
 
             <div className={styles.infoRow}>
+              <span className={styles.infoLabel}>Skin</span>
+              <span className={styles.infoValor}>
+                {usuario.skinUrl ? (
+                  <>
+                    <a href={usuario.skinUrl} target="_blank" rel="noopener noreferrer"
+                      style={{ color: '#00d4ff', textDecoration: 'none', borderBottom: '1px solid rgba(0, 212, 255, 0.4)' }}>
+                      Descargar Skin
+                    </a>
+                    {usuario.skinActualizadoEl && (
+                      <span style={{ color: '#666', marginLeft: '0.5rem' }}>
+                        | {new Date(usuario.skinActualizadoEl).toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit', hour12: false })}hs {new Date(usuario.skinActualizadoEl).toLocaleDateString('es-AR', { day: '2-digit', month: '2-digit', year: 'numeric' })}
+                      </span>
+                    )}
+                  </>
+                ) : '—'}
+              </span>
+            </div>
+
+            <div className={styles.infoRow}>
               <span className={styles.infoLabel}>Email Verificado</span>
               <span className={usuario.emailVerificado ? styles.verificadoSi : styles.verificadoNo}>
                 {usuario.emailVerificado ? 'Sí' : 'No'}
