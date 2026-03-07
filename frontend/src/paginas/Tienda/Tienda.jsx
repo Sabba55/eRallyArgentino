@@ -111,8 +111,8 @@ function Tienda() {
           valorA = `${a.marca} ${a.nombre}`.toLowerCase()
           valorB = `${b.marca} ${b.nombre}`.toLowerCase()
         } else {
-          valorA = a[campo]
-          valorB = b[campo]
+          valorA = parseFloat(a[campo])
+          valorB = parseFloat(b[campo])
         }
 
         if (direccion === 'asc') {

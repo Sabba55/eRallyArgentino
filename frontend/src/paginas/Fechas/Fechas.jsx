@@ -4,25 +4,14 @@ import api from '../../config/api'
 import styles from './Fechas.module.css'
 import TarjetaFecha from '../../componentes/Fechas/TarjetaFecha'
 
-const COLORES_CATEGORIAS = {
-  "Rally2": "#00d4ff",
-  "R5": "#39ff14",
-  "Rally3": "#ff6b00",
-  "Rally4": "#ffd60a",
-  "Maxi Rally": "#9d4edd",
-  "N4": "#e63946",
-  "RC3": "#ff006e",
-  "A1": "#ff0037",
-  "N1": "#2a9d8f",
-  "RC5": "#0077b6"
-};
-
 function Fechas() {
   // ========================================
   // ESTADOS
   // ========================================
   const [rallies, setRallies] = useState([])
   const [cargando, setCargando] = useState(true)
+  const [coloresCategorias, setColoresCategorias] = useState({})
+  const [ahora, setAhora] = useState(new Date())
   const [error, setError] = useState('')
 
   // Estados para filtros
@@ -75,62 +64,51 @@ function Fechas() {
   }
 
   // ========================================
+  // CARGAR COLORES DE CATEGORIAS DESDE EL BACKEND
+  // ========================================
+  useEffect(() => {
+    const cargarCategorias = async () => {
+      try {
+        const response = await api.get('/categorias')
+        const colores = {}
+        response.data.categorias.forEach(cat => {
+          colores[cat.nombre] = cat.color
+        })
+        setColoresCategorias(colores)
+      } catch (err) {
+        console.error('Error al cargar categorías:', err)
+      }
+    }
+    cargarCategorias()
+  }, [])
+
+  // ========================================
   // OBTENER PRÓXIMA FECHA
   // ========================================
+  useEffect(() => {
+    const intervalo = setInterval(() => setAhora(new Date()), 1000)
+    return () => clearInterval(intervalo)
+  }, [])
+
   const proximaFecha = useMemo(() => {
     if (rallies.length === 0) return null
-    
-    const ahora = new Date()
-    
-    // Filtrar solo rallies futuros y ordenar por fecha más cercana
     const proximos = rallies
       .filter(rally => new Date(rally.fecha) > ahora)
       .sort((a, b) => new Date(a.fecha) - new Date(b.fecha))
-    
     return proximos[0] || null
-  }, [rallies])
+  }, [rallies, ahora])
 
-  // ========================================
-  // COUNTDOWN HOOK
-  // ========================================
-  const useCuentaRegresiva = (fechaObjetivo) => {
-    const [tiempoRestante, setTiempoRestante] = useState({
-      dias: 0,
-      horas: 0,
-      minutos: 0,
-      segundos: 0
-    })
-
-    useEffect(() => {
-      if (!fechaObjetivo) return
-
-      const calcularTiempo = () => {
-        const ahora = new Date().getTime()
-        const objetivo = new Date(fechaObjetivo).getTime()
-        const diferencia = objetivo - ahora
-
-        if (diferencia > 0) {
-          setTiempoRestante({
-            dias: Math.floor(diferencia / (1000 * 60 * 60 * 24)),
-            horas: Math.floor((diferencia % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)),
-            minutos: Math.floor((diferencia % (1000 * 60 * 60)) / (1000 * 60)),
-            segundos: Math.floor((diferencia % (1000 * 60)) / 1000)
-          })
-        } else {
-          setTiempoRestante({ dias: 0, horas: 0, minutos: 0, segundos: 0 })
-        }
-      }
-
-      calcularTiempo()
-      const intervalo = setInterval(calcularTiempo, 1000)
-
-      return () => clearInterval(intervalo)
-    }, [fechaObjetivo])
-
-    return tiempoRestante
-  }
-
-  const countdown = useCuentaRegresiva(proximaFecha?.fecha)
+  const countdown = useMemo(() => {
+    if (!proximaFecha) return { dias: 0, horas: 0, minutos: 0, segundos: 0 }
+    const diferencia = new Date(proximaFecha.fecha) - ahora
+    if (diferencia <= 0) return { dias: 0, horas: 0, minutos: 0, segundos: 0 }
+    return {
+      dias: Math.floor(diferencia / (1000 * 60 * 60 * 24)),
+      horas: Math.floor((diferencia % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)),
+      minutos: Math.floor((diferencia % (1000 * 60 * 60)) / (1000 * 60)),
+      segundos: Math.floor((diferencia % (1000 * 60)) / 1000)
+    }
+  }, [proximaFecha, ahora])
 
   // ========================================
   // FORMATEAR FECHA Y HORA
@@ -349,7 +327,7 @@ function Fechas() {
         <div className={styles.contenedorTarjetas}>
           {ralliesFiltrados.length > 0 ? (
             ralliesFiltrados.map(rally => (
-              <TarjetaFecha key={rally.id} rally={rally} colores={COLORES_CATEGORIAS} />
+              <TarjetaFecha key={rally.id} rally={rally} colores={coloresCategorias} />
             ))
           ) : (
             <div className={styles.sinResultados}>
