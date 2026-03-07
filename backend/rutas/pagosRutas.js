@@ -8,7 +8,8 @@ import {
   webhookMercadoPago,
   webhookPayPal,
   listarMisCompras,
-  listarMisAlquileres
+  listarMisAlquileres,
+  capturarPagoPayPalReturn
 } from '../controladores/pagosControlador.js';
 import { verificarAutenticacion } from '../middlewares/autenticacion.js';
 import { verificarEmail } from '../middlewares/emailVerificado.js';
@@ -28,6 +29,8 @@ router.post('/webhook/mercadopago', webhookMercadoPago);
 // Webhook de PayPal
 // POST /api/pagos/webhook/paypal
 router.post('/webhook/paypal', webhookPayPal);
+
+router.get('/paypal/capturar', capturarPagoPayPalReturn);
 
 // ========================================
 // COMPRAS

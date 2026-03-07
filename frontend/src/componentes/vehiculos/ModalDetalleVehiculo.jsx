@@ -11,14 +11,13 @@ function ModalDetalleVehiculo({ show, onHide, vehiculo, tipo, categoria, colorCa
   const [cargandoRallies, setCargandoRallies] = useState(false)
   const [procesandoPago, setProcesandoPago] = useState(false)
   const [error, setError] = useState('')
-
-  // ✅ NUEVO — reemplaza cotizacionDolar + calcularPrecioUSD
+  const [ralliesInscritos, setRalliesInscritos] = useState([])
+  const [vehiculosComprados, setVehiculosComprados] = useState([])
   const [precios, setPrecios] = useState(null)
   const [cargandoPrecios, setCargandoPrecios] = useState(true)
 
   // ========================================
-  // CARGAR PRECIOS DESDE EL BACKEND
-  // Incluye ARS, USD ya con comisiones PayPal calculadas
+  // CARGAR PRECIOS
   // ========================================
   useEffect(() => {
     const cargarPrecios = async () => {
@@ -29,7 +28,6 @@ function ModalDetalleVehiculo({ show, onHide, vehiculo, tipo, categoria, colorCa
         setPrecios(response.data)
       } catch (err) {
         console.error('Error al obtener precios:', err)
-        // Si falla el endpoint, los botones de USD muestran '---'
         setPrecios(null)
       } finally {
         setCargandoPrecios(false)
@@ -69,11 +67,48 @@ function ModalDetalleVehiculo({ show, onHide, vehiculo, tipo, categoria, colorCa
     cargarRallies()
   }, [show, tipo, vehiculo])
 
-  // Reset al abrir
+  // ========================================
+  // VERIFICAR RALLIES INSCRITOS
+  // ========================================
+  useEffect(() => {
+    const cargarRalliesInscritos = async () => {
+      if (!show || tipo !== 'ALQUILAR') return
+      try {
+        const response = await api.get('/usuarios/garage/rallies-inscritos')
+        setRalliesInscritos(response.data.rallyIds || [])
+      } catch (err) {
+        console.error('Error al cargar rallies inscritos:', err)
+        setRalliesInscritos([])
+      }
+    }
+    cargarRalliesInscritos()
+  }, [show, tipo])
+
+  // ========================================
+  // VERIFICAR VEHÍCULOS COMPRADOS
+  // ========================================
+  useEffect(() => {
+    const cargarVehiculosComprados = async () => {
+      if (!show || tipo !== 'COMPRAR') return
+      try {
+        const response = await api.get('/usuarios/garage/vehiculos-comprados')
+        setVehiculosComprados(response.data.vehiculoIds || [])
+      } catch (err) {
+        setVehiculosComprados([])
+      }
+    }
+    cargarVehiculosComprados()
+  }, [show, tipo])
+
+  // ========================================
+  // RESET AL ABRIR
+  // ========================================
   useEffect(() => {
     if (show) {
       setFechaSeleccionada('')
       setError('')
+      setRalliesInscritos([])
+      setVehiculosComprados([])
     }
   }, [show])
 
@@ -92,8 +127,7 @@ function ModalDetalleVehiculo({ show, onHide, vehiculo, tipo, categoria, colorCa
   }
 
   // ========================================
-  // PRECIOS A MOSTRAR
-  // Usa los del backend; fallback al precio crudo del vehículo si el endpoint falla
+  // PRECIOS
   // ========================================
   const precioARS = tipo === 'COMPRAR'
     ? (precios?.compra?.ars ?? vehiculo?.precioCompra)
@@ -159,8 +193,10 @@ function ModalDetalleVehiculo({ show, onHide, vehiculo, tipo, categoria, colorCa
   if (!vehiculo) return null
 
   const hayRalliesDisponibles = rallies.length > 0
+  const vehiculoYaComprado = tipo === 'COMPRAR' && vehiculosComprados.includes(vehiculo.id)
+  const fechaYaInscripta = fechaSeleccionada !== '' && ralliesInscritos.includes(parseInt(fechaSeleccionada))
 
-  const botonMPHabilitado = !procesandoPago &&
+  const botonMPHabilitado = !procesandoPago && !vehiculoYaComprado && !fechaYaInscripta &&
     (tipo === 'COMPRAR' || (tipo === 'ALQUILAR' && hayRalliesDisponibles && fechaSeleccionada !== ''))
 
   const botonPayPalHabilitado = botonMPHabilitado && precios?.cotizacionDisponible === true
@@ -213,6 +249,17 @@ function ModalDetalleVehiculo({ show, onHide, vehiculo, tipo, categoria, colorCa
           </Alert>
         )}
 
+        {/* Aviso vehículo ya comprado */}
+        {vehiculoYaComprado && (
+          <div className={styles.yaComprado}>
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="18" height="18">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                d="M5 13l4 4L19 7" />
+            </svg>
+            Ya tenés este vehículo en tu garage
+          </div>
+        )}
+
         {tipo === 'ALQUILAR' && (
           <div className={styles.seccionFecha}>
             <label className={styles.labelFecha}>
@@ -241,11 +288,19 @@ function ModalDetalleVehiculo({ show, onHide, vehiculo, tipo, categoria, colorCa
                 disabled={procesandoPago}
               >
                 <option value="">Elegí una fecha</option>
-                {rallies.map((rally) => (
-                  <option key={rally.id} value={rally.id}>
-                    {formatearFechaRally(rally.fecha)} | {rally.campeonato} – {rally.nombre}
-                  </option>
-                ))}
+                {rallies.map((rally) => {
+                  const yaInscripto = ralliesInscritos.includes(rally.id)
+                  return (
+                    <option
+                      key={rally.id}
+                      value={rally.id}
+                      disabled={yaInscripto}
+                    >
+                      {formatearFechaRally(rally.fecha)} | {rally.campeonato} – {rally.nombre}
+                      {yaInscripto ? ' ✓ Ya inscripto' : ''}
+                    </option>
+                  )
+                })}
               </select>
             )}
           </div>
@@ -255,7 +310,6 @@ function ModalDetalleVehiculo({ show, onHide, vehiculo, tipo, categoria, colorCa
           <p className={styles.tituloPagos}>Método de pago:</p>
           <div className={styles.contenedorBotonesPago}>
 
-            {/* Mercado Pago — ARS */}
             <button
               className={`${styles.botonPago} ${styles.botonMP}`}
               onClick={() => manejarPago('Mercado Pago')}
@@ -272,7 +326,6 @@ function ModalDetalleVehiculo({ show, onHide, vehiculo, tipo, categoria, colorCa
               </span>
             </button>
 
-            {/* PayPal — USD con comisiones ya calculadas en el backend */}
             <button
               className={`${styles.botonPago} ${styles.botonPayPal}`}
               onClick={() => manejarPago('PayPal')}
@@ -301,7 +354,9 @@ function ModalDetalleVehiculo({ show, onHide, vehiculo, tipo, categoria, colorCa
 
         <p className={styles.textoAclarativo}>
           {tipo === 'COMPRAR'
-            ? 'Vigencia: 1 año desde la compra | Podés participar en todas las fechas'
+            ? vehiculoYaComprado
+              ? 'Este vehículo ya está en tu garage'
+              : 'Vigencia: 1 año desde la compra | Podés participar en todas las fechas'
             : fechaSeleccionada
               ? 'Válido hasta la fecha del rally seleccionado'
               : hayRalliesDisponibles

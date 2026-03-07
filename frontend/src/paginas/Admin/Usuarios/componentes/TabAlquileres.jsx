@@ -157,7 +157,7 @@ function TabAlquileres({ usuarioId, onActualizar }) {
   // ========================================
   const formatearPrecio = (monto, metodo) => {
     if (metodo === 'PayPal') {
-      return `USD ${monto.toFixed(2)}`
+      return `USD ${parseFloat(monto).toFixed(2)}`
     }
     return `$${monto.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")}`
   }

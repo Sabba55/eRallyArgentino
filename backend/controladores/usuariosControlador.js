@@ -679,3 +679,47 @@ export const cambiarRallyAlquiler = async (req, res) => {
     });
   }
 };
+
+// ========================================
+// OBTENER MI INSCRIPCIONES Y VEHICULOS (FECHAS ACTIVOS)
+// ========================================
+export const obtenerRalliesInscritos = async (req, res) => {
+  try {
+    const usuario = req.usuario;
+    
+    const alquileres = await Alquiler.findAll({
+      where: {
+        usuarioId: usuario.id,
+        estado: { [Op.in]: ['aprobado', 'pendiente'] }
+      },
+      attributes: ['rallyId']
+    });
+
+    const rallyIds = alquileres
+      .map(a => a.rallyId)
+      .filter(id => id !== null);
+
+    res.json({ rallyIds });
+  } catch (error) {
+    console.error('Error al obtener rallies inscritos:', error);
+    res.status(500).json({ error: 'Error al obtener rallies inscritos' });
+  }
+};
+
+export const obtenerVehiculosComprados = async (req, res) => {
+  try {
+    const usuario = req.usuario;
+    
+    const compras = await Compra.findAll({
+      where: {
+        usuarioId: usuario.id,
+        estado: { [Op.in]: ['aprobado', 'pendiente'] }
+      },
+      attributes: ['vehiculoId']
+    });
+
+    res.json({ vehiculoIds: compras.map(c => c.vehiculoId) });
+  } catch (error) {
+    res.status(500).json({ error: 'Error al obtener vehículos comprados' });
+  }
+};

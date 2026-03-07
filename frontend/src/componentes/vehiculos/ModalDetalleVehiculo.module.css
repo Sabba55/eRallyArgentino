@@ -286,6 +286,20 @@
   padding: 0.8rem 1rem;
 }
 
+.yaComprado {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: rgba(57, 255, 20, 0.08);
+  border: 1px solid #39ff14;
+  color: #39ff14;
+  padding: 0.7rem 1rem;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+
 /* ========================================
    RESPONSIVE
    ======================================== */

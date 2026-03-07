@@ -183,27 +183,25 @@ export const crearVehiculo = async (req, res) => {
 export const actualizarVehiculo = async (req, res) => {
   try {
     const { id } = req.params;
-    const { marca, nombre, descripcion, precioCompra, precioAlquiler, categoriasIds } = req.body;
+    const { marca, nombre, descripcion, precioCompra, precioAlquiler } = req.body;
+
+    // Normalizar categoriasIds — FormData los envía como strings o string único
+    let categoriasIds = req.body.categoriasIds || [];
+    if (!Array.isArray(categoriasIds)) categoriasIds = [categoriasIds];
+    categoriasIds = categoriasIds.map(id => parseInt(id)).filter(id => !isNaN(id));
 
     const vehiculo = await Vehiculo.findByPk(id);
 
     if (!vehiculo) {
-      return res.status(404).json({
-        error: 'Vehículo no encontrado'
-      });
+      return res.status(404).json({ error: 'Vehículo no encontrado' });
     }
 
-    // Si se envió nueva imagen, actualizar
     if (req.file) {
-      // Eliminar imagen anterior
       await eliminarImagen(vehiculo.foto);
-
-      // Subir nueva imagen
       const urlImagen = await subirImagen(req.file.buffer, 'vehiculos');
       vehiculo.foto = urlImagen;
     }
 
-    // Actualizar campos
     if (marca) vehiculo.marca = marca;
     if (nombre) vehiculo.nombre = nombre;
     if (descripcion !== undefined) vehiculo.descripcion = descripcion;
@@ -212,15 +210,11 @@ export const actualizarVehiculo = async (req, res) => {
 
     await vehiculo.save();
 
-    // Actualizar categorías si se especificaron
-    if (categoriasIds && Array.isArray(categoriasIds)) {
+    if (categoriasIds.length > 0) {
       await VehiculoCategoria.eliminarTodasCategoriasVehiculo(vehiculo.id);
-      if (categoriasIds.length > 0) {
-        await VehiculoCategoria.asignarCategorias(vehiculo.id, categoriasIds);
-      }
+      await VehiculoCategoria.asignarCategorias(vehiculo.id, categoriasIds);
     }
 
-    // Obtener vehículo actualizado con categorías
     const vehiculoActualizado = await Vehiculo.buscarConCategorias(vehiculo.id);
 
     res.json({

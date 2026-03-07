@@ -584,6 +584,10 @@ export const webhookPayPal = async (req, res) => {
             rally.fecha
           );
         }
+
+        if (!compra && !alquiler) {
+          console.log(`ℹ️ Webhook PayPal: orden ${orderId} ya procesada o no encontrada`);
+        }
       }
     }
 
@@ -713,6 +717,108 @@ export const obtenerPreciosVehiculo = async (req, res) => {
     console.error('Error al obtener precios:', error);
     res.status(500).json({
       error: 'Error al obtener precios',
+      detalle: error.message
+    });
+  }
+};
+
+// ========================================
+// CAPTURAR PAGO PAYPAL (desde return_url)
+// GET /api/pagos/paypal/capturar?token=ORDER_ID
+// ========================================
+export const capturarPagoPayPalReturn = async (req, res) => {
+  try {
+    const { token: orderId } = req.query;
+
+    if (!orderId) {
+      return res.status(400).json({ error: 'Order ID no encontrado' });
+    }
+
+    // Si ya fue procesada, responder OK sin error
+    const yaAprobada = await Compra.findOne({
+      where: { transaccionId: orderId, estado: 'aprobado' }
+    }) || await Alquiler.findOne({
+      where: { transaccionId: orderId, estado: 'aprobado' }
+    });
+
+    if (yaAprobada) {
+      console.log(`ℹ️ Orden ${orderId} ya fue procesada anteriormente`);
+      return res.json({ mensaje: 'Pago ya procesado' });
+    }
+
+    const captura = await capturarPagoPayPal(orderId);
+
+    if (captura.status !== 'COMPLETED') {
+      return res.status(400).json({ error: 'El pago no fue completado' });
+    }
+
+    // Buscar compra o alquiler por transaccionId
+    const compra = await Compra.findOne({
+      where: { transaccionId: orderId, estado: 'pendiente' }
+    });
+
+    const alquiler = !compra ? await Alquiler.findOne({
+      where: { transaccionId: orderId, estado: 'pendiente' }
+    }) : null;
+
+    if (compra) {
+      await compra.aprobar();
+
+      const vehiculo = await Vehiculo.findByPk(compra.vehiculoId);
+      const categorias = await vehiculo.getCategorias();
+
+      await Historial.crearRegistro({
+        usuarioId: compra.usuarioId,
+        vehiculoId: compra.vehiculoId,
+        rallyId: null,
+        categoriaNombre: categorias[0]?.nombre || 'Sin categoría',
+        tipoTransaccion: 'compra'
+      });
+
+      const usuario = await Usuario.findByPk(compra.usuarioId);
+      await enviarEmailCompra(usuario.email, usuario.nombre, vehiculo.nombreCompleto());
+
+      console.log(`✅ Compra #${compra.id} aprobada via PayPal return`);
+    }
+
+    if (alquiler) {
+      await alquiler.aprobar();
+
+      const vehiculo = await Vehiculo.findByPk(alquiler.vehiculoId);
+      const rally = await Rally.findByPk(alquiler.rallyId);
+      const categorias = await vehiculo.getCategorias();
+
+      await Historial.crearRegistro({
+        usuarioId: alquiler.usuarioId,
+        vehiculoId: alquiler.vehiculoId,
+        rallyId: alquiler.rallyId,
+        categoriaNombre: categorias[0]?.nombre || 'Sin categoría',
+        tipoTransaccion: 'alquiler',
+        fechaParticipacion: rally.fecha
+      });
+
+      const usuario = await Usuario.findByPk(alquiler.usuarioId);
+      await enviarEmailAlquiler(
+        usuario.email,
+        usuario.nombre,
+        vehiculo.nombreCompleto(),
+        rally.nombre,
+        rally.fecha
+      );
+
+      console.log(`✅ Alquiler #${alquiler.id} aprobado via PayPal return`);
+    }
+
+    if (!compra && !alquiler) {
+      return res.status(404).json({ error: 'Transacción no encontrada' });
+    }
+
+    res.json({ mensaje: 'Pago capturado exitosamente' });
+
+  } catch (error) {
+    console.error('Error al capturar pago PayPal:', error);
+    res.status(500).json({
+      error: 'Error al capturar pago',
       detalle: error.message
     });
   }

@@ -15,6 +15,7 @@ import adminRutas from './rutas/adminRutas.js';
 
 // Importar tareas programadas
 import { iniciarTareasProgramadas } from './tareas/limpiarVencimientos.js';
+import { iniciarLimpiezaPendientes } from './config/tareasProgramadas.js';
 
 // Configurar variables de entorno
 dotenv.config();
@@ -180,6 +181,7 @@ const iniciarServidor = async () => {
     // 3. Iniciar tareas programadas (cron)
     console.log('⏰ Iniciando tareas programadas...');
     iniciarTareasProgramadas();
+    iniciarLimpiezaPendientes();
 
     // 4. Iniciar servidor Express
     app.listen(PORT, () => {

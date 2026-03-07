@@ -158,26 +158,76 @@ export const paypalConfig = {
 };
 
 // ========================================
+// FUNCIÓN: OBTENER TOKEN DE ACCESO PAYPAL
+// ========================================
+const obtenerTokenPayPal = async () => {
+  const baseURL = process.env.PAYPAL_MODE === 'live'
+    ? 'https://api-m.paypal.com'
+    : 'https://api-m.sandbox.paypal.com';
+
+  const response = await axios.post(
+    `${baseURL}/v1/oauth2/token`,
+    'grant_type=client_credentials',
+    {
+      auth: {
+        username: process.env.PAYPAL_CLIENT_ID,
+        password: process.env.PAYPAL_CLIENT_SECRET
+      },
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+    }
+  );
+
+  return { token: response.data.access_token, baseURL };
+};
+
+// ========================================
 // FUNCIÓN: CREAR ORDEN DE PAYPAL
 // ========================================
 export const crearOrdenPayPal = async (datosCompra) => {
   try {
     const { titulo, precioUSD, usuarioId, metadata = {} } = datosCompra;
+    const { token, baseURL } = await obtenerTokenPayPal();
 
-    // PayPal requiere integración con su SDK
-    // Por ahora devolvemos estructura básica
-    console.log('💡 Orden PayPal creada (simulada):', {
-      titulo,
-      precioUSD,
-      usuarioId
-    });
+    const orden = await axios.post(
+      `${baseURL}/v2/checkout/orders`,
+      {
+        intent: 'CAPTURE',
+        purchase_units: [
+          {
+            amount: {
+              currency_code: 'USD',
+              value: String(precioUSD)
+            },
+            description: titulo,
+            custom_id: metadata.tipo === 'compra'
+              ? `compra-${metadata.compraId}`
+              : `alquiler-${metadata.alquilerId}`
+          }
+        ],
+        application_context: {
+          brand_name: 'eRally Argentino',
+          landing_page: 'NO_PREFERENCE',
+          user_action: 'PAY_NOW',
+          return_url: `${process.env.FRONTEND_URL}/pago/exitoso`,
+          cancel_url: `${process.env.FRONTEND_URL}/pago/fallido`
+        }
+      },
+      {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      }
+    );
+
+    const approveLink = orden.data.links.find(l => l.rel === 'approve')?.href;
 
     return {
-      orderID: `PAYPAL-${Date.now()}`,
-      approveURL: `https://www.sandbox.paypal.com/checkoutnow?token=DEMO`
+      orderID: orden.data.id,
+      approveURL: approveLink
     };
   } catch (error) {
-    console.error('❌ Error al crear orden PayPal:', error);
+    console.error('❌ Error al crear orden PayPal:', error.response?.data || error.message);
     throw new Error(`Error en PayPal: ${error.message}`);
   }
 };
@@ -187,27 +237,27 @@ export const crearOrdenPayPal = async (datosCompra) => {
 // ========================================
 export const capturarPagoPayPal = async (orderId) => {
   try {
-    // PayPal requiere integración con su SDK
-    // Por ahora devolvemos estructura básica
-    console.log('💡 Capturando pago PayPal (simulado):', orderId);
+    const { token, baseURL } = await obtenerTokenPayPal();
+
+    const captura = await axios.post(
+      `${baseURL}/v2/checkout/orders/${orderId}/capture`,
+      {},
+      {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      }
+    );
 
     return {
-      id: orderId,
-      status: 'COMPLETED',
-      payer: {
-        email_address: 'comprador@ejemplo.com'
-      },
-      purchase_units: [
-        {
-          amount: {
-            currency_code: 'USD',
-            value: '0.00'
-          }
-        }
-      ]
+      id: captura.data.id,
+      status: captura.data.status,
+      payer: captura.data.payer,
+      purchase_units: captura.data.purchase_units
     };
   } catch (error) {
-    console.error('❌ Error al capturar pago PayPal:', error);
+    console.error('❌ Error al capturar pago PayPal:', error.response?.data || error.message);
     throw new Error(`Error al capturar pago PayPal: ${error.message}`);
   }
 };

@@ -15,7 +15,9 @@ import {
   obtenerAlquileresUsuario,
   eliminarCompra,
   eliminarAlquiler,
-  cambiarRallyAlquiler
+  cambiarRallyAlquiler,
+  obtenerRalliesInscritos,
+  obtenerVehiculosComprados
 } from '../controladores/usuariosControlador.js';
 import { verificarAutenticacion } from '../middlewares/autenticacion.js';
 import { esAdmin, esAdminODueño } from '../middlewares/esAdmin.js';
@@ -313,5 +315,11 @@ router.put(
   ],
   cambiarRallyAlquiler
 );
+
+// ========================================
+// VERIFICAR INSCRIPCIONES A FECHAS 
+// ========================================
+router.get('/garage/rallies-inscritos', verificarAutenticacion, obtenerRalliesInscritos);
+router.get('/garage/vehiculos-comprados', verificarAutenticacion, obtenerVehiculosComprados);
 
 export default router;

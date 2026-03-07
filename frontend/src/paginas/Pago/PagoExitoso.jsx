@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
+import api from '../../config/api'
 import styles from './PagoExitoso.module.css'
 
 function PagoExitoso() {
@@ -25,6 +26,17 @@ function PagoExitoso() {
     }, 1000)
     return () => clearInterval(intervalo)
   }, [navigate])
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    const token = params.get('token')
+
+    if (token) {
+      api.get(`/pagos/paypal/capturar?token=${token}`)
+        .then(() => console.log('✅ Pago PayPal capturado'))
+        .catch(err => console.error('Error capturando pago PayPal:', err))
+    }
+  }, [])
 
   return (
     <div className={styles.contenedor}>
